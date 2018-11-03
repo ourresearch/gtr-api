@@ -79,7 +79,7 @@ class Pub(db.Model):
             "doi": self.doi,
             "doi_url": getattr(self, "doi_url"),
             "title": self.article_title,
-            "abstracts": self.abstract_text,
+            "abstract": self.abstract_text,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "published_date": None,
