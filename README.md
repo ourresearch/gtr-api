@@ -1,0 +1,1 @@
+wrapper for GetTheResearch api.
