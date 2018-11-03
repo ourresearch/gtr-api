@@ -12,23 +12,44 @@ def fulltext_search_title(query):
     #     ORDER BY rank DESC
     #     LIMIT 50;""".format(query)
 
+# select
+# medline_citation.pmid,
+# dois_pmid_lookup.doi_url,
+# article_title,
+# to_tsvector('english', COALESCE(article_title,'')),
+# -- num_events,
+# pub_date_year
+# -- , mesh
+# from dois_pmid_lookup, medline_citation
+# -- left outer join dois_with_ced_events on dois_pmid_lookup.doi=dois_with_ced_events.doi
+# where (medline_citation.pmid)::text=dois_pmid_lookup.pmid
+# and doi_url is not null and doi_url != ''
+# limit 10
+
+
     query_string = """
-        SELECT pmid, 
-        article_title, 
+        SELECT
+        medline_citation.pmid as pmid, 
+        dois_pmid_lookup.doi_url,
         ts_headline('english', article_title, query) as snippet, 
-        ts_rank_cd(to_tsvector('english', article_title), query, 1) AS rank
-        FROM medline_citation, plainto_tsquery('english', '{}') query  -- or try plainto_tsquery, phraseto_tsquery, to_tsquery
+        ts_rank_cd(to_tsvector('english', article_title), query, 1) AS rank,
+        article_title,
+        pub_date_year
+        FROM medline_citation, dois_pmid_lookup, plainto_tsquery('english', '{}') query  -- or try plainto_tsquery, phraseto_tsquery, to_tsquery
         WHERE to_tsvector('english', article_title) @@ query
+        and abstract_text is not null and abstract_text != 'N/A' and length(abstract_text) > 2
+        and (medline_citation.pmid)::text=dois_pmid_lookup.pmid
         ORDER BY rank DESC
-        LIMIT 5;""".format(query)
+        LIMIT 20;""".format(query)
     rows = db.engine.execute(sql.text(query_string)).fetchall()
-    print rows
+    # print rows
     pmids = [row[0] for row in rows]
     my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).all()
     for row in rows:
         my_id = row[0]
         for my_pub in my_pubs:
             if my_id == my_pub.pmid:
+                my_pub.doi_url = row[1]
                 my_pub.snippet = row[2]
                 my_pub.score = row[3]
     return my_pubs

@@ -103,9 +103,8 @@ def get_search_query(query):
     my_pubs = fulltext_search_title(query)
 
     # response = [my_pub.to_dict_search() for my_pub in my_pubs]
-    response = [my_pub.to_dict() for my_pub in my_pubs]
-    sorted_response = response
-    # sorted_response = sorted(response, key=lambda k: k['score'], reverse=True)
+    response = [my_pub.to_dict_serp() for my_pub in my_pubs]
+    sorted_response = sorted(response, key=lambda k: k['score'], reverse=True)
 
     elapsed_time = elapsed(start_time, 3)
     return jsonify({"results": sorted_response, "elapsed_seconds": elapsed_time})

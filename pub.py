@@ -10,145 +10,136 @@ from app import db
 
 class Pub(db.Model):
     __tablename__ = "medline_citation"
-    pmid = db.Column(db.Text, primary_key=True)
+    pmid = db.Column(db.Numeric, primary_key=True)
+    article_title = db.Column(db.Text)
+    journal_title = db.Column(db.Text)
+    abstract_text = db.Column(db.Text)
+    pub_date_year = db.Column(db.Text)
 
-    def __init__(self, doi):
-        self.doi = doi
-        self.metadata = CrossrefMetadata(self.doi)
-        self.open_access = OaDoi(self.doi)
-        self.altmetrics = AltmetricsForDoi(self.doi)
 
     def get(self):
         self.metadata.get()
         self.open_access.get()
         self.altmetrics.get()
 
-    def altmetrics_dict_including_unpaywall_views(self):
-        altmetrics_value = self.altmetrics.to_dict()
-        return altmetrics_value
+    @property
+    def doi(self):
+        if not getattr(self, "doi_url"):
+            return None
+        return self.doi_url.replace("https://doi.org/", "")
 
-    def to_dict(self):
+    @property
+    def authors(self):
+        return None
 
-        # altmetrics = self.altmetrics.to_dict()
+    @property
+    def is_oa(self):
+        self.get_open_access()
+        if self.open_access_response:
+            return self.open_access_response["is_oa"]
+        return None
 
-        ret = {
+    @property
+    def best_oa_location_dict(self):
+        self.get_open_access()
+        if self.open_access_response:
+            return self.open_access_response["best_oa_location"]
+        return None
+
+    @property
+    def all_oa_location_dicts(self):
+        self.get_open_access()
+        if self.open_access_response:
+            return self.open_access_response["oa_locations"]
+        return None
+
+    def get_open_access(self):
+        if not hasattr(self, "open_access_response"):
+            self.open_access_response = None
+            if not self.doi:
+                return
+
+            open_access_obj = OaDoi(self.doi)
+            if open_access_obj:
+                open_access_obj.get()
+                self.open_access_response = open_access_obj.data
+                return self.open_access_response
+
+
+
+    def to_dict_serp(self):
+
+        self.open_access = OaDoi(self.doi)
+        self.open_access.get()
+        # self.altmetrics = AltmetricsForDoi(self.doi)
+        # self.altmetrics.get()
+
+        response = {
             "pmid": self.pmid,
+            "doi": self.doi,
+            "doi_url": getattr(self, "doi_url"),
+            "title": self.article_title,
+            "abstracts": self.abstract_text,
+            "year": self.pub_date_year,
+            "journal_name": self.journal_title,
+            "published_date": None,
+
+            "is_oa": self.is_oa,
+            "best_oa_location": self.best_oa_location_dict,
+            "oa_locations": self.all_oa_location_dicts,
+
             "snippet": getattr(self, "snippet", None),
             "score": getattr(self, "score", None),
-            # "score": self.score,
-            # "doi": self.doi,
-            # "altmetrics_sources": altmetrics["sources"],
-            # "crossref_event_data_url": altmetrics["crossref_event_data_url"],
-            # "metadata": self.metadata.to_dict(),
+
             # "open_access": self.open_access.to_dict()
+
         }
-        return ret
 
-def to_dict_search(self):
-
-        response = self.to_dict_v2()
-
-        response["abstracts"] = self.display_abstracts
-
-        del response["z_authors"]
         if self.authors:
             response["author_lastnames"] = [author.get("family", None) for author in self.authors]
         else:
             response["author_lastnames"] = []
-
-        if not hasattr(self, "score"):
-            self.score = None
-        response["score"] = self.score
-
-        if not hasattr(self, "snippet"):
-            self.snippet = None
-        response["snippet"] = self.snippet
-
 
         return response
 
 
 
 
-
-
-class AltmetricsForDoi(object):
-    def __init__(self, doi):
-        self.doi = doi
-        self.ced_url = "https://api.eventdata.crossref.org/v1/events?rows=10000&filter=from-collected-date:1990-01-01,until-collected-date:2099-01-01,obj-id:{}".format(
-            self.doi
-        )
-        self.events = []
-        self.sources = []
-
-    def get(self):
-        #     """
-        #     Handy test data:
-        #     10.2190/EC.43.3.f                       # no events
-        #     10.1371/journal.pone.0000308            # many events, incl lots of wiki
-        #     """
-        ced_events = CedEvent.query.filter(CedEvent.doi==self.doi).limit(2500).all()
-        for ced_event in ced_events:
-            self.add_event(ced_event)
-
-    def add_event(self, ced_event):
-        source_id = ced_event.source.id
-
-        # get the correct source for this event
-        my_source = None
-        for source in self.sources:
-            if source.id == source_id:
-                my_source = source
-                break
-
-        # we don't have this source for this DOI.
-        # make it and add it to the list
-        if my_source is None:
-            my_source = make_event_source(ced_event.source)
-            self.sources.append(my_source)
-
-        # this source exists now for sure because we either found it or made it
-        # add the event to the source.
-        my_source.add_event(ced_event.api_raw)
-
-    def to_dict(self):
-        ret = {
-            "crossref_event_data_url": self.ced_url,
-            "sources": [s.to_dict() for s in self.sources]
-        }
-        return ret
-
-
-
-# currently unused, since we're moving Unpaywall to its own API
-class UnpaywallViewsForDoi(object):
-    def __init__(self, doi):
-        self.doi = doi
-
-    def get(self):
-        event_objs = UnpaywallEvent.query.filter(UnpaywallEvent.doi==self.doi).all()
-        event_dicts = [event.api_dict() for event in event_objs]
-        return event_dicts
-
-    def to_dict(self):
-        ret = self.get()
-        return ret
-
-
 class OaDoi(object):
     def __init__(self, doi):
         self.doi = doi
-        self.url = u"https://api.oadoi.org/v2/{}".format(doi)
+        self.url = u"https://api.oadoi.org/v2/{}?email=team+gtr@impactstory.org".format(doi)
         self.data = {}
 
     def get(self):
-        r = requests.get(self.url)
-        if r.status_code == 200:
-            self.data = r.json()
+        if self.doi:
+            r = requests.get(self.url)
+            if r.status_code == 200:
+                self.data = r.json()
 
     def to_dict(self):
         self.data["oadoi_url"] = self.url
         return self.data
+
+
+
+class AltmetricsForDoi(object):
+
+    def __init__(self, doi):
+        self.doi = doi
+        self.url = u"https://api.paperbuzz.org/{}?email=team+gtr@impactstory.org".format(doi)
+        self.data = {}
+
+    def get(self):
+        if self.doi:
+            r = requests.get(self.url)
+            if r.status_code == 200:
+                self.data = r.json()
+
+    def to_dict(self):
+        self.data["paperbuzz_url"] = self.url
+        return self.data
+
 
 
 
@@ -159,9 +150,10 @@ class CrossrefMetadata(object):
         self.data = {}
 
     def get(self):
-        r = requests.get(self.url)
-        if r.status_code == 200:
-            self.data = r.json()
+        if self.doi:
+            r = requests.get(self.url)
+            if r.status_code == 200:
+                self.data = r.json()
 
     def to_dict(self):
         self.data["crossref_url"] = self.url
