@@ -100,7 +100,7 @@ def index_endpoint():
     })
 
 
-@app.route("/doi/<path:doi>", methods=["GET"])
+@app.route("/paper/doi/<path:doi>", methods=["GET"])
 def get_pub_by_doi(doi):
     my_doi = clean_doi(doi)
     my_pub = db.session.query(Pub).filter(Pub.doi_url == u"https://doi.org/{}".format(my_doi)).first()
@@ -108,7 +108,7 @@ def get_pub_by_doi(doi):
         abort_json(404, u"'{}' is an invalid doi.  See https://doi.org/{}".format(my_doi, my_doi))
     return jsonify(my_pub.to_dict_full())
 
-@app.route("/pmid/<path:pmid>", methods=["GET"])
+@app.route("/paper/pmid/<path:pmid>", methods=["GET"])
 def get_pub_by_pmid(pmid):
     my_pmid = pmid
     my_pub = db.session.query(Pub).filter(Pub.pmid == my_pmid).first()
