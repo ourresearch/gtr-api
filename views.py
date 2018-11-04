@@ -13,6 +13,8 @@ import re
 import random
 from time import time
 
+from pub import Pub
+
 from app import app
 from app import db
 from search import fulltext_search_title
@@ -20,6 +22,7 @@ from search import autocomplete_phrases
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
+
 
 
 
@@ -97,12 +100,28 @@ def index_endpoint():
     })
 
 
+@app.route("/doi/<path:doi>", methods=["GET"])
+def get_pub_by_doi(doi):
+    my_doi = clean_doi(doi)
+    my_pub = db.session.query(Pub).filter(Pub.doi_url == u"https://doi.org/{}".format(my_doi)).first()
+    if not my_pub:
+        abort_json(404, u"'{}' is an invalid doi.  See https://doi.org/{}".format(my_doi, my_doi))
+    return jsonify(my_pub.to_dict_full())
+
+@app.route("/pmid/<path:pmid>", methods=["GET"])
+def get_pub_by_pmid(pmid):
+    my_pmid = pmid
+    my_pub = db.session.query(Pub).filter(Pub.pmid == my_pmid).first()
+    if not my_pub:
+        abort_json(404, u"'{}' is an invalid pmid.  See https://pubmed.com/{}".format(my_pmid, my_pmid))
+    return jsonify(my_pub.to_dict_full())
+
+
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
     start_time = time()
     my_pubs = fulltext_search_title(query)
 
-    # response = [my_pub.to_dict_search() for my_pub in my_pubs]
     response = [my_pub.to_dict_serp() for my_pub in my_pubs]
     sorted_response = sorted(response, key=lambda k: k['score'], reverse=True)
 

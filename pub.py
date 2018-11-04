@@ -23,8 +23,14 @@ class Pub(db.Model):
         self.altmetrics.get()
 
     @property
+    def display_doi_url(self):
+        if not self.doi:
+            return None
+        return u"https://doi.org/{}".format(self.doi)
+
+    @property
     def doi(self):
-        if not getattr(self, "doi_url"):
+        if not hasattr(self, "doi_url"):
             return None
         return self.doi_url.replace("https://doi.org/", "")
 
@@ -66,6 +72,9 @@ class Pub(db.Model):
                 return self.open_access_response
 
 
+    def to_dict_full(self):
+        return self.to_dict_serp()
+
 
     def to_dict_serp(self):
 
@@ -77,7 +86,7 @@ class Pub(db.Model):
         response = {
             "pmid": self.pmid,
             "doi": self.doi,
-            "doi_url": getattr(self, "doi_url"),
+            "doi_url": self.display_doi_url,
             "title": self.article_title,
             "abstract": self.abstract_text,
             "year": self.pub_date_year,
