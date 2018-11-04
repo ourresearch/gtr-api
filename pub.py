@@ -65,20 +65,58 @@ class Pub(db.Model):
             if not self.doi:
                 return
 
-            open_access_obj = OaDoi(self.doi)
+            open_access_obj = Unpaywall(self.doi)
             if open_access_obj:
                 open_access_obj.get()
                 self.open_access_response = open_access_obj.data
                 return self.open_access_response
 
 
+    def get_nerd(self):
+        if not self.abstract_text:
+            return
+
+        query_text = self.abstract_text
+        query_text = query_text.replace("\n", " ")
+
+        url = u"http://cloud.science-miner.com/nerd/service/disambiguate"
+        payload = {
+            "text": query_text,
+            "shortText": "",
+            "termVector": [],
+            "language": {
+                "lang": "en"
+            },
+            "entities": [],
+            "mentions": [
+                "ner",
+                "wikipedia"
+            ],
+            "nbest": False,
+            "sentence": False,
+            "customisation": "generic"
+        }
+        headers = {
+            "Content-disposition": "form-data"
+        }
+        r = requests.post(url, json=payload)
+        response_data = r.json()
+        import pprint
+        pprint.pprint(response_data)
+        return response_data
+
     def to_dict_full(self):
-        return self.to_dict_serp()
+        nerd_results = self.get_nerd()
+
+        results = self.to_dict_serp()
+        results["nerd"] = nerd_results
+        return results
+
 
 
     def to_dict_serp(self):
 
-        self.open_access = OaDoi(self.doi)
+        self.open_access = Unpaywall(self.doi)
         self.open_access.get()
         # self.altmetrics = AltmetricsForDoi(self.doi)
         # self.altmetrics.get()
@@ -114,10 +152,10 @@ class Pub(db.Model):
 
 
 
-class OaDoi(object):
+class Unpaywall(object):
     def __init__(self, doi):
         self.doi = doi
-        self.url = u"https://api.oadoi.org/v2/{}?email=team+gtr@impactstory.org".format(doi)
+        self.url = u"https://api.unpaywall.org/v2/{}?email=team+gtr@impactstory.org".format(doi)
         self.data = {}
 
     def get(self):
@@ -129,6 +167,7 @@ class OaDoi(object):
     def to_dict(self):
         self.data["oadoi_url"] = self.url
         return self.data
+
 
 
 
