@@ -79,7 +79,8 @@ class Pub(db.Model):
         query_text = self.abstract_text
         query_text = query_text.replace("\n", " ")
 
-        url = u"http://cloud.science-miner.com/nerd/service/disambiguate"
+        # url = u"http://cloud.science-miner.com/nerd/service/disambiguate"
+        url = u"http://nerd.huma-num.fr/nerd/service/disambiguate"
         payload = {
             "text": query_text,
             "shortText": "",
