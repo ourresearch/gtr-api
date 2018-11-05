@@ -106,7 +106,9 @@ class Pub(db.Model):
         return response_data
 
     def to_dict_full(self):
+        print "calling nerd"
         nerd_results = self.get_nerd()
+        print "done"
 
         results = self.to_dict_serp()
         results["nerd"] = nerd_results
