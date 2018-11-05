@@ -39,38 +39,20 @@ class Pub(db.Model):
         return None
 
     @property
-    def is_oa(self):
-        self.get_open_access()
-        if self.open_access_response:
-            return self.open_access_response["is_oa"]
-        return None
+    def display_is_oa(self):
+        return getattr(self, "is_oa", None)
 
     @property
-    def best_oa_location_dict(self):
-        self.get_open_access()
-        if self.open_access_response:
-            return self.open_access_response["best_oa_location"]
-        return None
+    def display_oa_url(self):
+        return getattr(self, "oa_url", None)
 
     @property
-    def all_oa_location_dicts(self):
-        self.get_open_access()
-        if self.open_access_response:
-            return self.open_access_response["oa_locations"]
-        return None
+    def display_best_host(self):
+        return getattr(self, "best_host", None)
 
-    def get_open_access(self):
-        if not hasattr(self, "open_access_response"):
-            self.open_access_response = None
-            if not self.doi:
-                return
-
-            open_access_obj = Unpaywall(self.doi)
-            if open_access_obj:
-                open_access_obj.get()
-                self.open_access_response = open_access_obj.data
-                return self.open_access_response
-
+    @property
+    def display_best_version(self):
+        return getattr(self, "best_version", None)
 
     def get_nerd(self):
         if not self.abstract_text:
@@ -119,8 +101,6 @@ class Pub(db.Model):
 
     def to_dict_serp(self):
 
-        self.open_access = Unpaywall(self.doi)
-        self.open_access.get()
         # self.altmetrics = AltmetricsForDoi(self.doi)
         # self.altmetrics.get()
 
@@ -134,9 +114,10 @@ class Pub(db.Model):
             "journal_name": self.journal_title,
             "published_date": None,
 
-            "is_oa": self.is_oa,
-            "best_oa_location": self.best_oa_location_dict,
-            "oa_locations": self.all_oa_location_dicts,
+            "is_oa": self.display_is_oa,
+            "oa_url": self.display_oa_url,
+            "best_host": self.display_best_host,
+            "best_version": self.display_best_version,
 
             "snippet": getattr(self, "snippet", None),
             "score": getattr(self, "score", None),
