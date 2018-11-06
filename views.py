@@ -110,7 +110,7 @@ def get_pub_by_doi(doi):
 
 @app.route("/paper/pmid/<path:pmid>", methods=["GET"])
 def get_pub_by_pmid(pmid):
-    my_pmid = pmid
+    my_pmid = int(pmid)
     my_pub = db.session.query(Pub).filter(Pub.pmid == my_pmid).first()
     if not my_pub:
         abort_json(404, u"'{}' is an invalid pmid.  See https://pubmed.com/{}".format(my_pmid, my_pmid))

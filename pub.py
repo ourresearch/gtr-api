@@ -15,6 +15,7 @@ class Pub(db.Model):
     journal_title = db.Column(db.Text)
     abstract_text = db.Column(db.Text)
     pub_date_year = db.Column(db.Text)
+    number_of_references = db.Column(db.Text)
 
 
     def get(self):
@@ -55,7 +56,7 @@ class Pub(db.Model):
         return getattr(self, "best_version", None)
 
     def get_nerd(self):
-        if not self.abstract_text:
+        if not self.abstract_text or len(self.abstract_text) <=3:
             return
 
         query_text = self.abstract_text
@@ -83,9 +84,10 @@ class Pub(db.Model):
             "Content-disposition": "form-data"
         }
         r = requests.post(url, json=payload)
-        response_data = r.json()
-        import pprint
-        pprint.pprint(response_data)
+        try:
+            response_data = r.json()
+        except ValueError:
+            response_data = None
         return response_data
 
     def to_dict_full(self):
@@ -113,6 +115,7 @@ class Pub(db.Model):
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "published_date": None,
+            "num_references_from_pmc": self.number_of_references,
 
             "is_oa": self.display_is_oa,
             "oa_url": self.display_oa_url,
@@ -121,9 +124,6 @@ class Pub(db.Model):
 
             "snippet": getattr(self, "snippet", None),
             "score": getattr(self, "score", None),
-
-            # "open_access": self.open_access.to_dict()
-
         }
 
         if self.authors:
