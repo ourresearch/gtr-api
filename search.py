@@ -6,7 +6,8 @@ from app import db
 from pub import Pub
 
 def get_synonym(original_query):
-    url = "http://wikisynonyms.ipeirotis.com/api/{}".format(original_query.title())
+    clean_query = original_query.replace("'", "")
+    url = "http://wikisynonyms.ipeirotis.com/api/{}".format(clean_query.title())
 
     r = requests.get(url)
     if r and r.status_code == 200:
@@ -18,11 +19,12 @@ def get_synonym(original_query):
                 return synonym
     return None
 
-def get_term_lookup(query):
-    if not query:
+def get_term_lookup(original_query):
+    if not original_query:
         return
 
-    url = u"http://nerd.huma-num.fr/nerd/service/kb/term/{}?lang=en".format(query.title())
+    clean_query = original_query.replace("'", "")
+    url = u"http://nerd.huma-num.fr/nerd/service/kb/term/{}?lang=en".format(clean_query.title())
     r = requests.get(url)
     try:
         response_data = r.json()
@@ -37,12 +39,14 @@ def get_term_lookup(query):
 
 def fulltext_search_title(original_query):
 
-    original_query_with_ands = ' & '.join(original_query.split(" "))
+    original_query_escaped = original_query.replace("'", "''")
+    original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
     query_to_use = u"({})".format(original_query_with_ands)
 
     synonym = get_synonym(original_query)
     if synonym:
-        synonym_with_ands = ' & '.join(synonym.split(" "))
+        synonym_escaped = synonym.replace("'", "''")
+        synonym_with_ands = ' & '.join(synonym_escaped.split(" "))
         query_to_use += u" | ({})".format(synonym_with_ands)
 
     query_string = """

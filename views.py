@@ -127,6 +127,7 @@ def get_search_query(query):
     response = [my_pub.to_dict_serp() for my_pub in my_pubs]
     sorted_response = sorted(response, key=lambda k: k['score'], reverse=True)
     synonym = get_synonym(query)
+    print query, synonym
     term_lookup = get_term_lookup(query)
     if synonym and not term_lookup:
         term_lookup = get_term_lookup(synonym)
