@@ -22,7 +22,7 @@ def get_term_lookup(query):
     if not query:
         return
 
-    url = u"http://nerd.huma-num.fr/nerd/service/kb/term/{}?lang=en".format(query)
+    url = u"http://nerd.huma-num.fr/nerd/service/kb/term/{}?lang=en".format(query.title())
     r = requests.get(url)
     try:
         response_data = r.json()
