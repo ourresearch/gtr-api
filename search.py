@@ -1,31 +1,49 @@
 from sqlalchemy import sql
 from time import time
+import requests
 
 from app import db
 from pub import Pub
 
-def fulltext_search_title(query):
-    # query_string = """
-    #   SELECT id, ts_headline('english', title, query), ts_rank_cd(to_tsvector('english', title), query, 32) AS rank
-    #     FROM pub_2018, plainto_tsquery('english', '{}') query  -- or try plainto_tsquery, phraseto_tsquery, to_tsquery
-    #     WHERE to_tsvector('english', title) @@ query
-    #     ORDER BY rank DESC
-    #     LIMIT 50;""".format(query)
+def get_synonym(original_query):
+    url = "http://wikisynonyms.ipeirotis.com/api/{}".format(original_query.title())
 
-# select
-# medline_citation.pmid,
-# dois_pmid_lookup.doi_url,
-# article_title,
-# to_tsvector('english', COALESCE(article_title,'')),
-# -- num_events,
-# pub_date_year
-# -- , mesh
-# from dois_pmid_lookup, medline_citation
-# -- left outer join dois_with_ced_events on dois_pmid_lookup.doi=dois_with_ced_events.doi
-# where (medline_citation.pmid)::text=dois_pmid_lookup.pmid
-# and doi_url is not null and doi_url != ''
-# limit 10
+    r = requests.get(url)
+    if r and r.status_code == 200:
+        data = r.json()
+        if "terms" in data:
+            best_term = data["terms"][0]
+            if best_term["canonical"] == 1:
+                synonym = best_term["term"]
+                return synonym
+    return None
 
+def get_term_lookup(query):
+    if not query:
+        return
+
+    url = u"http://nerd.huma-num.fr/nerd/service/kb/term/{}?lang=en".format(query)
+    r = requests.get(url)
+    try:
+        response_data = r.json()
+    except ValueError:
+        response_data = None
+
+    if not response_data.get("senses"):
+        response_data = None
+
+    return response_data
+
+
+def fulltext_search_title(original_query):
+
+    original_query_with_ands = ' & '.join(original_query.split(" "))
+    query_to_use = u"({})".format(original_query_with_ands)
+
+    synonym = get_synonym(original_query)
+    if synonym:
+        synonym_with_ands = ' & '.join(synonym.split(" "))
+        query_to_use += u" | ({})".format(synonym_with_ands)
 
     query_string = """
         select
@@ -40,7 +58,7 @@ def fulltext_search_title(query):
         best_host,
         best_version,
         oa_url
-        FROM medline_citation, plainto_tsquery('english', '{}') query, dois_pmid_lookup
+        FROM medline_citation, to_tsquery('english', '{}') query, dois_pmid_lookup
         left join dois_with_ced_events on dois_pmid_lookup.doi=dois_with_ced_events.doi
         join unpaywall_api_response_view on unpaywall_api_response_view.id=dois_with_ced_events.doi
         WHERE 
@@ -49,7 +67,7 @@ def fulltext_search_title(query):
         and (medline_citation.pmid)::text=dois_pmid_lookup.pmid
         ORDER BY rank DESC
         LIMIT 100;
-        ;""".format(query)
+        ;""".format(query_to_use)
     rows = db.engine.execute(sql.text(query_string)).fetchall()
     # print rows
     pmids = [row[0] for row in rows]

@@ -19,6 +19,8 @@ from app import app
 from app import db
 from search import fulltext_search_title
 from search import autocomplete_phrases
+from search import get_synonym
+from search import get_term_lookup
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
@@ -124,9 +126,15 @@ def get_search_query(query):
 
     response = [my_pub.to_dict_serp() for my_pub in my_pubs]
     sorted_response = sorted(response, key=lambda k: k['score'], reverse=True)
-
+    synonym = get_synonym(query)
+    term_lookup = get_term_lookup(query)
+    if synonym and not term_lookup:
+        term_lookup = get_term_lookup(synonym)
     elapsed_time = elapsed(start_time, 3)
-    return jsonify({"results": sorted_response, "elapsed_seconds": elapsed_time})
+    return jsonify({"results": sorted_response,
+                    "synonym": synonym,
+                    "term_lookup": term_lookup,
+                    "elapsed_seconds": elapsed_time})
 
 @app.route("/search/autocomplete/<path:query>", methods=["GET"])
 def get_search_autocomplete_query(query):
