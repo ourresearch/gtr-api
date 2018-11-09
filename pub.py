@@ -7,6 +7,11 @@ from sqlalchemy.dialects.postgresql import JSONB
 from app import db
 
 
+class MedlineAuthor(db.Model):
+    __tablename__ = "medline_author"
+    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
+    last_name = db.Column(db.Text)
+
 
 class Pub(db.Model):
     __tablename__ = "medline_citation"
@@ -16,7 +21,7 @@ class Pub(db.Model):
     abstract_text = db.Column(db.Text)
     pub_date_year = db.Column(db.Text)
     number_of_references = db.Column(db.Text)
-
+    authors = db.relationship("MedlineAuthor")
 
     def get(self):
         self.metadata.get()
@@ -36,8 +41,12 @@ class Pub(db.Model):
         return self.doi_url.replace("https://doi.org/", "")
 
     @property
-    def authors(self):
-        return None
+    def author_lastnames(self):
+        print self.authors
+        response = None
+        if self.authors:
+            response = [author.last_name for author in self.authors]
+        return response
 
     @property
     def display_is_oa(self):
@@ -116,6 +125,7 @@ class Pub(db.Model):
             "journal_name": self.journal_title,
             "published_date": None,
             "num_references_from_pmc": self.number_of_references,
+            "author_lastnames": self.author_lastnames,
 
             "is_oa": self.display_is_oa,
             "oa_url": self.display_oa_url,
@@ -125,11 +135,6 @@ class Pub(db.Model):
             "snippet": getattr(self, "snippet", None),
             "score": getattr(self, "score", None),
         }
-
-        if self.authors:
-            response["author_lastnames"] = [author.get("family", None) for author in self.authors]
-        else:
-            response["author_lastnames"] = ["Smith", "Jones"]
 
         return response
 
