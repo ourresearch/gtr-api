@@ -83,6 +83,7 @@ def fulltext_search_title(original_query):
                 my_pub.doi = row[1]
                 my_pub.snippet = row[2]
                 my_pub.score = row[3]
+                my_pub.num_paperbuzz_events = row[5]
                 my_pub.is_oa = row[7]
                 my_pub.best_host = row[8]
                 my_pub.best_version = row[9]

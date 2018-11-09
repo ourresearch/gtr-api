@@ -66,6 +66,18 @@ class Pub(db.Model):
         return response
 
     @property
+    def display_number_of_references(self):
+        if not self.number_of_references or self.number_of_references == "N/A":
+            return 0
+        return int(self.number_of_references)
+
+    @property
+    def display_number_of_paperbuzz_events(self):
+        if hasattr(self, "num_paperbuzz_events"):
+            return self.num_paperbuzz_events
+        return 0
+
+    @property
     def display_is_oa(self):
         return getattr(self, "is_oa", None)
 
@@ -152,8 +164,6 @@ class Pub(db.Model):
 
         results = self.to_dict_serp()
         results["nerd"] = nerd_results
-        results["doi"] = self.display_doi
-        results["doi_url"] = self.display_doi_url
         results["paperbuzz"] = get_paperbuzz(self.display_doi)
         results["is_oa"] = unpaywall_results["is_oa"]
         results["best_host"] = unpaywall_results["best_host"]
@@ -171,12 +181,15 @@ class Pub(db.Model):
         response = {
             "pmid": self.pmid,
             "pmid_url": self.pmid_url,
+            "doi": self.display_doi_url,
+            "doi_url": self.display_doi_url,
             "title": self.article_title,
             "abstract": self.abstract_text,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "published_date": None,
-            "num_references_from_pmc": self.number_of_references,
+            "num_references_from_pmc": self.display_number_of_references,
+            "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,
 
             "is_oa": self.display_is_oa,
