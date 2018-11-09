@@ -80,7 +80,7 @@ def fulltext_search_title(original_query):
         my_id = row[0]
         for my_pub in my_pubs:
             if my_id == my_pub.pmid:
-                my_pub.doi_url = u"https://doi.org/{}".format(row[1])  # fix, just use doi instead
+                my_pub.doi = row[1]
                 my_pub.snippet = row[2]
                 my_pub.score = row[3]
                 my_pub.is_oa = row[7]

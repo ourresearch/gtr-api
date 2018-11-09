@@ -5,12 +5,13 @@ import requests
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app import db
-
+from util import get_sql_answer
 
 class MedlineAuthor(db.Model):
     __tablename__ = "medline_author"
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
-    last_name = db.Column(db.Text, primary_key=True)
+    author_order = db.Column(db.Numeric, primary_key=True)
+    last_name = db.Column(db.Text, primary_key=True)  # this one shouldn't have primary key once all orders are populated
 
 
 class Pub(db.Model):
@@ -29,23 +30,36 @@ class Pub(db.Model):
         self.altmetrics.get()
 
     @property
-    def display_doi_url(self):
-        if not self.doi:
-            return None
-        return u"https://doi.org/{}".format(self.doi)
+    def pmid_url(self):
+        return u"https://www.ncbi.nlm.nih.gov/pubmed/{}".format(self.pmid)
 
     @property
-    def doi(self):
-        if not hasattr(self, "doi_url"):
+    def display_doi_url(self):
+        if self.display_doi:
+            return u"https://doi.org/{}".format(self.display_doi)
+        return None
+
+    @property
+    def display_doi(self):
+        if hasattr(self, "doi"):
+            return self.doi
+        q = "select doi from dois_pmid_lookup where pmid = {}::text".format(self.pmid)
+        doi = get_sql_answer(db, q)
+        return doi
+
+    @property
+    def sorted_authors(self):
+        if not self.authors:
             return None
-        return self.doi_url.replace("https://doi.org/", "")
+        authors = self.authors
+        sorted_authors = sorted(authors, key=lambda x: x.author_order, reverse=False)
+        return sorted_authors
 
     @property
     def author_lastnames(self):
-        print self.authors
         response = None
-        if self.authors:
-            response = [author.last_name for author in self.authors]
+        if self.sorted_authors:
+            response = [author.last_name for author in self.sorted_authors]
         return response
 
     @property
@@ -100,12 +114,13 @@ class Pub(db.Model):
         return response_data
 
     def to_dict_full(self):
-        print "calling nerd"
         nerd_results = self.get_nerd()
-        print "done"
 
         results = self.to_dict_serp()
         results["nerd"] = nerd_results
+        results["doi"] = self.display_doi
+        results["paperbuzz"] = get_paperbuzz(self.display_doi)
+
         return results
 
 
@@ -117,8 +132,7 @@ class Pub(db.Model):
 
         response = {
             "pmid": self.pmid,
-            "doi": self.doi,
-            "doi_url": self.display_doi_url,
+            "pmid_url": self.pmid_url,
             "title": self.article_title,
             "abstract": self.abstract_text,
             "year": self.pub_date_year,
@@ -141,58 +155,14 @@ class Pub(db.Model):
 
 
 
-class Unpaywall(object):
-    def __init__(self, doi):
-        self.doi = doi
-        self.url = u"https://api.unpaywall.org/v2/{}?email=team+gtr@impactstory.org".format(doi)
-        self.data = {}
 
-    def get(self):
-        if self.doi:
-            r = requests.get(self.url)
-            if r.status_code == 200:
-                self.data = r.json()
+def get_paperbuzz(doi):
+    if not doi:
+        return None
 
-    def to_dict(self):
-        self.data["oadoi_url"] = self.url
-        return self.data
-
-
-
-
-class AltmetricsForDoi(object):
-
-    def __init__(self, doi):
-        self.doi = doi
-        self.url = u"https://api.paperbuzz.org/{}?email=team+gtr@impactstory.org".format(doi)
-        self.data = {}
-
-    def get(self):
-        if self.doi:
-            r = requests.get(self.url)
-            if r.status_code == 200:
-                self.data = r.json()
-
-    def to_dict(self):
-        self.data["paperbuzz_url"] = self.url
-        return self.data
-
-
-
-
-class CrossrefMetadata(object):
-    def __init__(self, doi):
-        self.doi = doi
-        self.url = u"https://api.crossref.org/works/{}/transform/application/vnd.citationstyles.csl+json".format(doi)
-        self.data = {}
-
-    def get(self):
-        if self.doi:
-            r = requests.get(self.url)
-            if r.status_code == 200:
-                self.data = r.json()
-
-    def to_dict(self):
-        self.data["crossref_url"] = self.url
-        return self.data
-
+    data = None
+    url = u"https://api.paperbuzz.org/v0/doi/{}?email=team+gtr@impactstory.org".format(doi)
+    r = requests.get(url)
+    if r.status_code == 200:
+        data = r.json()
+    return data

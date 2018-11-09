@@ -102,14 +102,6 @@ def index_endpoint():
     })
 
 
-@app.route("/paper/doi/<path:doi>", methods=["GET"])
-def get_pub_by_doi(doi):
-    my_doi = clean_doi(doi)
-    my_pub = db.session.query(Pub).filter(Pub.doi_url == u"https://doi.org/{}".format(my_doi)).first()
-    if not my_pub:
-        abort_json(404, u"'{}' is an invalid doi.  See https://doi.org/{}".format(my_doi, my_doi))
-    return jsonify(my_pub.to_dict_full())
-
 @app.route("/paper/pmid/<path:pmid>", methods=["GET"])
 def get_pub_by_pmid(pmid):
     my_pmid = int(pmid)
@@ -127,7 +119,6 @@ def get_search_query(query):
     response = [my_pub.to_dict_serp() for my_pub in my_pubs]
     sorted_response = sorted(response, key=lambda k: k['score'], reverse=True)
     synonym = get_synonym(query)
-    print query, synonym
     term_lookup = get_term_lookup(query)
     if synonym and not term_lookup:
         term_lookup = get_term_lookup(synonym)
