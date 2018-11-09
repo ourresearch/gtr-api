@@ -10,7 +10,7 @@ from app import db
 class MedlineAuthor(db.Model):
     __tablename__ = "medline_author"
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
-    last_name = db.Column(db.Text)
+    last_name = db.Column(db.Text, primary_key=True)
 
 
 class Pub(db.Model):
