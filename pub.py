@@ -60,7 +60,7 @@ class Pub(db.Model):
 
     @property
     def author_lastnames(self):
-        response = None
+        response = []
         if self.sorted_authors:
             response = [author.last_name for author in self.sorted_authors]
         return response
