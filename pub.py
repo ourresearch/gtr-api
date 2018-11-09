@@ -2,12 +2,15 @@ import datetime
 import shortuuid
 import hashlib
 import requests
+from collections import defaultdict
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import sql
 
 from app import db
 from util import get_sql_answer
+from util import run_sql
 
-class MedlineAuthor(db.Model):
+class Author(db.Model):
     __tablename__ = "medline_author"
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
     author_order = db.Column(db.Numeric, primary_key=True)
@@ -22,7 +25,7 @@ class Pub(db.Model):
     abstract_text = db.Column(db.Text)
     pub_date_year = db.Column(db.Text)
     number_of_references = db.Column(db.Text)
-    authors = db.relationship("MedlineAuthor")
+    authors = db.relationship("Author")
 
     def get(self):
         self.metadata.get()
@@ -113,14 +116,49 @@ class Pub(db.Model):
             response_data = None
         return response_data
 
+    def get_unpaywall(self):
+        response = defaultdict(str)
+        q = """
+            select
+            is_oa,
+            best_host,
+            best_version,
+            oa_url
+            FROM medline_citation
+            join dois_pmid_lookup on dois_pmid_lookup.pmid='{}'
+            join unpaywall_api_response_view on unpaywall_api_response_view.id=dois_pmid_lookup.doi
+            LIMIT 1;
+            ;""".format(self.pmid)
+        row = db.engine.execute(sql.text(q)).first()
+        response["is_oa"] = row[0]
+        response["best_host"] = row[1]
+        response["best_version"] = row[2]
+        response["oa_url"] = row[3]
+
+        # replace empty strings with none
+        for k in response:
+            if not response[k]:
+                response[k] = None
+        if not response["is_oa"]:
+            response["is_oa"] = False
+
+        return response
+
+
+
     def to_dict_full(self):
         nerd_results = self.get_nerd()
+        unpaywall_results = self.get_unpaywall()
 
         results = self.to_dict_serp()
         results["nerd"] = nerd_results
         results["doi"] = self.display_doi
+        results["doi_url"] = self.display_doi_url
         results["paperbuzz"] = get_paperbuzz(self.display_doi)
-
+        results["is_oa"] = unpaywall_results["is_oa"]
+        results["best_host"] = unpaywall_results["best_host"]
+        results["best_version"] = unpaywall_results["best_version"]
+        results["oa_url"] = unpaywall_results["oa_url"]
         return results
 
 

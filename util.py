@@ -452,6 +452,7 @@ def get_link_target(url, base_url, strip_jsessionid=True):
 
 
 def run_sql(db, q):
+    response = []
     q = q.strip()
     if not q:
         return
@@ -460,13 +461,14 @@ def run_sql(db, q):
     try:
         con = db.engine.connect()
         trans = con.begin()
-        con.execute(q)
+        response = con.execute(q)
         trans.commit()
     except exc.ProgrammingError as e:
         print "error {} in run_sql, continuting".format(e)
     finally:
         con.close()
     print "{} done in {} seconds".format(q, elapsed(start, 1))
+    return response
 
 def get_sql_answer(db, q):
     row = db.engine.execute(sql.text(q)).first()
