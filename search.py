@@ -49,7 +49,7 @@ def fulltext_search_title(original_query):
         synonym_with_ands = ' & '.join(synonym_escaped.split(" "))
         query_to_use += u" | ({})".format(synonym_with_ands)
 
-    query_string = """
+    query_string = u"""
         select
         medline_citation.pmid as pmid, 
         dois_pmid_lookup.doi,
