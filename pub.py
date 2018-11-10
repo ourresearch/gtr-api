@@ -16,6 +16,16 @@ class Author(db.Model):
     author_order = db.Column(db.Numeric, primary_key=True)
     last_name = db.Column(db.Text, primary_key=True)  # this one shouldn't have primary key once all orders are populated
 
+class PubOtherId(db.Model):
+    __tablename__ = "medline_citation_other_id"
+    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
+    source = db.Column(db.Text, primary_key=True)
+    other_id = db.Column(db.Text)
+
+class PubType(db.Model):
+    __tablename__ = "medline_article_publication_type"
+    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
+    publication_type = db.Column(db.Text, primary_key=True)
 
 class Pub(db.Model):
     __tablename__ = "medline_citation"
@@ -26,6 +36,8 @@ class Pub(db.Model):
     pub_date_year = db.Column(db.Text)
     number_of_references = db.Column(db.Text)
     authors = db.relationship("Author")
+    pub_other_ids = db.relationship("PubOtherId")
+    pub_types = db.relationship("PubType")
 
     def get(self):
         self.metadata.get()
@@ -46,6 +58,9 @@ class Pub(db.Model):
     def display_doi(self):
         if hasattr(self, "doi"):
             return self.doi
+        for other_id in self.pub_other_ids:
+            if other_id.source == "doi":
+                return other_id.other_id
         q = "select doi from dois_pmid_lookup where pmid = {}::text".format(self.pmid)
         doi = get_sql_answer(db, q)
         return doi
@@ -92,6 +107,10 @@ class Pub(db.Model):
     @property
     def display_best_version(self):
         return getattr(self, "best_version", None)
+
+    @property
+    def display_pub_types(self):
+        return [pub_type.publication_type for pub_type in self.pub_types]
 
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
@@ -196,6 +215,7 @@ class Pub(db.Model):
             "oa_url": self.display_oa_url,
             "best_host": self.display_best_host,
             "best_version": self.display_best_version,
+            "pub_types": self.display_pub_types,
 
             "snippet": getattr(self, "snippet", None),
             "score": getattr(self, "score", None),
