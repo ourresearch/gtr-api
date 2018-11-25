@@ -288,8 +288,7 @@ class Pub(db.Model):
             "published_date": None,
             "num_references_from_pmc": self.display_number_of_references,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
-            "author_lastnames": [],
-            # "author_lastnames": self.author_lastnames,
+            "author_lastnames": self.author_lastnames,
 
             "is_oa": self.display_is_oa,
             "oa_url": self.display_oa_url,
