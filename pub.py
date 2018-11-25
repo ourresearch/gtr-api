@@ -209,13 +209,14 @@ class Pub(db.Model):
         if not self.abstract_text:
             return self.abstract_text
 
-        response = "... "
+        response = ""
 
         if "CONCLUSION:" in self.abstract_text:
-            response += self.abstract_text.rsplit("CONCLUSION:", 1)[1]
+            response = self.abstract_text.rsplit("CONCLUSION:", 1)[1]
         elif "CONCLUSIONS:" in self.abstract_text:
-            response += self.abstract_text.rsplit("CONCLUSIONS:", 1)[1]
+            response = self.abstract_text.rsplit("CONCLUSIONS:", 1)[1]
         else:
+            response = "... "
             try:
                 response += ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
             except IndexError:
