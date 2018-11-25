@@ -39,16 +39,20 @@ def get_term_lookup(original_query):
 
 def fulltext_search_title(original_query):
 
+    print "in fulltext_search_title"
     original_query_escaped = original_query.replace("'", "''")
     original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
     query_to_use = u"({})".format(original_query_with_ands)
 
+    print "getting synonym"
     synonym = get_synonym(original_query)
+    print "done getting synonym"
     if synonym:
         synonym_escaped = synonym.replace("'", "''")
         synonym_with_ands = ' & '.join(synonym_escaped.split(" "))
         query_to_use += u" | ({})".format(synonym_with_ands)
 
+    print "starting query"
     query_string = u"""
         select
         medline_citation.pmid as pmid, 
@@ -73,9 +77,11 @@ def fulltext_search_title(original_query):
         LIMIT 100;
         ;""".format(query_to_use)
     rows = db.engine.execute(sql.text(query_string)).fetchall()
+    print "done getting query"
     # print rows
     pmids = [row[0] for row in rows]
     my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).all()
+    print "done query for my_pubs"
     for row in rows:
         my_id = row[0]
         for my_pub in my_pubs:
@@ -88,6 +94,7 @@ def fulltext_search_title(original_query):
                 my_pub.best_host = row[8]
                 my_pub.best_version = row[9]
                 my_pub.oa_url = row[10]
+    print "done filling out my_pub"
     return my_pubs
 
 def autocomplete_phrases(query):

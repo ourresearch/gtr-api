@@ -27,6 +27,25 @@ class PubType(db.Model):
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
     publication_type = db.Column(db.Text, primary_key=True)
 
+class PubMesh(db.Model):
+    __tablename__ = "medline_mesh_heading"
+    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
+    descriptor_name = db.Column(db.Text)
+    descriptor_name_major_yn = db.Column(db.Text, primary_key=True)
+    qualifier_name = db.Column(db.Text)
+    qualifier_name_major_yn = db.Column(db.Text, primary_key=True)
+
+    def to_dict(self):
+        response = {}
+        response["descriptor"] = self.descriptor_name
+        if self.descriptor_name_major_yn == "Y":
+            response["descriptor_is_major"] = True
+        if self.qualifier_name and self.qualifier_name != "N/A":
+            response["qualifier_name"] = self.qualifier_name.replace("&amp;", "and")
+            if self.qualifier_name_major_yn == "Y":
+                response["qualifier_is_major"] = True
+        return response
+
 class Pub(db.Model):
     __tablename__ = "medline_citation"
     pmid = db.Column(db.Numeric, primary_key=True)
@@ -38,6 +57,7 @@ class Pub(db.Model):
     authors = db.relationship("Author")
     pub_other_ids = db.relationship("PubOtherId")
     pub_types = db.relationship("PubType")
+    mesh = db.relationship("PubMesh")
 
     def get(self):
         self.metadata.get()
@@ -110,7 +130,16 @@ class Pub(db.Model):
 
     @property
     def display_pub_types(self):
-        return [pub_type.publication_type for pub_type in self.pub_types]
+        response = []
+        for pub_type in self.pub_types:
+            include_it = True
+            excludes = ["Journal Article", "Research Support"]
+            for exclude_phrase in excludes:
+                if exclude_phrase in pub_type.publication_type:
+                    include_it = False
+            if include_it:
+                response += [pub_type.publication_type]
+        return response
 
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
@@ -175,7 +204,52 @@ class Pub(db.Model):
 
         return response
 
+    @property
+    def short_abstract(self):
+        if not self.abstract_text:
+            return self.abstract_text
 
+        if "CONCLUSION" in self.abstract_text:
+            response = u"CONCLUSION{}".format(self.abstract_text.rsplit("CONCLUSION", 1)[1])
+        else:
+            try:
+                response = ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
+            except IndexError:
+                response = self.abstract_text[-500:-1]
+        return response
+
+
+    @property
+    def adjusted_score(self):
+        score = getattr(self, "score", 0)
+
+        score += 0.05 * self.display_number_of_references
+
+        if self.journal_title and "Cochrane database" in self.journal_title:
+            score += 10
+
+        if "Consensus Development Conference" in self.display_pub_types:
+            score += 10
+        if "Practice Guideline" in self.display_pub_types:
+            score += 10
+        if "Guideline" in self.display_pub_types:
+            score += 10
+        if "Review" in self.display_pub_types:
+            score += 5
+        if "Meta-Analysis" in self.display_pub_types:
+            score += 5
+        if "Randomized Controlled Trial" in self.display_pub_types:
+            score += 3
+        if "Clinical Trial" in self.display_pub_types:
+            score += 2
+        if "Comparative Study" in self.display_pub_types:
+            score += 1
+        if "Case Reports" in self.display_pub_types:
+            score += -10
+        if "English Abstract" in self.display_pub_types:
+            score += -10
+
+        return score
 
     def to_dict_full(self):
         nerd_results = self.get_nerd()
@@ -203,22 +277,25 @@ class Pub(db.Model):
             "doi": self.display_doi_url,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
-            "abstract": self.abstract_text,
+            "abstract": self.short_abstract,
+            # "full_abstract": self.abstract_text,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "published_date": None,
             "num_references_from_pmc": self.display_number_of_references,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
-            "author_lastnames": self.author_lastnames,
+            "author_lastnames": [],
+            # "author_lastnames": self.author_lastnames,
 
             "is_oa": self.display_is_oa,
             "oa_url": self.display_oa_url,
             "best_host": self.display_best_host,
             "best_version": self.display_best_version,
             "pub_types": self.display_pub_types,
+            "mesh": [m.to_dict() for m in self.mesh],
 
             "snippet": getattr(self, "snippet", None),
-            "score": getattr(self, "score", None),
+            "score": self.adjusted_score,
         }
 
         return response
