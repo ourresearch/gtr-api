@@ -223,7 +223,6 @@ class Pub(db.Model):
                 response += self.abstract_text[-500:-1]
         return response
 
-
     @property
     def adjusted_score(self):
         score = getattr(self, "score", 0)
