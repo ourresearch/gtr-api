@@ -209,13 +209,17 @@ class Pub(db.Model):
         if not self.abstract_text:
             return self.abstract_text
 
-        if "CONCLUSION" in self.abstract_text:
-            response = u"CONCLUSION{}".format(self.abstract_text.rsplit("CONCLUSION", 1)[1])
+        response = "... "
+
+        if "CONCLUSION:" in self.abstract_text:
+            response += self.abstract_text.rsplit("CONCLUSION:", 1)[1]
+        elif "CONCLUSIONS:" in self.abstract_text:
+            response += self.abstract_text.rsplit("CONCLUSIONS:", 1)[1]
         else:
             try:
-                response = ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
+                response += ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
             except IndexError:
-                response = self.abstract_text[-500:-1]
+                response += self.abstract_text[-500:-1]
         return response
 
 
@@ -229,25 +233,25 @@ class Pub(db.Model):
             score += 10
 
         if "Consensus Development Conference" in self.display_pub_types:
-            score += 10
+            score += 7
         if "Practice Guideline" in self.display_pub_types:
-            score += 10
+            score += 7
         if "Guideline" in self.display_pub_types:
-            score += 10
+            score += 7
         if "Review" in self.display_pub_types:
-            score += 5
-        if "Meta-Analysis" in self.display_pub_types:
-            score += 5
-        if "Randomized Controlled Trial" in self.display_pub_types:
             score += 3
-        if "Clinical Trial" in self.display_pub_types:
+        if "Meta-Analysis" in self.display_pub_types:
+            score += 3
+        if "Randomized Controlled Trial" in self.display_pub_types:
             score += 2
-        if "Comparative Study" in self.display_pub_types:
+        if "Clinical Trial" in self.display_pub_types:
             score += 1
+        if "Comparative Study" in self.display_pub_types:
+            score += 0.5
         if "Case Reports" in self.display_pub_types:
-            score += -10
+            score += -5
         if "English Abstract" in self.display_pub_types:
-            score += -10
+            score += -5
 
         return score
 
@@ -277,8 +281,8 @@ class Pub(db.Model):
             "doi": self.display_doi_url,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
-            "abstract": self.short_abstract,
-            # "full_abstract": self.abstract_text,
+            "short_abstract": self.short_abstract,
+            "abstract": self.abstract_text,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "published_date": None,
