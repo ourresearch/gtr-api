@@ -252,7 +252,10 @@ class Pub(db.Model):
 
     def to_dict_full(self):
         nerd_results = self.get_nerd()
-        paperbuzz_results = get_paperbuzz(self.display_doi)
+
+        # commented out while we wait for a shorter, faster paperbuzz api result
+        # paperbuzz_results = get_paperbuzz(self.display_doi)
+        paperbuzz_results = None
 
         results = self.to_dict_serp()
         results["nerd"] = nerd_results
