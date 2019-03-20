@@ -117,21 +117,23 @@ def get_search_query(query):
     my_pubs = fulltext_search_title(query)
 
     print "building response"
-    response = [my_pub.to_dict_serp() for my_pub in my_pubs]
-    sorted_response = sorted(response, key=lambda k: k['score'], reverse=True)
+    sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
+    sorted_response = [my_pub.to_dict_serp() for my_pub in sorted_pubs[0:20]]
     print "done building response"
-    print "getting synonyms"
-    synonym = get_synonym(query)
-    print "done getting synonyms"
-    print "getting terms"
-    term_lookup = get_term_lookup(query)
-    if synonym and not term_lookup:
-        term_lookup = get_term_lookup(synonym)
-    print "done getting terms"
+
+    # print "getting synonyms"
+    # synonym = get_synonym(query)
+    # print "done getting synonyms"
+    # print "getting terms"
+    # term_lookup = get_term_lookup(query)
+    # if synonym and not term_lookup:
+    #     term_lookup = get_term_lookup(synonym)
+    # print "done getting terms"
+
     elapsed_time = elapsed(start_time, 3)
     return jsonify({"results": sorted_response,
-                    "synonym": synonym,
-                    "term_lookup": term_lookup,
+                    # "synonym": synonym,
+                    # "term_lookup": term_lookup,
                     "elapsed_seconds": elapsed_time})
 
 @app.route("/search/autocomplete/<path:query>", methods=["GET"])

@@ -56,26 +56,18 @@ def fulltext_search_title(original_query):
     query_string = u"""
         select
         medline_citation.pmid as pmid, 
-        dois_pmid_lookup.doi,
-        ts_headline('english', article_title, query) as snippet, 
-        (ts_rank_cd(to_tsvector('english', article_title), query, 1) + 0.05*COALESCE(dois_with_ced_events.num_events,0)) AS rank,
+        ts_headline('english', article_title, to_tsquery('{q}')) as snippet, 
+        (ts_rank_cd(to_tsvector('english', article_title), to_tsquery('{q}'), 1) + 0.05*COALESCE(dois_with_ced_events.num_events,0)) AS rank,
         article_title,
-        dois_with_ced_events.num_events,
-        pub_date_year,
-        is_oa,
-        best_host,
-        best_version,
-        oa_url
-        FROM medline_citation, to_tsquery('english', '{}') query, dois_pmid_lookup
+        dois_with_ced_events.num_events
+        FROM medline_citation, dois_pmid_lookup
         left join dois_with_ced_events on dois_pmid_lookup.doi=dois_with_ced_events.doi
-        join unpaywall_api_response_view on unpaywall_api_response_view.id=dois_with_ced_events.doi
-        WHERE 
-        to_tsvector('english', article_title) @@ query
-        and abstract_text is not null and abstract_text != 'N/A' and length(abstract_text) > 2
+        WHERE  
+        to_tsvector('english', article_title) @@  to_tsquery('{q}')
         and (medline_citation.pmid)::text=dois_pmid_lookup.pmid
-        ORDER BY rank DESC
-        LIMIT 100;
-        ;""".format(query_to_use)
+        order by rank desc
+        limit 100;
+        """.format(q=query_to_use)
     rows = db.engine.execute(sql.text(query_string)).fetchall()
     print "done getting query"
     # print rows
@@ -86,14 +78,8 @@ def fulltext_search_title(original_query):
         my_id = row[0]
         for my_pub in my_pubs:
             if my_id == my_pub.pmid:
-                my_pub.doi = row[1]
-                my_pub.snippet = row[2]
-                my_pub.score = row[3]
-                my_pub.num_paperbuzz_events = row[5]
-                my_pub.is_oa = row[7]
-                my_pub.best_host = row[8]
-                my_pub.best_version = row[9]
-                my_pub.oa_url = row[10]
+                my_pub.snippet = row[1]
+                my_pub.score = row[2]
     print "done filling out my_pub"
     return my_pubs
 

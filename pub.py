@@ -46,6 +46,29 @@ class PubMesh(db.Model):
                 response["qualifier_is_major"] = True
         return response
 
+class Unpaywall(db.Model):
+    __tablename__ = "bq_pubmed_doi_unpaywall_pmid_numeric_mv"
+    doi = db.Column(db.Text)
+    pmid = db.Column(db.Text, primary_key=True)
+    pmid_numeric = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
+    pmcid = db.Column(db.Text)
+    is_oa = db.Column(db.Boolean)
+    best_host_type = db.Column(db.Text)
+    best_version = db.Column(db.Text)
+    oa_url = db.Column(db.Text)
+
+class DoiLookup(db.Model):
+    __tablename__ = "dois_pmid_lookup_pmid_numeric_mv"
+    doi = db.Column(db.Text, primary_key=True)
+    pmid_numeric = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
+    paperbuzz = db.relationship("Paperbuzz", uselist=False, lazy='subquery')
+
+class Paperbuzz(db.Model):
+    __tablename__ = "dois_with_ced_events"
+    doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi), primary_key=True)
+    num_events = db.Column(db.Numeric)
+
+
 class Pub(db.Model):
     __tablename__ = "medline_citation"
     pmid = db.Column(db.Numeric, primary_key=True)
@@ -54,15 +77,18 @@ class Pub(db.Model):
     abstract_text = db.Column(db.Text)
     pub_date_year = db.Column(db.Text)
     number_of_references = db.Column(db.Text)
-    authors = db.relationship("Author")
-    pub_other_ids = db.relationship("PubOtherId")
-    pub_types = db.relationship("PubType")
-    mesh = db.relationship("PubMesh")
+    authors = db.relationship("Author", lazy='subquery')
+    pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
+    pub_types = db.relationship("PubType", lazy='subquery')
+    mesh = db.relationship("PubMesh", lazy='subquery')
+    doi_lookup = db.relationship("DoiLookup", uselist=False, lazy='subquery')
+    unpaywall_lookup = db.relationship("Unpaywall", uselist=False, lazy='subquery')
 
-    def get(self):
-        self.metadata.get()
-        self.open_access.get()
-        self.altmetrics.get()
+    @property
+    def paperbuzz(self):
+        if self.doi_lookup and self.doi_lookup.paperbuzz:
+            return int(self.doi_lookup.paperbuzz.num_events)
+        return 0
 
     @property
     def pmid_url(self):
@@ -76,14 +102,9 @@ class Pub(db.Model):
 
     @property
     def display_doi(self):
-        if hasattr(self, "doi"):
-            return self.doi
-        for other_id in self.pub_other_ids:
-            if other_id.source == "doi":
-                return other_id.other_id
-        q = "select doi from dois_pmid_lookup where pmid = {}::text".format(self.pmid)
-        doi = get_sql_answer(db, q)
-        return doi
+        if not self.doi_lookup:
+            return None
+        return self.doi_lookup.doi
 
     @property
     def sorted_authors(self):
@@ -108,25 +129,31 @@ class Pub(db.Model):
 
     @property
     def display_number_of_paperbuzz_events(self):
-        if hasattr(self, "num_paperbuzz_events"):
-            return self.num_paperbuzz_events
-        return 0
+        return self.paperbuzz
 
     @property
     def display_is_oa(self):
-        return getattr(self, "is_oa", None)
+        if self.unpaywall_lookup:
+            return self.unpaywall_lookup.is_oa
+        return None
 
     @property
     def display_oa_url(self):
-        return getattr(self, "oa_url", None)
+        if self.unpaywall_lookup:
+            return self.unpaywall_lookup.oa_url
+        return None
 
     @property
     def display_best_host(self):
-        return getattr(self, "best_host", None)
+        if self.unpaywall_lookup:
+            return self.unpaywall_lookup.best_host_type
+        return None
 
     @property
     def display_best_version(self):
-        return getattr(self, "best_version", None)
+        if self.unpaywall_lookup:
+            return self.unpaywall_lookup.best_version
+        return None
 
     @property
     def display_pub_types(self):
@@ -144,6 +171,8 @@ class Pub(db.Model):
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
             return
+
+        print u"calling paperbuzz with {}".format(self.pmid)
 
         query_text = self.abstract_text
         query_text = query_text.replace("\n", " ")
@@ -176,33 +205,6 @@ class Pub(db.Model):
             response_data = None
         return response_data
 
-    def get_unpaywall(self):
-        response = defaultdict(str)
-        q = """
-            select
-            is_oa,
-            best_host,
-            best_version,
-            oa_url
-            FROM medline_citation
-            join dois_pmid_lookup on dois_pmid_lookup.pmid='{}'
-            join unpaywall_api_response_view on unpaywall_api_response_view.id=dois_pmid_lookup.doi
-            LIMIT 1;
-            ;""".format(self.pmid)
-        row = db.engine.execute(sql.text(q)).first()
-        response["is_oa"] = row[0]
-        response["best_host"] = row[1]
-        response["best_version"] = row[2]
-        response["oa_url"] = row[3]
-
-        # replace empty strings with none
-        for k in response:
-            if not response[k]:
-                response[k] = None
-        if not response["is_oa"]:
-            response["is_oa"] = False
-
-        return response
 
     @property
     def short_abstract(self):
@@ -257,15 +259,11 @@ class Pub(db.Model):
 
     def to_dict_full(self):
         nerd_results = self.get_nerd()
-        unpaywall_results = self.get_unpaywall()
+        paperbuzz_results = get_paperbuzz(self.display_doi)
 
         results = self.to_dict_serp()
         results["nerd"] = nerd_results
-        results["paperbuzz"] = get_paperbuzz(self.display_doi)
-        results["is_oa"] = unpaywall_results["is_oa"]
-        results["best_host"] = unpaywall_results["best_host"]
-        results["best_version"] = unpaywall_results["best_version"]
-        results["oa_url"] = unpaywall_results["oa_url"]
+        results["paperbuzz"] = paperbuzz_results
         return results
 
 
@@ -289,16 +287,16 @@ class Pub(db.Model):
             "num_references_from_pmc": self.display_number_of_references,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,
-
-            "is_oa": self.display_is_oa,
-            "oa_url": self.display_oa_url,
-            "best_host": self.display_best_host,
-            "best_version": self.display_best_version,
-            "pub_types": self.display_pub_types,
-            "mesh": [m.to_dict() for m in self.mesh],
-
-            "snippet": getattr(self, "snippet", None),
-            "score": self.adjusted_score,
+            #
+            # "is_oa": self.display_is_oa,
+            # "oa_url": self.display_oa_url,
+            # "best_host": self.display_best_host,
+            # "best_version": self.display_best_version,
+            # "pub_types": self.display_pub_types,
+            # "mesh": [m.to_dict() for m in self.mesh],
+            #
+            # "snippet": getattr(self, "snippet", None),
+            "score": self.adjusted_score
         }
 
         return response
@@ -311,6 +309,7 @@ def get_paperbuzz(doi):
     if not doi:
         return None
 
+    print u"calling paperbuzz with {}".format(doi)
     data = None
     url = u"https://api.paperbuzz.org/v0/doi/{}?email=team+gtr@impactstory.org".format(doi)
     r = requests.get(url)
