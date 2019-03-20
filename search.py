@@ -80,5 +80,3 @@ def fulltext_search_title(original_query):
                 my_pub.score = row[2]
     print "done filling out my_pub"
     return my_pubs
-
-s

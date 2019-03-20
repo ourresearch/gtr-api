@@ -18,7 +18,6 @@ from pub import Pub
 from app import app
 from app import db
 from search import fulltext_search_title
-from search import autocomplete_phrases
 from search import get_synonym
 from search import get_term_lookup
 from util import elapsed
