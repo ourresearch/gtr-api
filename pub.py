@@ -76,7 +76,7 @@ class Pub(db.Model):
     journal_title = db.Column(db.Text)
     abstract_text = db.Column(db.Text)
     pub_date_year = db.Column(db.Text)
-    number_of_references = db.Column(db.Text)
+    date_of_electronic_publication = db.Column(db.Text)
     authors = db.relationship("Author", lazy='subquery')
     pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
     pub_types = db.relationship("PubType", lazy='subquery')
@@ -121,11 +121,6 @@ class Pub(db.Model):
             response = [author.last_name for author in self.sorted_authors]
         return response
 
-    @property
-    def display_number_of_references(self):
-        if not self.number_of_references or self.number_of_references == "N/A":
-            return 0
-        return int(self.number_of_references)
 
     @property
     def display_number_of_paperbuzz_events(self):
@@ -229,8 +224,6 @@ class Pub(db.Model):
     def adjusted_score(self):
         score = getattr(self, "score", 0)
 
-        score += 0.05 * self.display_number_of_references
-
         if self.journal_title and "Cochrane database" in self.journal_title:
             score += 10
 
@@ -264,14 +257,13 @@ class Pub(db.Model):
         results = self.to_dict_serp()
         results["nerd"] = nerd_results
         results["paperbuzz"] = paperbuzz_results
+        results["abstract"] = self.abstract_text
+
         return results
 
 
 
     def to_dict_serp(self):
-
-        # self.altmetrics = AltmetricsForDoi(self.doi)
-        # self.altmetrics.get()
 
         response = {
             "pmid": self.pmid,
@@ -280,22 +272,19 @@ class Pub(db.Model):
             "doi_url": self.display_doi_url,
             "title": self.article_title,
             "short_abstract": self.short_abstract,
-            "abstract": self.abstract_text,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
-            "published_date": None,
-            "num_references_from_pmc": self.display_number_of_references,
+            "date_of_electronic_publication": self.date_of_electronic_publication,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,
-            #
-            # "is_oa": self.display_is_oa,
-            # "oa_url": self.display_oa_url,
-            # "best_host": self.display_best_host,
-            # "best_version": self.display_best_version,
-            # "pub_types": self.display_pub_types,
-            # "mesh": [m.to_dict() for m in self.mesh],
-            #
-            # "snippet": getattr(self, "snippet", None),
+            "is_oa": self.display_is_oa,
+            "oa_url": self.display_oa_url,
+            "best_host": self.display_best_host,
+            "best_version": self.display_best_version,
+            "pub_types": self.display_pub_types,
+            "mesh": [m.to_dict() for m in self.mesh],
+
+            "snippet": getattr(self, "snippet", None),
             "score": self.adjusted_score
         }
 

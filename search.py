@@ -55,16 +55,14 @@ def fulltext_search_title(original_query):
     print "starting query"
     query_string = u"""
         select
-        medline_citation.pmid as pmid, 
+        pmid, 
         ts_headline('english', article_title, to_tsquery('{q}')) as snippet, 
-        (ts_rank_cd(to_tsvector('english', article_title), to_tsquery('{q}'), 1) + 0.05*COALESCE(dois_with_ced_events.num_events,0)) AS rank,
+        (ts_rank_cd(to_tsvector('english', article_title), to_tsquery('{q}'), 1) + 0.05*COALESCE(num_events,0)) AS rank,
         article_title,
-        dois_with_ced_events.num_events
-        FROM medline_citation, dois_pmid_lookup
-        left join dois_with_ced_events on dois_pmid_lookup.doi=dois_with_ced_events.doi
+        num_events
+        FROM search_attributes_mv
         WHERE  
         to_tsvector('english', article_title) @@  to_tsquery('{q}')
-        and (medline_citation.pmid)::text=dois_pmid_lookup.pmid
         order by rank desc
         limit 100;
         """.format(q=query_to_use)
@@ -83,22 +81,4 @@ def fulltext_search_title(original_query):
     print "done filling out my_pub"
     return my_pubs
 
-def autocomplete_phrases(query):
-    query_string = ur"""
-        with s as (SELECT id, lower(title) as lower_title FROM pub_2018 WHERE title iLIKE '%{query}%')
-        select match, count(*) as score from (
-            SELECT regexp_matches(lower_title, '({query}\w*?\M)', 'g') as match FROM s
-            union all
-            SELECT regexp_matches(lower_title, '({query}\w*?(?:\s+\w+){{1}})\M', 'g') as match FROM s
-            union all
-            SELECT regexp_matches(lower_title, '({query}\w*?(?:\s+\w+){{2}})\M', 'g') as match FROM s
-            union all
-            SELECT regexp_matches(lower_title, '({query}\w*?(?:\s+\w+){{3}}|)\M', 'g') as match FROM s
-        ) s_all
-        group by match
-        order by score desc, length(match::text) asc
-        LIMIT 50;""".format(query=query)
-
-    rows = db.engine.execute(sql.text(query_string)).fetchall()
-    phrases = [{"phrase":row[0][0], "score":row[1]} for row in rows if row[0][0]]
-    return phrases
+s
