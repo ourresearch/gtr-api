@@ -120,19 +120,19 @@ def get_search_query(query):
     sorted_response = [my_pub.to_dict_serp() for my_pub in sorted_pubs[0:20]]
     print "done building response"
 
-    # print "getting synonyms"
-    # synonym = get_synonym(query)
-    # print "done getting synonyms"
-    # print "getting terms"
-    # term_lookup = get_term_lookup(query)
-    # if synonym and not term_lookup:
-    #     term_lookup = get_term_lookup(synonym)
-    # print "done getting terms"
+    print "getting synonyms"
+    synonym = get_synonym(query)
+    print "done getting synonyms"
+    print "getting terms from nerd"
+    term_lookup = get_term_lookup(query)
+    if synonym and not term_lookup:
+        term_lookup = get_term_lookup(synonym)
+    print "done getting terms from nerd"
 
     elapsed_time = elapsed(start_time, 3)
     return jsonify({"results": sorted_response,
-                    # "synonym": synonym,
-                    # "term_lookup": term_lookup,
+                    "synonym": synonym,
+                    "term_lookup": term_lookup,
                     "elapsed_seconds": elapsed_time})
 
 

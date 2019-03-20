@@ -167,7 +167,7 @@ class Pub(db.Model):
         if not self.abstract_text or len(self.abstract_text) <=3:
             return
 
-        print u"calling paperbuzz with {}".format(self.pmid)
+        print u"calling nerd with {}".format(self.pmid)
 
         query_text = self.abstract_text
         query_text = query_text.replace("\n", " ")
@@ -224,7 +224,7 @@ class Pub(db.Model):
     def adjusted_score(self):
         score = getattr(self, "score", 0)
 
-        if self.journal_title and "Cochrane database" in self.journal_title:
+        if self.journal_title and "cochrane database" in self.journal_title.lower():
             score += 10
 
         if "Consensus Development Conference" in self.display_pub_types:
