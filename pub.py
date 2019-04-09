@@ -179,6 +179,9 @@ class Pub(db.Model):
             response_data = r.json()
         except ValueError:
             response_data = None
+
+        self.dandelion_results = response_data
+
         return response_data
 
 
@@ -287,16 +290,21 @@ class Pub(db.Model):
 
 
     def to_dict_serp(self):
+        # dandelion_results = None
+        # if hasattr(self, "dandelion_results"):
+        #     dandelion_results = self.dandelion_results
+
         # dandelion_results = {
         #     "title": self.call_dandelion(self.article_title),
         #     "abstract": self.call_dandelion(self.abstract_text)
         # }
-        dandelion_results = None
+
         # dandelion_title_results = self.call_dandelion(self.article_title)
-        # if dandelion_title_results and dandelion_title_results.get("topEntities", None):
-        #     dandelion_results = dandelion_title_results["topEntities"]
-        # elif dandelion_title_results["annotations"]:
-        #     dandelion_results = [d["uri"] for d in dandelion_title_results["annotations"]]
+
+        # if dandelion_results and dandelion_results.get("topEntities", None):
+        #     dandelion_results = dandelion_results["topEntities"]
+        # elif dandelion_results["annotations"]:
+        #     dandelion_results = [d["uri"] for d in dandelion_results["annotations"]]
 
         response = {
             "pmid": self.pmid,
@@ -317,7 +325,7 @@ class Pub(db.Model):
             "pub_types": self.display_pub_types,
             "mesh": [m.to_dict() for m in self.mesh],
 
-            "dandelion": dandelion_results,
+            # "dandelion": dandelion_results,
             "image": {
                 "url": "https://picsum.photos/300/200?random"
             },

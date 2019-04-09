@@ -17,6 +17,7 @@ from pub import Pub
 
 from app import app
 from app import db
+from result_set import ResultSet
 from search import fulltext_search_title
 from search import get_synonym
 from search import get_nerd_term_lookup
@@ -131,7 +132,10 @@ def get_search_query(query):
 
     print "building response"
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
-    sorted_response = [my_pub.to_dict_serp() for my_pub in sorted_pubs[(pagesize*page):(pagesize*(page+1))]]
+
+    my_result_set = ResultSet(pubs = sorted_pubs[(pagesize*page):(pagesize*(page+1))])
+    result_serp_dict_list = my_result_set.to_dict_serp_list()
+
     print "done building response"
 
     print "getting synonyms"
@@ -144,7 +148,7 @@ def get_search_query(query):
     print "done getting terms from nerd"
 
     elapsed_time = elapsed(start_time, 3)
-    return jsonify({"results": sorted_response,
+    return jsonify({"results": result_serp_dict_list,
                     "page": page,
                     "synonym": synonym,
                     "term_lookup": term_lookup,
