@@ -28,10 +28,9 @@ def get_term_lookup(original_query):
     r = requests.get(url)
     try:
         response_data = r.json()
-    except ValueError:
-        response_data = None
-
-    if not response_data.get("senses"):
+        if not response_data.get("senses"):
+            response_data = None
+    except (ValueError, AttributeError):
         response_data = None
 
     return response_data
