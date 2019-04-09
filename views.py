@@ -112,12 +112,19 @@ def get_pub_by_pmid(pmid):
 
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
+    if request.args.get("page"):
+        page = int(request.args.get("page"))
+    else:
+        page = 0
+    if page > 4:
+        abort_json(400, u"Page too large. API currently only supports pagelength of 20, up to 100 results in total.  So page must be in the range 0-4.")
+
     start_time = time()
     my_pubs = fulltext_search_title(query)
 
     print "building response"
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
-    sorted_response = [my_pub.to_dict_serp() for my_pub in sorted_pubs[0:20]]
+    sorted_response = [my_pub.to_dict_serp() for my_pub in sorted_pubs[(20*page):(20*(page+1))]]
     print "done building response"
 
     print "getting synonyms"
@@ -131,6 +138,7 @@ def get_search_query(query):
 
     elapsed_time = elapsed(start_time, 3)
     return jsonify({"results": sorted_response,
+                    "page": page,
                     "synonym": synonym,
                     "term_lookup": term_lookup,
                     "elapsed_seconds": elapsed_time})
