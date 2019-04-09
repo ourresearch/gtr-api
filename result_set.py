@@ -30,7 +30,7 @@ class ResultSet(object):
 
     def set_dandelions(self):
         start = timer()
-        results = ThreadPool(50).imap(fetch_url, self.pubs)
+        results = ThreadPool(10).imap(fetch_url, self.pubs)
         for result, pmid, error in results:
             if error:
                 print "error fetching", pmid
