@@ -19,7 +19,7 @@ def get_synonym(original_query):
                 return synonym
     return None
 
-def get_term_lookup(original_query):
+def get_nerd_term_lookup(original_query):
     if not original_query:
         return
 

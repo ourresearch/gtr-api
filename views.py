@@ -19,7 +19,7 @@ from app import app
 from app import db
 from search import fulltext_search_title
 from search import get_synonym
-from search import get_term_lookup
+from search import get_nerd_term_lookup
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
@@ -117,23 +117,30 @@ def get_search_query(query):
     else:
         page = 0
     if page > 4:
-        abort_json(400, u"Page too large. API currently only supports pagelength of 20, up to 100 results in total.  So page must be in the range 0-4.")
+        abort_json(400, u"Page too large. API currently only supports 5 pages right now, so page must be in the range 0-4.")
+
+    if request.args.get("pagesize"):
+        pagesize = int(request.args.get("pagesize"))
+    else:
+        pagesize = 20
+    if pagesize > 20:
+        abort_json(400, u"pagesize too large; max 20")
 
     start_time = time()
     my_pubs = fulltext_search_title(query)
 
     print "building response"
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
-    sorted_response = [my_pub.to_dict_serp() for my_pub in sorted_pubs[(20*page):(20*(page+1))]]
+    sorted_response = [my_pub.to_dict_serp() for my_pub in sorted_pubs[(pagesize*page):(pagesize*(page+1))]]
     print "done building response"
 
     print "getting synonyms"
     synonym = get_synonym(query)
     print "done getting synonyms"
     print "getting terms from nerd"
-    term_lookup = get_term_lookup(query)
+    term_lookup = get_nerd_term_lookup(query)
     if synonym and not term_lookup:
-        term_lookup = get_term_lookup(synonym)
+        term_lookup = get_nerd_term_lookup(synonym)
     print "done getting terms from nerd"
 
     elapsed_time = elapsed(start_time, 3)

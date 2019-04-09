@@ -1,7 +1,10 @@
+from __future__ import unicode_literals
+import os
 import datetime
 import shortuuid
 import hashlib
 import requests
+from urllib import quote_plus
 from collections import defaultdict
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import sql
@@ -9,6 +12,7 @@ from sqlalchemy import sql
 from app import db
 from util import get_sql_answer
 from util import run_sql
+
 
 class Author(db.Model):
     __tablename__ = "medline_author"
@@ -163,6 +167,21 @@ class Pub(db.Model):
                 response += [pub_type.publication_type]
         return response
 
+    def call_dandelion(self, query_text_raw):
+        print u"calling dandelion with {}".format(self.pmid)
+
+        query_text = quote_plus(query_text_raw.encode('utf-8'), safe=':/'.encode('utf-8'))
+        url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&country=-1&social=False&top_entities=8&include=image%2Cabstract%2Ctypes%2Ccategories%2Clod&token={key}"
+        url = url_template.format(query=query_text, key=os.getenv("DANDELION_API_KEY"))
+        # print url
+        r = requests.get(url)
+        try:
+            response_data = r.json()
+        except ValueError:
+            response_data = None
+        return response_data
+
+
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
             return
@@ -251,7 +270,8 @@ class Pub(db.Model):
         return score
 
     def to_dict_full(self):
-        nerd_results = self.get_nerd()
+        nerd_results = None
+        # nerd_results = self.get_nerd()
 
         # commented out while we wait for a shorter, faster paperbuzz api result
         # paperbuzz_results = get_paperbuzz(self.display_doi)
@@ -267,6 +287,16 @@ class Pub(db.Model):
 
 
     def to_dict_serp(self):
+        # dandelion_results = {
+        #     "title": self.call_dandelion(self.article_title),
+        #     "abstract": self.call_dandelion(self.abstract_text)
+        # }
+        dandelion_results = None
+        # dandelion_title_results = self.call_dandelion(self.article_title)
+        # if dandelion_title_results and dandelion_title_results.get("topEntities", None):
+        #     dandelion_results = dandelion_title_results["topEntities"]
+        # elif dandelion_title_results["annotations"]:
+        #     dandelion_results = [d["uri"] for d in dandelion_title_results["annotations"]]
 
         response = {
             "pmid": self.pmid,
@@ -286,6 +316,11 @@ class Pub(db.Model):
             "best_version": self.display_best_version,
             "pub_types": self.display_pub_types,
             "mesh": [m.to_dict() for m in self.mesh],
+
+            "dandelion": dandelion_results,
+            "image": {
+                "url": "https://picsum.photos/300/200?random"
+            },
 
             "snippet": getattr(self, "snippet", None),
             "score": self.adjusted_score
