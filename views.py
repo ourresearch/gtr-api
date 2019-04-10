@@ -113,11 +113,13 @@ def get_pub_by_pmid(pmid):
 
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
+
+    # page starts at 1 not 0
     if request.args.get("page"):
         page = int(request.args.get("page"))
     else:
-        page = 0
-    if page > 4:
+        page = 1
+    if page > 5:
         abort_json(400, u"Page too large. API currently only supports 5 pages right now, so page must be in the range 0-4.")
 
     if request.args.get("pagesize"):
@@ -133,7 +135,7 @@ def get_search_query(query):
     print "building response"
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
 
-    my_pub_list = PubList(pubs=sorted_pubs[(pagesize * page):(pagesize * (page + 1))])
+    my_pub_list = PubList(pubs=sorted_pubs[(pagesize * (page-1)):(pagesize * page)])
 
     print "getting synonyms"
     synonym = get_synonym(query)
