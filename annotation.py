@@ -31,6 +31,10 @@ class Annotation(object):
         return self.dandelion_raw["uri"]
 
     @property
+    def spot(self):
+        return self.dandelion_raw["spot"]
+
+    @property
     def types(self):
         return self.dandelion_raw["types"]
 
