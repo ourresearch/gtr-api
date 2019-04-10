@@ -39,6 +39,10 @@ class Annotation(object):
         return self.dandelion_raw["confidence"]
 
     @property
+    def title(self):
+        return self.dandelion_raw["title"]
+
+    @property
     def image_url(self):
         if "image" in self.dandelion_raw and self.dandelion_raw["image"]:
             return self.dandelion_raw["image"]["full"]
@@ -62,6 +66,9 @@ class Annotation(object):
         if "http://dbpedia.org/ontology/Species" in self.types:
             score += 1
 
+        if self.spot.lower() == "activity" and self.title=="Physical exercise":
+            score -= 10
+
         if self.confidence < 0.6:
             score -= 1
 
@@ -83,6 +90,7 @@ class Annotation(object):
             "uri",
             "abstract",
             "label",
+            "spot",
             # "categories",
             "types",
             "alternate_labels"
