@@ -324,6 +324,7 @@ class Pub(db.Model):
             "doi": self.display_doi_url,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
+            "abstract": self.abstract_text,
             "short_abstract": self.short_abstract,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
