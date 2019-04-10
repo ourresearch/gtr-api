@@ -99,4 +99,3 @@ class Annotation(object):
             #         response["image_url"] = data["query"]["pages"].values()[0]["original"]["source"]
             #         print "success", response["image_url"]
 
-        return response
