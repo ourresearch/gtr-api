@@ -187,6 +187,11 @@ class Pub(db.Model):
         if self.abstract_text:
             self.dandelion_abstract_results = self.call_dandelion(self.short_abstract)
 
+    def call_dandelion_on_short_abstract(self):
+        self.dandelion_short_abstract_results = None
+        if self.short_abstract:
+            self.dandelion_short_abstract_results = self.call_dandelion(self.short_abstract)
+
     def call_dandelion_on_article_title(self):
         self.dandelion_title_results = self.call_dandelion(self.article_title)
 

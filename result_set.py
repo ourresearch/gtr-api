@@ -1,5 +1,6 @@
 from multiprocessing.pool import ThreadPool
 from time import time as timer
+import requests
 
 image_blacklist = [
     "Prospective_cohort_study",
@@ -29,6 +30,12 @@ def call_dandelion_on_abstract(pub):
     except Exception as e:
         return (None, pub.pmid, e)
 
+def call_dandelion_on_short_abstract(pub):
+    try:
+        response_data = pub.call_dandelion_on_short_abstract()
+        return (response_data, pub.pmid, None)
+    except Exception as e:
+        return (None, pub.pmid, e)
 
 class ResultSet(object):
 
@@ -49,11 +56,17 @@ class ResultSet(object):
             if error:
                 print "error fetching", pmid
 
+        results = my_thread_pool.imap(call_dandelion_on_short_abstract, self.pubs)
+        for result, pmid, error in results:
+            if error:
+                print "error fetching", pmid
+
         print("Elapsed Time: %s" % (timer() - start,))
 
 
     def set_annotations_and_pictures(self):
         self.set_dandelions()
+        chosen_image_urls = set()
 
         for pub in self.pubs:
             pub.picture_candidates = []
@@ -73,7 +86,14 @@ class ResultSet(object):
             pub.picture_candidates.reverse()
             for candidate in pub.picture_candidates:
                 if candidate["annotation"].get("image_url", None):
-                    pub.image = {"url": candidate["annotation"]["image_url"]}
+                    image = candidate["annotation"]
+                    if image["image_url"] not in chosen_image_urls:
+                        pub.image = candidate["annotation"]
+                        pub.image["url"] = image["image_url"]
+
+            if pub.image.get("url", None):
+                chosen_image_urls.add(pub.image["url"])
+
 
     def to_dict_serp_list(self):
 
@@ -84,9 +104,11 @@ class ResultSet(object):
             pub_dict = my_pub.to_dict_serp()
             pub_dict["picture_candidates"] = my_pub.picture_candidates
             pub_dict["image"] = my_pub.image
-            pub_dict["annotations"] = {"using_article_abstract": None, "using_article_title": None}
+            pub_dict["annotations"] = {"using_article_abstract": None, "using_article_short_abstract": None, "using_article_title": None}
             if hasattr(my_pub, "dandelion_abstract_results"):
                 pub_dict["annotations"]["using_article_abstract"] = dandelion_simple_annotation_dicts(my_pub.dandelion_abstract_results)
+            if hasattr(my_pub, "dandelion_short_abstract_results"):
+                pub_dict["annotations"]["using_article_short_abstract"] = dandelion_simple_annotation_dicts(my_pub.dandelion_short_abstract_results)
             if hasattr(my_pub, "dandelion_title_results"):
                 pub_dict["annotations"]["using_article_title"] = dandelion_simple_annotation_dicts(my_pub.dandelion_title_results)
 
@@ -118,6 +140,19 @@ def dandelion_simple_annotation_dicts(dandelion_raw):
                 response[key] = raw_annotation[key]
         if "image" in raw_annotation and raw_annotation["image"]:
             response["image_url"] = raw_annotation["image"]["full"]
+        else:
+            url_template = u"https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles={title}"
+            url = url_template.format(title=response["title"])
+            print "calling to get an image"
+            r = requests.get(url)
+            data = r.json()
+            print "done"
+            response["image_url"] = None
+            if "query" in data and data["query"].get("pages", None):
+                if data["query"]["pages"].values()[0].get("original", None):
+                    response["image_url"] = data["query"]["pages"].values()[0]["original"]["source"]
+                    print "success", response["image_url"]
+
         response_list.append(response)
 
     return response_list

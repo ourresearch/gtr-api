@@ -13,6 +13,7 @@ import logging
 import sys
 import os
 import requests
+import requests_cache
 from util import safe_commit
 
 HEROKU_APP_NAME = "paperbuzz-api"
@@ -33,7 +34,8 @@ libraries_to_mum = [
     "oauthlib",
     "boto",
     "newrelic",
-    "RateLimiter"
+    "RateLimiter",
+    "urllib3"
 ]
 
 for a_library in libraries_to_mum:
@@ -52,6 +54,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True  # as instructed, to suppres
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_ECHO'] = (os.getenv("SQLALCHEMY_ECHO", False) == "True")
 # app.config['SQLALCHEMY_ECHO'] = True
+
+# use cache, especially during development when calling dandelion a lot
+requests_cache.install_cache('main_cache', backend='sqlite', expire_after=60*60*24*7)
+requests_cache.install_cache()
 
 # from http://stackoverflow.com/a/12417346/596939
 class NullPoolSQLAlchemy(SQLAlchemy):
