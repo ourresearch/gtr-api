@@ -15,7 +15,8 @@ image_blacklist = [
     "Meta-analysis",
     "Systematic_review",
     "Human_sexual_activity",
-    "Adult"
+    "Adult",
+    "Death"
     ]
 
 class Annotation(object):
