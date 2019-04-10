@@ -50,7 +50,10 @@ class Annotation(object):
 
         picture_name = self.uri.rsplit("/", 1)[1]
         if picture_name in image_blacklist:
-            return 0
+            return -1000
+
+        if not self.image_url:
+            return -1000
 
         if "http://dbpedia.org/ontology/Location" in self.types:
             score += 1
@@ -80,7 +83,8 @@ class Annotation(object):
             "abstract",
             "label",
             # "categories",
-            "types"
+            "types",
+            "alternate_labels"
         ]
         for key in raw_annotation.keys():
             if key in keep_keys:
