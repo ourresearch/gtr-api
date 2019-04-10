@@ -62,7 +62,7 @@ class ResultSet(object):
             if hit and hit.get("topEntities", None):
 
                 top_entities = hit["topEntities"]
-                annotations = hit["annotations"]
+                annotations = dandelion_simple_annotation_dicts(hit)
                 for top_entity in top_entities:
 
                     picture_name = top_entity["uri"].rsplit("/", 1)[1]
@@ -70,8 +70,10 @@ class ResultSet(object):
                         top_entity["annotation"] = [a for a in annotations if a["uri"]==top_entity["uri"]][0]
                         pub.picture_candidates.append(top_entity)
 
-            if pub.picture_candidates:
-                pub.image = {"url": pub.picture_candidates[0]["annotation"]["image"].get("full", None)}
+            pub.picture_candidates.reverse()
+            for candidate in pub.picture_candidates:
+                if candidate["annotation"].get("image_url", None):
+                    pub.image = {"url": candidate["annotation"]["image_url"]}
 
     def to_dict_serp_list(self):
 
@@ -84,9 +86,9 @@ class ResultSet(object):
             pub_dict["image"] = my_pub.image
             pub_dict["annotations"] = {"using_article_abstract": None, "using_article_title": None}
             if hasattr(my_pub, "dandelion_abstract_results"):
-                pub_dict["annotations"]["using_article_abstract"] = dandelion_export_dicts(my_pub.dandelion_abstract_results)
+                pub_dict["annotations"]["using_article_abstract"] = dandelion_simple_annotation_dicts(my_pub.dandelion_abstract_results)
             if hasattr(my_pub, "dandelion_title_results"):
-                pub_dict["annotations"]["using_article_title"] = dandelion_export_dicts(my_pub.dandelion_title_results)
+                pub_dict["annotations"]["using_article_title"] = dandelion_simple_annotation_dicts(my_pub.dandelion_title_results)
 
             response.append(pub_dict)
 
@@ -94,7 +96,7 @@ class ResultSet(object):
 
 
 
-def dandelion_export_dicts(dandelion_raw):
+def dandelion_simple_annotation_dicts(dandelion_raw):
     if not dandelion_raw:
         return []
 
