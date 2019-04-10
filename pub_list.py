@@ -50,25 +50,35 @@ class PubList(object):
 
     def set_dandelions(self):
         start = timer()
+
         my_thread_pool = ThreadPool(25)
-
-        results = my_thread_pool.imap(call_dandelion_on_article_title, self.pubs)
+        results = my_thread_pool.imap_unordered(call_dandelion_on_article_title, self.pubs)
+        my_thread_pool.close()
+        my_thread_pool.join()
         for result, pmid, error in results:
             if error:
                 print "error fetching", pmid, error
-
-        results = my_thread_pool.imap(call_dandelion_on_abstract, self.pubs)
-        for result, pmid, error in results:
-            if error:
-                print "error fetching", pmid, error
-
-        results = my_thread_pool.imap(call_dandelion_on_short_abstract, self.pubs)
-        for result, pmid, error in results:
-            if error:
-                print "error fetching", pmid, error
-
-        print("Elapsed Time: %s" % (timer() - start,))
         my_thread_pool.terminate()
+
+        my_thread_pool = ThreadPool(25)
+        results = my_thread_pool.imap_unordered(call_dandelion_on_abstract, self.pubs)
+        my_thread_pool.close()
+        my_thread_pool.join()
+        for result, pmid, error in results:
+            if error:
+                print "error fetching", pmid, error
+        my_thread_pool.terminate()
+
+        my_thread_pool = ThreadPool(25)
+        results = my_thread_pool.imap_unordered(call_dandelion_on_short_abstract, self.pubs)
+        my_thread_pool.close()
+        my_thread_pool.join()
+        for result, pmid, error in results:
+            if error:
+                print "error fetching", pmid, error
+        my_thread_pool.terminate()
+
+        print("elapsed time spent calling dandelion: %s" % (timer() - start,))
 
     def set_annotations_and_pictures(self):
         self.set_dandelions()
