@@ -5,7 +5,7 @@ import requests
 image_blacklist = [
     "Prospective_cohort_study",
     "Patient",
-    "Randomized_controlled_trial",
+    # "Randomized_controlled_trial",
     "Scientific_method",
     "Therapy",
     "Health",

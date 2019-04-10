@@ -70,7 +70,7 @@ class PubList(object):
 
     def set_annotations_and_pictures(self):
         self.set_dandelions()
-        chosen_image_uris = set()
+        chosen_image_urls = set()
 
         for my_pub in self.pubs:
             reverse_sorted_picture_candidates = sorted(my_pub.dandelion_title_annotation_list.list(), key=lambda x: x.picture_score, reverse=False)
@@ -78,11 +78,11 @@ class PubList(object):
             my_pub.image = None
 
             for candidate in my_pub.picture_candidates:
-                if candidate.uri not in chosen_image_uris:
+                if candidate.image_url not in chosen_image_urls:
                     my_pub.image = candidate
 
             if my_pub.image:
-                chosen_image_uris.add(my_pub.image.uri)
+                chosen_image_urls.add(my_pub.image.image_url)
 
 
     def to_dict_serp_list(self):
