@@ -1,6 +1,8 @@
 from multiprocessing.pool import ThreadPool
 from time import time as timer
 import requests
+from collections import Counter
+from collections import defaultdict
 
 from annotation_list import AnnotationList
 
@@ -72,8 +74,20 @@ class PubList(object):
         self.set_dandelions()
         chosen_image_urls = set()
 
+        # get annotations distribution, so pubs can use this to boost rare mentions
+        annotation_counter = Counter()
         for my_pub in self.pubs:
-            reverse_sorted_picture_candidates = sorted(my_pub.dandelion_title_annotation_list.list(), key=lambda x: x.picture_score, reverse=False)
+            for annotation in my_pub.annotations_for_pictures:
+                if annotation.image_url:
+                    annotation_counter[annotation.image_url] += 1
+        annotation_counter_normalized = defaultdict(float)
+        max_mentions = annotation_counter.most_common(1)[0][1] + 0.0
+        for my_key in annotation_counter:
+            annotation_counter_normalized[my_key] = annotation_counter[my_key] / max_mentions
+
+        for my_pub in self.pubs:
+            my_pub.set_annotation_distribution(annotation_counter_normalized)
+            reverse_sorted_picture_candidates = sorted(my_pub.annotations_for_pictures, key=lambda x: x.picture_score, reverse=False)
             my_pub.picture_candidates = reverse_sorted_picture_candidates
             my_pub.image = None
 

@@ -25,6 +25,7 @@ class Annotation(object):
         self.dandelion_raw = dandelion_raw
         self.is_top_entity = False
         self.top_entity_score = 0
+        self.annotation_distribution = None
 
     @property
     def uri(self):
@@ -76,6 +77,11 @@ class Annotation(object):
         if self.confidence < 0.6:
             score -= 1
 
+        score += 0.1 * self.confidence
+
+        if hasattr(self, "annotation_distribution") and self.annotation_distribution:
+            score += 0.5 * (1 - self.annotation_distribution[self.image_url])
+
         return score
 
 
@@ -106,6 +112,9 @@ class Annotation(object):
         response["image_url"] = self.image_url
         response["url"] = self.image_url  # this is where it is expected for the picture
         response["picture_score"] = self.picture_score
+        response["raw_top_entity_score"] = self.top_entity_score
+        if hasattr(self, "attribution_distribution"):
+            response["attribution_distribution"] = self.attribution_distribution
 
         return response
 

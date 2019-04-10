@@ -208,6 +208,14 @@ class Pub(db.Model):
         dandelion_results = self.call_dandelion(self.article_title)
         self.dandelion_title_annotation_list = AnnotationList(dandelion_results)
 
+    @property
+    def annotations_for_pictures(self):
+        return self.dandelion_title_annotation_list.list()
+
+    def set_annotation_distribution(self, annotation_distribution):
+        for my_annotation in self.annotations_for_pictures:
+            my_annotation.annotation_distribution = annotation_distribution
+
 
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
