@@ -140,17 +140,20 @@ def dandelion_simple_annotation_dicts(dandelion_raw):
         if "image" in raw_annotation and raw_annotation["image"]:
             response["image_url"] = raw_annotation["image"]["full"]
         else:
-            url_template = u"https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles={title}"
-            url = url_template.format(title=response["title"])
-            print "calling to get an image"
-            r = requests.get(url)
-            data = r.json()
-            print "done"
             response["image_url"] = None
-            if "query" in data and data["query"].get("pages", None):
-                if data["query"]["pages"].values()[0].get("original", None):
-                    response["image_url"] = data["query"]["pages"].values()[0]["original"]["source"]
-                    print "success", response["image_url"]
+            pass
+
+            # url_template = u"https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles={title}"
+            # url = url_template.format(title=response["title"])
+            # print "calling to get an image"
+            # r = requests.get(url)
+            # data = r.json()
+            # print "done"
+            #
+            # if "query" in data and data["query"].get("pages", None):
+            #     if data["query"]["pages"].values()[0].get("original", None):
+            #         response["image_url"] = data["query"]["pages"].values()[0]["original"]["source"]
+            #         print "success", response["image_url"]
 
         response_list.append(response)
 
