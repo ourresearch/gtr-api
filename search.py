@@ -45,7 +45,6 @@ def fulltext_search_title(original_query):
 
     print "getting synonym"
     synonym = get_synonym(original_query)
-    print "done getting synonym"
     if synonym:
         synonym_escaped = synonym.replace("'", "''")
         synonym_with_ands = ' & '.join(synonym_escaped.split(" "))

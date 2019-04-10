@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import sql
 
 from app import db
+from annotation_list import AnnotationList
 from util import get_sql_answer
 from util import run_sql
 
@@ -168,7 +169,7 @@ class Pub(db.Model):
         return response
 
     def call_dandelion(self, query_text_raw):
-        print u"calling dandelion with {}".format(self.pmid)
+        # print u"calling dandelion with {}".format(self.pmid)
 
         query_text = quote_plus(query_text_raw.encode('utf-8'), safe=':/'.encode('utf-8'))
         url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&country=-1&social=False&top_entities=8&include=image%2Cabstract%2Ctypes%2Ccategories%2Clod&token={key}"
@@ -183,17 +184,21 @@ class Pub(db.Model):
         return response_data
 
     def call_dandelion_on_abstract(self):
-        self.dandelion_abstract_results = None
+        self.dandelion_abstract_annotation_list = None
         if self.abstract_text:
-            self.dandelion_abstract_results = self.call_dandelion(self.short_abstract)
+            dandelion_results = self.call_dandelion(self.abstract_text)
+            self.dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_short_abstract(self):
-        self.dandelion_short_abstract_results = None
+        self.dandelion_short_abstract_annotation_list = None
         if self.short_abstract:
-            self.dandelion_short_abstract_results = self.call_dandelion(self.short_abstract)
+            dandelion_results = self.call_dandelion(self.short_abstract)
+            self.dandelion_short_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_article_title(self):
-        self.dandelion_title_results = self.call_dandelion(self.article_title)
+        dandelion_results = self.call_dandelion(self.article_title)
+        self.dandelion_title_annotation_list = AnnotationList(dandelion_results)
+
 
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
@@ -311,7 +316,7 @@ class Pub(db.Model):
         #     "abstract": self.call_dandelion(self.abstract_text)
         # }
 
-        # dandelion_title_results = self.call_dandelion(self.article_title)
+        # dandelion_title_annotation_list = self.call_dandelion(self.article_title)
 
         # if dandelion_results and dandelion_results.get("topEntities", None):
         #     dandelion_results = dandelion_results["topEntities"]
