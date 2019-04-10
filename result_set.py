@@ -83,8 +83,7 @@ class ResultSet(object):
                         top_entity["annotation"] = [a for a in annotations if a["uri"]==top_entity["uri"]][0]
                         pub.picture_candidates.append(top_entity)
 
-            pub.picture_candidates.reverse()
-            for candidate in pub.picture_candidates:
+            for candidate in reversed(pub.picture_candidates):
                 if candidate["annotation"].get("image_url", None):
                     image = candidate["annotation"]
                     if image["image_url"] not in chosen_image_urls:
