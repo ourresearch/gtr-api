@@ -15,9 +15,16 @@ image_blacklist = [
     "Systematic_review"
     ]
 
-def fetch_url(pub):
+def call_dandelion_on_article_title(pub):
     try:
-        response_data = pub.call_dandelion(pub.article_title)
+        response_data = pub.call_dandelion_on_article_title()
+        return (response_data, pub.pmid, None)
+    except Exception as e:
+        return (None, pub.pmid, e)
+
+def call_dandelion_on_abstract(pub):
+    try:
+        response_data = pub.call_dandelion_on_abstract()
         return (response_data, pub.pmid, None)
     except Exception as e:
         return (None, pub.pmid, e)
@@ -30,19 +37,28 @@ class ResultSet(object):
 
     def set_dandelions(self):
         start = timer()
-        results = ThreadPool(25).imap(fetch_url, self.pubs)
+        my_thread_pool = ThreadPool(25)
+
+        results = my_thread_pool.imap(call_dandelion_on_article_title, self.pubs)
         for result, pmid, error in results:
             if error:
                 print "error fetching", pmid
+
+        results = my_thread_pool.imap(call_dandelion_on_abstract, self.pubs)
+        for result, pmid, error in results:
+            if error:
+                print "error fetching", pmid
+
         print("Elapsed Time: %s" % (timer() - start,))
 
-    def set_pictures(self):
+
+    def set_annotations_and_pictures(self):
         self.set_dandelions()
 
         for pub in self.pubs:
             pub.picture_candidates = []
             pub.image = {}
-            hit = pub.dandelion_results
+            hit = pub.dandelion_title_results
             if hit and hit.get("topEntities", None):
 
                 top_entities = hit["topEntities"]
@@ -59,16 +75,47 @@ class ResultSet(object):
 
     def to_dict_serp_list(self):
 
-        self.set_pictures()
+        self.set_annotations_and_pictures()
 
         response = []
         for my_pub in self.pubs:
             pub_dict = my_pub.to_dict_serp()
             pub_dict["picture_candidates"] = my_pub.picture_candidates
             pub_dict["image"] = my_pub.image
+            pub_dict["annotations"] = {"using_article_abstract": None, "using_article_title": None}
+            if hasattr(my_pub, "dandelion_abstract_results"):
+                pub_dict["annotations"]["using_article_abstract"] = dandelion_export_dicts(my_pub.dandelion_abstract_results)
+            if hasattr(my_pub, "dandelion_title_results"):
+                pub_dict["annotations"]["using_article_title"] = dandelion_export_dicts(my_pub.dandelion_title_results)
+
             response.append(pub_dict)
 
         return response
 
 
 
+def dandelion_export_dicts(dandelion_raw):
+    if not dandelion_raw:
+        return []
+
+    response_list = []
+    for raw_annotation in dandelion_raw["annotations"]:
+        response = {}
+        keep_keys = [
+            "start",
+            "end",
+            "confidence",
+            "id",
+            "title",
+            "uri",
+            "abstract",
+            "label"
+        ]
+        for key in raw_annotation.keys():
+            if key in keep_keys:
+                response[key] = raw_annotation[key]
+        if "image" in raw_annotation and raw_annotation["image"]:
+            response["image_url"] = raw_annotation["image"]["full"]
+        response_list.append(response)
+
+    return response_list

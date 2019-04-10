@@ -180,10 +180,15 @@ class Pub(db.Model):
         except ValueError:
             response_data = None
 
-        self.dandelion_results = response_data
-
         return response_data
 
+    def call_dandelion_on_abstract(self):
+        self.dandelion_abstract_results = None
+        if self.abstract_text:
+            self.dandelion_abstract_results = self.call_dandelion(self.short_abstract)
+
+    def call_dandelion_on_article_title(self):
+        self.dandelion_title_results = self.call_dandelion(self.article_title)
 
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
@@ -240,6 +245,8 @@ class Pub(db.Model):
                 response += ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
             except IndexError:
                 response += self.abstract_text[-500:-1]
+
+        response = response.strip()
         return response
 
     @property
