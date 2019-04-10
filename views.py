@@ -145,6 +145,7 @@ def get_search_query(query):
         term_lookup = get_nerd_term_lookup(synonym)
 
     elapsed_time = elapsed(start_time, 3)
+    print u"finished query for {}: took {} seconds".format(query, elapsed_time)
     return jsonify({"results": my_pub_list.to_dict_serp_list(),
                     "page": page,
                     "synonym": synonym,
