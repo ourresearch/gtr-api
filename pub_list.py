@@ -92,8 +92,11 @@ class PubList(object):
         response = []
         for my_pub in self.pubs:
             pub_dict = my_pub.to_dict_serp()
-            pub_dict["picture_candidates"] = [a.to_dict_simple() for a in reversed(my_pub.picture_candidates)]
-            pub_dict["image"] = my_pub.image.to_dict_simple()
+            pub_dict["picture_candidates"] = [a.to_dict_simple() for a in reversed(my_pub.picture_candidates) if a]
+            if my_pub.image:
+                pub_dict["image"] = my_pub.image.to_dict_simple()
+            else:
+                pub_dict["image"] = {}
             pub_dict["annotations"] = {"using_article_abstract": None, "using_article_short_abstract": None, "using_article_title": None}
             if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
                 pub_dict["annotations"]["using_article_abstract"] = my_pub.dandelion_abstract_annotation_list.to_dict_simple()
