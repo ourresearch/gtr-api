@@ -95,11 +95,11 @@ class PubList(object):
             pub_dict["picture_candidates"] = [a.to_dict_simple() for a in reversed(my_pub.picture_candidates)]
             pub_dict["image"] = my_pub.image.to_dict_simple()
             pub_dict["annotations"] = {"using_article_abstract": None, "using_article_short_abstract": None, "using_article_title": None}
-            if hasattr(my_pub, "dandelion_abstract_annotation_list"):
+            if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
                 pub_dict["annotations"]["using_article_abstract"] = my_pub.dandelion_abstract_annotation_list.to_dict_simple()
-            if hasattr(my_pub, "dandelion_short_abstract_annotation_list"):
+            if hasattr(my_pub, "dandelion_short_abstract_annotation_list") and my_pub.dandelion_short_abstract_annotation_list:
                 pub_dict["annotations"]["using_article_short_abstract"] = my_pub.dandelion_short_abstract_annotation_list.to_dict_simple()
-            if hasattr(my_pub, "dandelion_title_annotation_list"):
+            if hasattr(my_pub, "dandelion_title_annotation_list") and my_pub.dandelion_title_annotation_list:
                 pub_dict["annotations"]["using_article_title"] = my_pub.dandelion_title_annotation_list.to_dict_simple()
 
             response.append(pub_dict)
