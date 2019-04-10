@@ -34,6 +34,10 @@ class Annotation(object):
         return self.dandelion_raw["types"]
 
     @property
+    def confidence(self):
+        return self.dandelion_raw["confidence"]
+
+    @property
     def image_url(self):
         if "image" in self.dandelion_raw and self.dandelion_raw["image"]:
             return self.dandelion_raw["image"]["full"]
@@ -53,6 +57,9 @@ class Annotation(object):
 
         if "http://dbpedia.org/ontology/Species" in self.types:
             score += 1
+
+        if self.confidence < 0.6:
+            score -= 1
 
         return score
 
