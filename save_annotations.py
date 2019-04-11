@@ -30,7 +30,7 @@ def call_dandelion_on_article_title(my_queue_save_obj):
             if my_annotation.uri == top_entity["uri"]:
                 my_annotation.top_entity_score = top_entity["score"]
 
-        print my_annotation
+        # print my_annotation
         db.session.merge(my_annotation)
 
     db.session.merge(my_queue_save_obj)
