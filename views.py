@@ -102,6 +102,13 @@ def index_endpoint():
     })
 
 
+# @app.route("/paper/doi/<path:my_doi>", methods=["GET"])
+# def get_pub_by_doi(my_doi):
+#     my_pub = db.session.query(Pub).filter(Pub.doi == my_doi).first()
+#     if not my_pub:
+#         abort_json(404, u"'{}' is an invalid doi.  See https://doi.org/{}".format(my_doi, my_doi))
+#     return jsonify(my_pub.to_dict_full())
+
 @app.route("/paper/pmid/<path:pmid>", methods=["GET"])
 def get_pub_by_pmid(pmid):
     my_pmid = int(pmid)

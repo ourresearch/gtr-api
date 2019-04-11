@@ -71,7 +71,10 @@ class Annotation(object):
         if "http://dbpedia.org/ontology/Species" in self.types:
             score += 1
 
-        if self.spot.lower() == "activity" and self.title.lower()=="physical exercise":
+        if self.title.lower() == "earth":
+            score -= 0.2
+
+        if self.spot.lower() == "activity" and self.title.lower() == "physical exercise":
             score -= 10
 
         if self.confidence < 0.6:
