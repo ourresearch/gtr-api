@@ -2,6 +2,7 @@ from multiprocessing.pool import ThreadPool
 from time import time as timer
 import requests
 
+
 image_blacklist = [
     "Prospective_cohort_study",
     "Patient",
@@ -71,6 +72,7 @@ class Annotation(object):
         if "http://dbpedia.org/ontology/Species" in self.types:
             score += 1
 
+        # because earth picture is bad, and it often matches global
         if self.title.lower() == "earth":
             score -= 1
 

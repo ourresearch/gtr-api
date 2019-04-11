@@ -14,6 +14,28 @@ from annotation_list import AnnotationList
 from util import get_sql_answer
 from util import run_sql
 
+def call_dandelion(query_text_raw):
+    if not query_text_raw:
+        return None
+
+    query_text = quote_plus(query_text_raw.encode('utf-8'), safe=':/'.encode('utf-8'))
+
+    # if the query text is very short, don't autodetect the language, try it as english
+    language = "auto"
+    if len(query_text) < 40:
+        language = "en"
+
+    url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&lang={language}&country=-1&social=False&top_entities=8&include=image,abstract,types,categories,alternate_labels&token={key}"
+    url = url_template.format(query=query_text, language=language, key=os.getenv("DANDELION_API_KEY"))
+    # print url
+    r = requests.get(url)
+    try:
+        response_data = r.json()
+    except ValueError:
+        response_data = None
+
+    return response_data
+
 
 class Author(db.Model):
     __tablename__ = "medline_author"
@@ -168,44 +190,22 @@ class Pub(db.Model):
                 response += [pub_type.publication_type]
         return response
 
-    def call_dandelion(self, query_text_raw):
-        # print u"calling dandelion with {}".format(self.pmid)
 
-        if not query_text_raw:
-            return None
-
-        query_text = quote_plus(query_text_raw.encode('utf-8'), safe=':/'.encode('utf-8'))
-
-        # if the query text is very short, don't autodetect the language, try it as english
-        language = "auto"
-        if len(query_text) < 40:
-            language = "en"
-
-        url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&lang={language}&country=-1&social=False&top_entities=8&include=image,abstract,types,categories,alternate_labels&token={key}"
-        url = url_template.format(query=query_text, language=language, key=os.getenv("DANDELION_API_KEY"))
-        # print url
-        r = requests.get(url)
-        try:
-            response_data = r.json()
-        except ValueError:
-            response_data = None
-
-        return response_data
 
     def call_dandelion_on_abstract(self):
         self.dandelion_abstract_annotation_list = None
         if self.abstract_text:
-            dandelion_results = self.call_dandelion(self.abstract_text)
+            dandelion_results = call_dandelion(self.abstract_text)
             self.dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_short_abstract(self):
         self.dandelion_short_abstract_annotation_list = None
         if self.short_abstract:
-            dandelion_results = self.call_dandelion(self.short_abstract)
+            dandelion_results = call_dandelion(self.short_abstract)
             self.dandelion_short_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_article_title(self):
-        dandelion_results = self.call_dandelion(self.article_title)
+        dandelion_results = call_dandelion(self.article_title)
         self.dandelion_title_annotation_list = AnnotationList(dandelion_results)
 
     @property
