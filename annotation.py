@@ -72,7 +72,7 @@ class Annotation(object):
             score += 1
 
         if self.title.lower() == "earth":
-            score -= 0.2
+            score -= 1
 
         if self.spot.lower() == "activity" and self.title.lower() == "physical exercise":
             score -= 10
