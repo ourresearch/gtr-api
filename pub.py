@@ -356,6 +356,8 @@ class Pub(db.Model):
                     response.append({"pub_type_pubmed": pub_type_name,
                                  "pub_type_gtr": None,
                                  "evidence_level": None})
+
+        response = sorted(response, key=lambda x: x["evidence_level"] or 0, reverse=True)
         return response
 
     def to_dict_full(self):
