@@ -162,7 +162,6 @@ def get_search_query(query):
 # temporary hack to display all pictures
 @app.route("/search/all_pictures", methods=["GET"])
 def get_all_pictures_hack():
-    print "hi heather!"
 
     # page starts at 1 not 0
     if request.args.get("page"):
