@@ -75,9 +75,12 @@ class PubList(object):
                 if annotation.image_url:
                     annotation_counter[annotation.image_url] += 1
         annotation_counter_normalized = defaultdict(float)
-        max_mentions = annotation_counter.most_common(1)[0][1] + 0.0
-        for my_key in annotation_counter:
-            annotation_counter_normalized[my_key] = annotation_counter[my_key] / max_mentions
+        try:
+            max_mentions = annotation_counter.most_common(1)[0][1] + 0.0
+            for my_key in annotation_counter:
+                annotation_counter_normalized[my_key] = annotation_counter[my_key] / max_mentions
+        except:
+            pass
 
         for my_pub in self.pubs:
             my_pub.set_annotation_distribution(annotation_counter_normalized)
