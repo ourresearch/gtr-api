@@ -162,6 +162,7 @@ def get_search_query(query):
 # temporary hack to display all pictures
 @app.route("/search/all_pictures", methods=["GET"])
 def get_all_pictures_hack():
+    print "hi heather!"
 
     # page starts at 1 not 0
     if request.args.get("page"):
@@ -226,7 +227,16 @@ def get_all_pictures_hack():
             "mesh": [],
             "num_paperbuzz_events": 288,
             "oa_url": "https://www.nature.com/articles/s41598-017-11968-6.pdf",
-            "picture_candidates": []}
+            "picture_candidates": [],
+            "pmid": 29229662,
+            "pmid_url": "https://www.ncbi.nlm.nih.gov/pubmed/29229662",
+            "pub_types": [],
+            "score": 196.795511960983,
+            "short_abstract": None,
+            "snippet": "",
+            "title": "Impactstory logo",
+            "year": "2017"
+            }
     ]
 
     return jsonify({"results": results,
