@@ -159,6 +159,82 @@ def get_search_query(query):
                     "term_lookup": term_lookup,
                     "elapsed_seconds": elapsed_time})
 
+# temporary hack to display all pictures
+@app.route("/search/all_pictures", methods=["GET"])
+def get_all_pictures_hack():
+
+    # page starts at 1 not 0
+    if request.args.get("page"):
+        page = int(request.args.get("page"))
+    else:
+        page = 1
+    if page > 5:
+        abort_json(400, u"Page too large. API currently only supports 5 pages right now, so page must be in the range 0-4.")
+
+    if request.args.get("pagesize"):
+        pagesize = int(request.args.get("pagesize"))
+    else:
+        pagesize = 20
+    if pagesize > 20:
+        abort_json(400, u"pagesize too large; max 20")
+
+    start_time = time()
+
+    # my_pubs = fulltext_search_title(query)
+    #
+    # print "building response"
+    # sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
+    #
+    # my_pub_list = PubList(pubs=sorted_pubs[(pagesize * (page-1)):(pagesize * page)])
+    #
+    # print "getting synonyms"
+    # synonym = get_synonym(query)
+    # print "getting terms from nerd"
+    # term_lookup = get_nerd_term_lookup(query)
+    # if synonym and not term_lookup:
+    #     term_lookup = get_nerd_term_lookup(synonym)
+
+    elapsed_time = 0
+    results = [
+            {
+            "abstract": "",
+            "annotations": {},
+            "author_lastnames": [],
+            "best_host": "publisher",
+            "best_version": "publishedVersion",
+            "date_of_electronic_publication": "Wed, 20 Sep 2017 00:00:00 GMT",
+            "doi": "https://doi.org/10.1038/s41598-017-11968-6",
+            "doi_url": "https://doi.org/10.1038/s41598-017-11968-6",
+            "image": {
+            "abstract": "",
+            "confidence": 0.7095,
+            "end": 83,
+            "id": 49417,
+            "image_url": "https://en.wikipedia.org/wiki/File:Impactstory-logo-2014.png",
+            "label": "Extinct",
+            "picture_score": 0.7072433499999999,
+            "raw_top_entity_score": 0.16754335,
+            "spot": "extinct",
+            "start": 76,
+            "title": "Impactstory logo",
+            "types": [],
+            "uri": "http://en.wikipedia.org/wiki/Extinction",
+            "url": "https://en.wikipedia.org/wiki/File:Impactstory-logo-2014.png"
+            },
+            "is_oa": True,
+            "journal_name": "Scientific reports",
+            "mesh": [],
+            "num_paperbuzz_events": 288,
+            "oa_url": "https://www.nature.com/articles/s41598-017-11968-6.pdf",
+            "picture_candidates": []}
+    ]
+
+    return jsonify({"results": results,
+                    "page": page,
+                    "synonym": None,
+                    "term_lookup": None,
+                    "elapsed_seconds": elapsed_time})
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5011))
