@@ -271,6 +271,12 @@ class Pub(db.Model):
         if self.journal_title and "cochrane database" in self.journal_title.lower():
             score += 10
 
+        if not self.abstract_text or len(self.abstract_text) < 10:
+            score -= 1
+
+        if not self.paperbuzz:
+            score -= 5
+
         if self.display_pub_types:
             pub_type_pubmed = [p["pub_type_pubmed"] for p in self.display_pub_types]
             if "Consensus Development Conference" in pub_type_pubmed:
