@@ -196,6 +196,12 @@ def get_all_pictures_hack():
     #     term_lookup = get_nerd_term_lookup(synonym)
 
     elapsed_time = 0
+
+    image_url = "https://upload.wikimedia.org/wikipedia/commons/4/4a/Impactstory-logo-2014.png"
+    image_uri = "http://en.wikipedia.org/wiki/Extinction"
+    n = 42
+    annotation_title = "Impactstory logo"
+
     results = [
             {
             "abstract": "",
@@ -211,30 +217,30 @@ def get_all_pictures_hack():
             "confidence": .42,
             "end": 0,
             "id": 42,
-            "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Impactstory-logo-2014.png",
-            "label": "Impactstory logo label",
+            "image_url": image_url,
+            "label": "",
             "picture_score": 0.42,
-            "raw_top_entity_score": 0.16754335,
-            "spot": "extinct",
+            "raw_top_entity_score": 0.42,
+            "spot": "",
             "start": 0,
-            "title": "Impactstory logo",
+            "title": "",
             "types": [],
-            "uri": "http://en.wikipedia.org/wiki/Extinction",
-            "url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Impactstory-logo-2014.png"
+            "uri": image_uri,
+            "url": image_url
             },
             "is_oa": True,
-            "journal_name": "n = 42",
+            "journal_name": u"n = {}".format(n),
             "mesh": [],
             "num_paperbuzz_events": 0,
-            "oa_url": "https://www.nature.com/articles/s41598-017-11968-6.pdf",
+            "oa_url": None,
             "picture_candidates": [],
             "pmid": 42,
-            "pmid_url": "https://www.ncbi.nlm.nih.gov/pubmed/29229662",
+            "pmid_url": "",
             "pub_types": [],
             "score": 0,
             "short_abstract": None,
             "snippet": "",
-            "title": "Impactstory logo",
+            "title": annotation_title,
             "year": None
             }
     ]
