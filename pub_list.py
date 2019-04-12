@@ -6,22 +6,6 @@ from collections import defaultdict
 
 from annotation_list import AnnotationList
 
-image_blacklist = [
-    "Prospective_cohort_study",
-    "Patient",
-    "Randomized_controlled_trial",
-    "Scientific_method",
-    "Therapy",
-    "Health",
-    "Statistical_population",
-    "Clinical_trial",
-    "Risk",
-    "Meta-analysis",
-    "Systematic_review",
-    "Human_sexual_activity",
-    "Adult"
-    ]
-
 def call_dandelion_on_article_title(pub):
     try:
         response_data = pub.call_dandelion_on_article_title()

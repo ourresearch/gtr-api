@@ -17,7 +17,11 @@ image_blacklist = [
     "Systematic_review",
     "Human_sexual_activity",
     "Adult",
-    "Death"
+    "Death",
+    "Therapy",
+    "Old_world",
+    "Experiment",
+    "Scientific_control"
     ]
 
 class Annotation(object):
