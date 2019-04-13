@@ -29,7 +29,8 @@ annotation_blacklist = [
     "Conservatism",
     "Film_editing", # gets tagged for gene editing 10.1056%2Fnejmcibr1716741
     "E.T._the_Extra-Terrestrial",  # gets tagged for et al 10.1093%2Fpubmed%2Ffdy038
-    "IP_address" # gets mixed up with p-hacking 10.7717%2Fpeerj.3068
+    "IP_address", # gets mixed up with p-hacking 10.7717%2Fpeerj.3068
+    "Facial_%28sex_act%29" # gets mixed up with facial 10.1016/j.jad.2007.01.031
 ]
 
 
@@ -121,6 +122,11 @@ class Annotation(object):
 
         if not self.image_url:
             return -1000
+
+        # gotta avoid https://gettheresearch.org/search/pmdd?zoom=https%3A%2F%2Fdoi.org%2F10.1016%2Fj.jad.2007.01.031
+
+        if "sex" in self.title.lower():
+            score -= 2
 
         if "http://dbpedia.org/ontology/Location" in self.types and self.title not in ["Ancient Egypt"]:
             score += 2

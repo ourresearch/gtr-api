@@ -138,7 +138,7 @@ def get_search_query(query):
     if pagesize > 20:
         abort_json(400, u"pagesize too large; max 20")
 
-    oa_only = str_to_bool(request.args.get("oa_only", "false"))
+    oa_only = str_to_bool(request.args.get("oa", "false"))
 
     start_time = time()
     my_pubs = fulltext_search_title(query, oa_only)

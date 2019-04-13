@@ -51,6 +51,10 @@ def fulltext_search_title(original_query, oa_only):
         query_to_use += u" | ({})".format(synonym_with_ands)
 
     print "starting query"
+    if oa_only:
+        oa_clause = u" and is_oa=True "
+    else:
+        oa_clause = " "
     query_string = u"""
         select
         pmid, 
@@ -58,12 +62,13 @@ def fulltext_search_title(original_query, oa_only):
         (ts_rank_cd(to_tsvector('english', article_title), to_tsquery('{q}'), 1) + 0.05*COALESCE(num_events,0)) AS rank,
         article_title,
         num_events
-        FROM search_attributes_mv
+        FROM search_mv
         WHERE  
         to_tsvector('english', article_title) @@  to_tsquery('{q}')
+        {oa_clause}
         order by rank desc
         limit 100;
-        """.format(q=query_to_use)
+        """.format(q=query_to_use, oa_clause=oa_clause)
     print query_string
     rows = db.engine.execute(sql.text(query_string)).fetchall()
     print "done getting query"

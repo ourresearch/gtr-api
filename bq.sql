@@ -21,5 +21,8 @@ create materialized view search_mv as (
      );
 
 CREATE INDEX search_mv_title_gist_trgm_idx ON search_mv USING gist (article_title gist_trgm_ops);
+CREATE INDEX search_mv_title_gin_trgm_idx ON search_mv USING gin (article_title gist_trgm_ops);
 create index search_mv_title_gist_tsvector_idx on search_mv using gist (to_tsvector('english', article_title));
+create index search_mv_title_gin_tsvector_idx on search_mv using gin(to_tsvector('english', article_title))
+
 VACUUM ANALYZE search_mv
