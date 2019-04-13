@@ -198,7 +198,10 @@ class Pub(db.Model):
 
     @property
     def annotations_for_pictures(self):
-        return self.dandelion_title_annotation_list.list()
+        try:
+            return self.dandelion_title_annotation_list.list()
+        except:
+            return []
 
     def set_annotation_distribution(self, annotation_distribution):
         for my_annotation in self.annotations_for_pictures:

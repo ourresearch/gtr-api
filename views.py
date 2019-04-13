@@ -181,9 +181,25 @@ def get_all_pictures_hack():
     all_results = []
     fp = open("entities.tsv", "r")
     lines = fp.readlines()
-    for line in lines:
+    # skip header
+    for line in lines[1:]:
         if line:
-            (image_uri, annotation_title, image_url, n) = line.split("\t")
+            (image_uri, annotation_title, image_url, n, class_type, alt_img, weight, comment) = line.split("\t")
+            if alt_img:
+                image_url = alt_img
+            if class_type:
+                lookup_forbidden_image = {
+                        "nsfw": "https://i.imgur.com/pY9cTVs.png",
+                        "generic":"https://i.imgur.com/Xh7WxaX.png",
+                        "study type": "https://i.imgur.com/8wXxDrY.png",
+                        "mislabel": "https://i.imgur.com/D0yV5Hb.png"
+                    }
+                image_url = lookup_forbidden_image[class_type]
+            img_label = ""
+            if class_type:
+                img_label = class_type
+            if weight:
+                img_label += ", weight={}".format(weight)
             all_results.append(
                 {
                 "abstract": "",
@@ -195,21 +211,21 @@ def get_all_pictures_hack():
                 "doi": "42",
                 "doi_url": "42",
                 "image": {
-                "abstract": "",
-                "confidence": .42,
-                "end": 0,
-                "id": 42,
-                "image_url": image_url,
-                "label": "",
-                "picture_score": 0.42,
-                "raw_top_entity_score": 0.42,
-                "spot": "",
-                "start": 0,
-                "title": "",
-                "types": [],
-                "uri": image_uri,
-                "url": image_url
-                },
+                    "abstract": "",
+                    "confidence": .42,
+                    "end": 0,
+                    "id": 42,
+                    "image_url": image_url,
+                    "label": img_label,
+                    "picture_score": 0.42,
+                    "raw_top_entity_score": 0.42,
+                    "spot": "",
+                    "start": 0,
+                    "title": img_label,
+                    "types": [],
+                    "uri": image_uri,
+                    "url": image_url
+                    },
                 "is_oa": True,
                 "journal_name": u"n = {}".format(n),
                 "mesh": [],

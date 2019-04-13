@@ -17,7 +17,6 @@ def call_dandelion_on_article_title(my_queue_save_obj):
     my_queue_save_obj.dandelion_raw = dandelion_results
     my_queue_save_obj.dandelion_collected = datetime.datetime.utcnow()
 
-    list_of_annotation_objects = []
     # print "\n"
     # print my_queue_save_obj.article_title
 

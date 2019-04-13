@@ -89,8 +89,10 @@ class PubList(object):
             my_pub.image = None
 
             for candidate in my_pub.picture_candidates:
-                if candidate.image_url not in chosen_image_urls:
-                    my_pub.image = candidate
+                # make sure is positive, otherwise blacklisted
+                if candidate.picture_score >= 0:
+                    if candidate.image_url not in chosen_image_urls:
+                        my_pub.image = candidate
 
             if my_pub.image:
                 chosen_image_urls.add(my_pub.image.image_url)

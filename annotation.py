@@ -2,7 +2,18 @@ from multiprocessing.pool import ThreadPool
 from time import time as timer
 import requests
 
+# because these annotations are almost always incorrectly applied and/or they are inappropriate
+# should be in uri format
+annotation_blacklist = [
+    "Conservatism",
+    "Film_editing", # gets tagged for gene editing 10.1056%2Fnejmcibr1716741
+    "E.T._the_Extra-Terrestrial",  # gets tagged for et al 10.1093%2Fpubmed%2Ffdy038
+    "IP_address" # gets mixed up with p-hacking 10.7717%2Fpeerj.3068
+]
 
+
+# the annotations are fine we just don't want them to be our main image
+# should be in uri format
 image_blacklist = [
     "Prospective_cohort_study",
     "Patient",
@@ -21,8 +32,7 @@ image_blacklist = [
     "Therapy",
     "Old_world",
     "Experiment",
-    "Scientific_control",
-    "Conservatism"
+    "Scientific_control"
     ]
 
 class Annotation(object):
@@ -54,6 +64,25 @@ class Annotation(object):
         return self.dandelion_raw["title"]
 
     @property
+    def in_image_blacklist(self):
+        uri_name = self.uri.rsplit("/", 1)[1]
+        if uri_name in annotation_blacklist:
+            return True
+        return False
+
+    @property
+    def suppress(self):
+        uri_name = self.uri.rsplit("/", 1)[1]
+        if uri_name in annotation_blacklist:
+            return True
+
+        # too many incorrect hits on people, and they are too costly (remove this and search for "et al" to see)
+        if "http://dbpedia.org/ontology/Person" in self.types:
+            return True
+
+        return False
+
+    @property
     def image_url(self):
         if "image" in self.dandelion_raw and self.dandelion_raw["image"]:
             return self.dandelion_raw["image"]["full"]
@@ -64,22 +93,32 @@ class Annotation(object):
     def picture_score(self):
         score = self.top_entity_score
 
-        picture_name = self.uri.rsplit("/", 1)[1]
-        if picture_name in image_blacklist:
+        if self.suppress:
+            return -1000
+
+        if self.in_image_blacklist:
             return -1000
 
         if not self.image_url:
             return -1000
 
-        if "http://dbpedia.org/ontology/Location" in self.types:
+        if "http://dbpedia.org/ontology/Location" in self.types and self.title not in ["Ancient Egypt"]:
+            score += 2
+
+        if "http://dbpedia.org/ontology/Species" in self.types and self.title not in ["Rat", "Mouse"]:
+            score += 2
+
+        if "http://dbpedia.org/ontology/AnatomicalStructure" in self.types:
             score += 1
 
-        if "http://dbpedia.org/ontology/Species" in self.types:
-            score += 1
+        if "http://dbpedia.org/ontology/Biomolecule" in self.types:
+            score += 0.8
 
-        # because earth picture is bad, and it often matches global
-        if self.title.lower() == "earth":
-            score -= 1
+        if "http://dbpedia.org/ontology/ChemicalSubstance" in self.types:
+            score += 0.6
+
+        if "http://dbpedia.org/ontology/Food" in self.types:
+            score += 0.8
 
         if self.spot.lower() == "activity" and self.title.lower() == "physical exercise":
             score -= 10
@@ -90,7 +129,7 @@ class Annotation(object):
         score += 0.1 * self.confidence
 
         if hasattr(self, "annotation_distribution") and self.annotation_distribution:
-            score += 0.5 * (1 - self.annotation_distribution[self.image_url])
+            score += 0.3 * (1 - self.annotation_distribution[self.image_url])
 
         return score
 
