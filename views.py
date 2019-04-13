@@ -236,10 +236,12 @@ def get_all_pictures_hack():
             "short_abstract": None,
             "snippet": "",
             "title": annotation_title,
-            "year": None
+            "year": None,
+            "n_in_annotation_sample": int(n)
             }
         )
 
+    all_results = sorted(all_results, key=lambda x: x["n_in_annotation_sample"], reverse=True)
     results = all_results[(pagesize * (page-1)):(pagesize * page)]
 
     return jsonify({"results": results,

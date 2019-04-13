@@ -94,9 +94,9 @@ class Annotation(object):
         if self.in_image_blacklist:
             return False
 
-        if annotation_file_contents.get(self.title, None):
-            if annotation_file_contents[self.title]["alt_img"]:
-                return annotation_file_contents[self.title]["alt_img"]
+        if annotation_file_contents.get(self.uri, None):
+            if annotation_file_contents[self.uri]["alt_img"]:
+                return annotation_file_contents[self.uri]["alt_img"]
 
         if "image" in self.dandelion_raw and self.dandelion_raw["image"]:
             return self.dandelion_raw["image"]["full"]
@@ -111,8 +111,8 @@ class Annotation(object):
         if self.in_image_blacklist:
             return False
 
-        if annotation_file_contents.get(self.title, None):
-            if annotation_file_contents[self.title]["bad_image_reason"] != None:
+        if annotation_file_contents.get(self.uri, None):
+            if annotation_file_contents[self.uri]["bad_image_reason"] != None:
                 return True
 
         if not self.image_url:
@@ -154,8 +154,8 @@ class Annotation(object):
 
         score += 0.1 * self.confidence
 
-        if annotation_file_contents.get(self.title, None):
-            score *= annotation_file_contents[self.title]["score"]
+        if annotation_file_contents.get(self.uri, None) and annotation_file_contents[self.uri]["weight"]:
+            score *= float(annotation_file_contents[self.uri]["weight"])
 
         if hasattr(self, "annotation_distribution") and self.annotation_distribution:
             score += 0.3 * (1 - self.annotation_distribution[self.image_url])
