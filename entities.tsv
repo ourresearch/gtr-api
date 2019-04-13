@@ -1,14 +1,14 @@
 uri	title	url	n	class for black list	alternate image	weight (if not black list or 1)	comment
-http://en.wikipedia.org/wiki/Patient	Patient		1237		NEWPIC	0.5	
+http://en.wikipedia.org/wiki/Patient	Patient		1237		http://res.freestockphotos.biz/pictures/16/16288-a-female-doctor-examining-a-patient-pv.jpg	0.5	
 http://en.wikipedia.org/wiki/Systematic_review	Systematic review	https://commons.wikimedia.org/wiki/Special:FilePath/Systematic_reviews_-_what_authors_do.png	1084	study type			
 http://en.wikipedia.org/wiki/Therapy	Therapy	https://commons.wikimedia.org/wiki/Special:FilePath/Polio_physical_therapy.jpg	720	generic			
 http://en.wikipedia.org/wiki/Human	Human	https://commons.wikimedia.org/wiki/Special:FilePath/Akha_cropped_hires.JPG	658		NEWPIC	0.2	
 http://en.wikipedia.org/wiki/Meta-analysis	Meta-analysis		626	study type			
 http://en.wikipedia.org/wiki/Randomized_controlled_trial	Randomized controlled trial	https://commons.wikimedia.org/wiki/Special:FilePath/Flowchart_of_Phases_of_Parallel_Randomized_Trial_-_Modified_from_CONSORT_2010.png	569	study type			
-http://en.wikipedia.org/wiki/Evolution	Evolution	https://commons.wikimedia.org/wiki/Special:FilePath/Lucretius_Rome.jpg	509		NEWPIC	0.5	
+http://en.wikipedia.org/wiki/Evolution	Evolution	https://commons.wikimedia.org/wiki/Special:FilePath/Lucretius_Rome.jpg	509		https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Human_evolution.svg/800px-Human_evolution.svg.png	0.5	
 http://en.wikipedia.org/wiki/Species	Species	https://commons.wikimedia.org/wiki/Special:FilePath/John_Ray_from_NPG.jpg	486		NEWPIC	0.5	
 http://en.wikipedia.org/wiki/Research	Research	https://commons.wikimedia.org/wiki/Special:FilePath/Research-Warner-Highsmith.jpeg	477	study type			
-http://en.wikipedia.org/wiki/Medicine	Medicine	https://commons.wikimedia.org/wiki/Special:FilePath/Three_early_medicine_bottles.jpg	472		NEWPIC	0.5	
+http://en.wikipedia.org/wiki/Medicine	Medicine	https://commons.wikimedia.org/wiki/Special:FilePath/Three_early_medicine_bottles.jpg	472		https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Star_of_life2.svg/220px-Star_of_life2.svg.png	0.5	
 http://en.wikipedia.org/wiki/Health	Health	https://commons.wikimedia.org/wiki/Special:FilePath/Smallpox_eradication_team.jpg	460	generic			
 http://en.wikipedia.org/wiki/Health_care	Health care	https://commons.wikimedia.org/wiki/Special:FilePath/NewYorkPresbyterian-Cornell.jpg	451	generic			
 http://en.wikipedia.org/wiki/Physical_exercise	Physical exercise	https://commons.wikimedia.org/wiki/Special:FilePath/Soldier_running_in_water.jpg	443		NEWPIC	0.3	
@@ -101,7 +101,7 @@ http://en.wikipedia.org/wiki/Gene_expression	Gene expression	https://commons.wik
 http://en.wikipedia.org/wiki/Dementia	Dementia	https://commons.wikimedia.org/wiki/Special:FilePath/Alzheimer's_disease_brain_comparison.jpg	143				
 http://en.wikipedia.org/wiki/Medical_research	Medical research	https://commons.wikimedia.org/wiki/Special:FilePath/Monoclonal_antibodies4.jpg	142	study type			
 http://en.wikipedia.org/wiki/Morphology_%28biology%29	Morphology (biology)	https://commons.wikimedia.org/wiki/Special:FilePath/Caprella_mutica_male_morphology.jpg	142				
-http://en.wikipedia.org/wiki/Earth	Earth	https://commons.wikimedia.org/wiki/Special:FilePath/Earth_symbol.svg	141		NEWPIC		
+http://en.wikipedia.org/wiki/Earth	Earth	https://commons.wikimedia.org/wiki/Special:FilePath/Earth_symbol.svg	141		https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/220px-The_Earth_seen_from_Apollo_17.jpg		
 http://en.wikipedia.org/wiki/Natural_environment	Natural environment	https://en.wikipedia.org/wiki/Special:FilePath/Hopetoun_falls.jpg	141				
 http://en.wikipedia.org/wiki/Cardiovascular_disease	Cardiovascular disease	https://commons.wikimedia.org/wiki/Special:FilePath/Cardiac_amyloidosis_very_high_mag_movat.jpg	141				
 http://en.wikipedia.org/wiki/Decision-making	Decision-making	https://commons.wikimedia.org/wiki/Special:FilePath/Wikipedia_article-creation-2.svg	140	study type			
@@ -118,7 +118,7 @@ http://en.wikipedia.org/wiki/Mental_disorder	Mental disorder	https://commons.wik
 http://en.wikipedia.org/wiki/Taxonomy_%28biology%29	Taxonomy (biology)		131				
 http://en.wikipedia.org/wiki/Prediction	Prediction	https://commons.wikimedia.org/wiki/Special:FilePath/Old_Farmer's_Almanac_1793_cover.jpg	129	study type			
 http://en.wikipedia.org/wiki/Mitochondrial_DNA	Mitochondrial DNA	https://commons.wikimedia.org/wiki/Special:FilePath/Map_of_the_human_mitochondrial_genome.svg	129				
-http://en.wikipedia.org/wiki/Drug	Drug	https://commons.wikimedia.org/wiki/Special:FilePath/A_small_cup_of_coffee.JPG	129		NEWPIC		
+http://en.wikipedia.org/wiki/Drug	Drug	https://commons.wikimedia.org/wiki/Special:FilePath/A_small_cup_of_coffee.JPG	129		https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Nexium_%28esomeprazole_magnesium%29_pills.JPG/220px-Nexium_%28esomeprazole_magnesium%29_pills.JPG		
 http://en.wikipedia.org/wiki/Molecule	Molecule	https://commons.wikimedia.org/wiki/Special:FilePath/PTCDA_AFM.jpg	128				
 http://en.wikipedia.org/wiki/Stroke	Stroke	https://commons.wikimedia.org/wiki/Special:FilePath/MCA_Territory_Infarct.svg	128				
 http://en.wikipedia.org/wiki/Diabetes_mellitus_type_2	Diabetes mellitus type 2	https://commons.wikimedia.org/wiki/Special:FilePath/Blue_circle_for_diabetes.svg	128				
@@ -1306,7 +1306,7 @@ http://en.wikipedia.org/wiki/Deep_sea	Deep sea	https://commons.wikimedia.org/wik
 http://en.wikipedia.org/wiki/Physical_attractiveness	Physical attractiveness	https://commons.wikimedia.org/wiki/Special:FilePath/Venus_de_Milo_Louvre_Ma399_n4.jpg	18				
 http://en.wikipedia.org/wiki/Cardiac_arrhythmia	Cardiac arrhythmia	https://commons.wikimedia.org/wiki/Special:FilePath/Ventricular_fibrillation.png	18				
 http://en.wikipedia.org/wiki/Childhood_obesity	Childhood obesity	https://commons.wikimedia.org/wiki/Special:FilePath/Variation_in_body_fat_12577.JPG	18				
-http://en.wikipedia.org/wiki/Urbanization	Urbanization	https://commons.wikimedia.org/wiki/Special:FilePath/Urbanisation-degree.png	18				
+http://en.wikipedia.org/wiki/Urbanization	Urbanization	https://commons.wikimedia.org/wiki/Special:FilePath/Urbanisation-degree.png	18		NEWPIC		
 http://en.wikipedia.org/wiki/Volunteering	Volunteering	https://commons.wikimedia.org/wiki/Special:FilePath/StateLibQld_1_165995_Ithaca_influenza_epidemic_workers,_July_1919.jpg	18				
 http://en.wikipedia.org/wiki/Vegetarianism	Vegetarianism	https://commons.wikimedia.org/wiki/Special:FilePath/Soy-whey-protein-diet.jpg	18				
 http://en.wikipedia.org/wiki/Construction	Construction	https://commons.wikimedia.org/wiki/Special:FilePath/Sky_scraper_construction.jpg	18				
