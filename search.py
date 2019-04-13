@@ -69,7 +69,7 @@ def fulltext_search_title(original_query, oa_only):
         order by rank desc
         limit 100;
         """.format(q=query_to_use, oa_clause=oa_clause)
-    print query_string
+    # print query_string
     rows = db.engine.execute(sql.text(query_string)).fetchall()
     print "done getting query"
     # print rows

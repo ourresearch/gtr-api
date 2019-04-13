@@ -4,6 +4,7 @@ import datetime
 import shortuuid
 import hashlib
 import requests
+import random
 from urllib import quote_plus
 from collections import defaultdict
 from sqlalchemy.dialects.postgresql import JSONB
@@ -13,6 +14,22 @@ from app import db
 from annotation_list import AnnotationList
 from util import get_sql_answer
 from util import run_sql
+
+annotation_file_contents = {}
+fp = open("temp_news.jsonl", "r")
+lines = fp.readlines()
+fp.close()
+import json
+temp_news_articles = []
+# skip header
+for line in lines:
+    json_line = json.loads(line)
+    news_article = {
+        "occurred_at": json_line["occurred_at"],
+        "news_title": json_line["subj"]["title"],
+        "news_url": json_line["subj"]["url"]
+    }
+    temp_news_articles.append(news_article)
 
 def call_dandelion(query_text_raw):
     if not query_text_raw:
@@ -177,6 +194,11 @@ class Pub(db.Model):
             return self.unpaywall_lookup.best_version
         return None
 
+    @property
+    def news_articles(self):
+        fake_number_news_articles = self.display_number_of_paperbuzz_events/10
+        articles = random.sample(temp_news_articles, min(fake_number_news_articles, 10))
+        return articles
 
 
 
@@ -420,6 +442,8 @@ class Pub(db.Model):
             "best_version": self.display_best_version,
             "pub_types": self.display_pub_types,
             "mesh": [m.to_dict() for m in self.mesh],
+
+            "news_articles": self.news_articles,
 
             # "dandelion": dandelion_results,
             "image": {
