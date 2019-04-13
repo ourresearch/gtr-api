@@ -2,25 +2,24 @@ from multiprocessing.pool import ThreadPool
 from time import time as timer
 import requests
 
-annotation_file_contents = []
+annotation_file_contents = {}
 fp = open("entities.tsv", "r")
 lines = fp.readlines()
 # skip header
 for line in lines[1:]:
-    (image_uri, annotation_title, image_url, n, class_type, alt_img, weight, comment) = line.split("\t")
+    (image_uri, annotation_title, orig_image_url, n, bad_image_reason, alt_img, weight, comment) = line.split("\t")
     if alt_img == "NEWPIC":
         alt_img = "https://i.imgur.com/J4ABZlG.png"
-    response = {
+    annotation_file_contents[image_uri] = {
         "image_uri": image_uri,
         "annotation_title": annotation_title,
-        "image_url": image_url,
+        "orig_image_url": orig_image_url,
         "n": n,
-        "class_type": class_type,
+        "bad_image_reason": bad_image_reason,
         "alt_img": alt_img,
         "weight": weight,
         "comment": comment
     }
-    annotation_file_contents.append(response)
 fp.close()
 
 
@@ -37,24 +36,6 @@ annotation_blacklist = [
 # the annotations are fine we just don't want them to be our main image
 # should be in uri format
 image_blacklist = [
-    "Prospective_cohort_study",
-    "Patient",
-    # "Randomized_controlled_trial",
-    "Scientific_method",
-    "Therapy",
-    "Health",
-    "Statistical_population",
-    "Clinical_trial",
-    "Risk",
-    "Meta-analysis",
-    "Systematic_review",
-    "Human_sexual_activity",
-    "Adult",
-    "Death",
-    "Therapy",
-    "Old_world",
-    "Experiment",
-    "Scientific_control"
     ]
 
 class Annotation(object):
@@ -106,22 +87,45 @@ class Annotation(object):
 
     @property
     def image_url(self):
+        # maybe supressed or not valid for some reason
+        if self.suppress:
+            return False
+
+        if self.in_image_blacklist:
+            return False
+
+        if annotation_file_contents.get(self.title, None):
+            if annotation_file_contents[self.title]["alt_img"]:
+                return annotation_file_contents[self.title]["alt_img"]
+
         if "image" in self.dandelion_raw and self.dandelion_raw["image"]:
             return self.dandelion_raw["image"]["full"]
         else:
             return None
 
     @property
+    def has_valid_image(self):
+        if self.suppress:
+            return False
+
+        if self.in_image_blacklist:
+            return False
+
+        if annotation_file_contents.get(self.title, None):
+            if annotation_file_contents[self.title]["bad_image_reason"] != None:
+                return True
+
+        if not self.image_url:
+            return False
+
+        return True
+
+
+    @property
     def picture_score(self):
         score = self.top_entity_score
 
-        if self.suppress:
-            return -1000
-
-        if self.in_image_blacklist:
-            return -1000
-
-        if not self.image_url:
+        if not self.has_valid_image:
             return -1000
 
         if "http://dbpedia.org/ontology/Location" in self.types and self.title not in ["Ancient Egypt"]:
@@ -149,6 +153,9 @@ class Annotation(object):
             score -= 1
 
         score += 0.1 * self.confidence
+
+        if annotation_file_contents.get(self.title, None):
+            score *= annotation_file_contents[self.title]["score"]
 
         if hasattr(self, "annotation_distribution") and self.annotation_distribution:
             score += 0.3 * (1 - self.annotation_distribution[self.image_url])

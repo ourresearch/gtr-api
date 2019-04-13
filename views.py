@@ -183,20 +183,20 @@ def get_all_pictures_hack():
     elapsed_time = 0
 
     all_results = []
-    for line in annotation_file_contents:
-        image_uri = line["image_uri"]
-        image_url = line["image_url"]
-        if line["alt_img"]:
-            image_url = line["alt_img"]
-        n = line["n"]
-        annotation_title = line["annotation_title"]
-        if line["class_type"]:
+    for image_uri in annotation_file_contents:
+        image_dict = annotation_file_contents[image_uri]
+        image_url = image_dict["orig_image_url"]
+        if image_dict["alt_img"]:
+            image_url = image_dict["alt_img"]
+        n = image_dict["n"]
+        annotation_title = image_dict["annotation_title"]
+        if image_dict["bad_image_reason"]:
             image_url = ""
         img_label = ""
-        if line["class_type"]:
-            img_label = u"EXCLUDED: {}".format(line["class_type"])
-        if line["weight"]:
-            img_label += u" weight={}".format(line["weight"])
+        if image_dict["bad_image_reason"]:
+            img_label = u"EXCLUDED: {}".format(image_dict["bad_image_reason"])
+        if image_dict["weight"]:
+            img_label += u" weight={}".format(image_dict["weight"])
         all_results.append(
             {
             "abstract": "",
