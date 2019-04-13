@@ -103,29 +103,23 @@ class Annotation(object):
         else:
             return None
 
-    @property
-    def has_valid_image(self):
-        if self.suppress:
-            return False
-
-        if self.in_image_blacklist:
-            return False
-
-        if annotation_file_contents.get(self.uri, None):
-            if annotation_file_contents[self.uri]["bad_image_reason"] != None:
-                return True
-
-        if not self.image_url:
-            return False
-
-        return True
 
 
     @property
     def picture_score(self):
         score = self.top_entity_score
 
-        if not self.has_valid_image:
+        if self.suppress:
+            return -1000
+
+        if self.in_image_blacklist:
+            return -1000
+
+        if annotation_file_contents.get(self.uri, None):
+            if annotation_file_contents[self.uri]["bad_image_reason"]:
+                return -1000
+
+        if not self.image_url:
             return -1000
 
         if "http://dbpedia.org/ontology/Location" in self.types and self.title not in ["Ancient Egypt"]:
