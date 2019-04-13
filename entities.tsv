@@ -1,8 +1,8 @@
 uri	title	url	n	class for black list	alternate image	weight (if not black list or 1)	comment
-http://en.wikipedia.org/wiki/Patient	Patient		1237		https://i.imgur.com/J4ABZlG.png	0.5	
+http://en.wikipedia.org/wiki/Patient	Patient		1237		NEWPIC	0.5	
 http://en.wikipedia.org/wiki/Systematic_review	Systematic review	https://commons.wikimedia.org/wiki/Special:FilePath/Systematic_reviews_-_what_authors_do.png	1084	study type			
 http://en.wikipedia.org/wiki/Therapy	Therapy	https://commons.wikimedia.org/wiki/Special:FilePath/Polio_physical_therapy.jpg	720	generic			
-http://en.wikipedia.org/wiki/Human	Human	https://commons.wikimedia.org/wiki/Special:FilePath/Akha_cropped_hires.JPG	658		https://i.imgur.com/J4ABZlG.png	0.2	
+http://en.wikipedia.org/wiki/Human	Human	https://commons.wikimedia.org/wiki/Special:FilePath/Akha_cropped_hires.JPG	658		NEWPIC	0.2	
 http://en.wikipedia.org/wiki/Meta-analysis	Meta-analysis		626	study type			
 http://en.wikipedia.org/wiki/Randomized_controlled_trial	Randomized controlled trial	https://commons.wikimedia.org/wiki/Special:FilePath/Flowchart_of_Phases_of_Parallel_Randomized_Trial_-_Modified_from_CONSORT_2010.png	569	study type			
 http://en.wikipedia.org/wiki/Evolution	Evolution	https://commons.wikimedia.org/wiki/Special:FilePath/Lucretius_Rome.jpg	509			0.5	
@@ -11,7 +11,7 @@ http://en.wikipedia.org/wiki/Research	Research	https://commons.wikimedia.org/wik
 http://en.wikipedia.org/wiki/Medicine	Medicine	https://commons.wikimedia.org/wiki/Special:FilePath/Three_early_medicine_bottles.jpg	472			0.5	
 http://en.wikipedia.org/wiki/Health	Health	https://commons.wikimedia.org/wiki/Special:FilePath/Smallpox_eradication_team.jpg	460	generic			
 http://en.wikipedia.org/wiki/Health_care	Health care	https://commons.wikimedia.org/wiki/Special:FilePath/NewYorkPresbyterian-Cornell.jpg	451	generic			
-http://en.wikipedia.org/wiki/Physical_exercise	Physical exercise	https://commons.wikimedia.org/wiki/Special:FilePath/Soldier_running_in_water.jpg	443		https://i.imgur.com/J4ABZlG.png	0.3	
+http://en.wikipedia.org/wiki/Physical_exercise	Physical exercise	https://commons.wikimedia.org/wiki/Special:FilePath/Soldier_running_in_water.jpg	443		NEWPIC	0.3	
 http://en.wikipedia.org/wiki/Clinical_trial	Clinical trial		433	study type			
 http://en.wikipedia.org/wiki/Risk	Risk	https://commons.wikimedia.org/wiki/Special:FilePath/3_Alarm_Building_Fire.jpg	422	generic			
 http://en.wikipedia.org/wiki/Disease	Disease	https://commons.wikimedia.org/wiki/Special:FilePath/Mycobacterium_tuberculosis.jpg	421			0.5	
@@ -22,8 +22,8 @@ http://en.wikipedia.org/wiki/Adolescence	Adolescence	https://commons.wikimedia.o
 http://en.wikipedia.org/wiki/Biodiversity	Biodiversity	https://commons.wikimedia.org/wiki/Special:FilePath/Fungi_of_Saskatchewan.JPG	333			0.5	
 http://en.wikipedia.org/wiki/Experiment	Experiment	https://commons.wikimedia.org/wiki/Special:FilePath/Mirror_baby.jpg	332	study type			
 http://en.wikipedia.org/wiki/Adult	Adult	https://commons.wikimedia.org/wiki/Special:FilePath/RudolfMilly.jpg	324				
+http://en.wikipedia.org/wiki/Behavior	Behavior		307		NEWPIC	0.3	
 http://en.wikipedia.org/wiki/Mortality_rate	Mortality rate	https://commons.wikimedia.org/wiki/Special:FilePath/Death_rate_world_map.PNG	307			0.3	
-http://en.wikipedia.org/wiki/Behavior	Behavior		307		https://i.imgur.com/J4ABZlG.png	0.3	
 http://en.wikipedia.org/wiki/Correlation_and_dependence	Correlation and dependence	https://commons.wikimedia.org/wiki/Special:FilePath/Correlation_examples2.svg	303	study type			
 http://en.wikipedia.org/wiki/Genome	Genome	https://commons.wikimedia.org/wiki/Special:FilePath/UCSC_human_chromosome_colours.png	302				
 http://en.wikipedia.org/wiki/Medical_diagnosis	Medical diagnosis	https://commons.wikimedia.org/wiki/Special:FilePath/Xraymachine.JPG	286				
@@ -67,7 +67,7 @@ http://en.wikipedia.org/wiki/Ageing	Ageing	https://commons.wikimedia.org/wiki/Sp
 http://en.wikipedia.org/wiki/Infant	Infant	https://commons.wikimedia.org/wiki/Special:FilePath/Being_a_twin_means_you_always_have_a_pillow_or_blanket_handy.jpg	174				
 http://en.wikipedia.org/wiki/Woman	Woman		174				
 http://en.wikipedia.org/wiki/Efficacy	Efficacy		173				
-http://en.wikipedia.org/wiki/Pregnancy	Pregnancy	https://commons.wikimedia.org/wiki/Special:FilePath/PregnantWoman.jpg	171		https://i.imgur.com/J4ABZlG.png		
+http://en.wikipedia.org/wiki/Pregnancy	Pregnancy	https://commons.wikimedia.org/wiki/Special:FilePath/PregnantWoman.jpg	171		NEWPIC		
 http://en.wikipedia.org/wiki/Perception	Perception	https://commons.wikimedia.org/wiki/Special:FilePath/Multistability.svg	171				
 http://en.wikipedia.org/wiki/Symptom	Symptom		171				
 http://en.wikipedia.org/wiki/Evidence	Evidence	https://commons.wikimedia.org/wiki/Special:FilePath/Dublin_Castle_Gates_of_Fortitude_and_Justice_05.JPG	167	study type			
@@ -101,8 +101,8 @@ http://en.wikipedia.org/wiki/Gene_expression	Gene expression	https://commons.wik
 http://en.wikipedia.org/wiki/Dementia	Dementia	https://commons.wikimedia.org/wiki/Special:FilePath/Alzheimer's_disease_brain_comparison.jpg	143				
 http://en.wikipedia.org/wiki/Medical_research	Medical research	https://commons.wikimedia.org/wiki/Special:FilePath/Monoclonal_antibodies4.jpg	142	study type			
 http://en.wikipedia.org/wiki/Morphology_%28biology%29	Morphology (biology)	https://commons.wikimedia.org/wiki/Special:FilePath/Caprella_mutica_male_morphology.jpg	142				
+http://en.wikipedia.org/wiki/Earth	Earth	https://commons.wikimedia.org/wiki/Special:FilePath/Earth_symbol.svg	141		NEWPIC		
 http://en.wikipedia.org/wiki/Natural_environment	Natural environment	https://en.wikipedia.org/wiki/Special:FilePath/Hopetoun_falls.jpg	141				
-http://en.wikipedia.org/wiki/Earth	Earth	https://commons.wikimedia.org/wiki/Special:FilePath/Earth_symbol.svg	141		https://i.imgur.com/J4ABZlG.png		
 http://en.wikipedia.org/wiki/Cardiovascular_disease	Cardiovascular disease	https://commons.wikimedia.org/wiki/Special:FilePath/Cardiac_amyloidosis_very_high_mag_movat.jpg	141				
 http://en.wikipedia.org/wiki/Decision-making	Decision-making	https://commons.wikimedia.org/wiki/Special:FilePath/Wikipedia_article-creation-2.svg	140	study type			
 http://en.wikipedia.org/wiki/Acute_%28medicine%29	Acute (medicine)		139				
@@ -125,7 +125,7 @@ http://en.wikipedia.org/wiki/Diabetes_mellitus_type_2	Diabetes mellitus type 2	h
 http://en.wikipedia.org/wiki/DNA	DNA	https://commons.wikimedia.org/wiki/Special:FilePath/DNA_Structure+Key+Labelled.pn_NoBB.png	126				
 http://en.wikipedia.org/wiki/Pharmaceutical_drug	Pharmaceutical drug	https://commons.wikimedia.org/wiki/Special:FilePath/12-08-18-tilidin-retard.jpg	126				
 http://en.wikipedia.org/wiki/Microbiota	Microbiota	https://commons.wikimedia.org/wiki/Special:FilePath/Skin_Microbiome20169-300.jpg	125				
-http://en.wikipedia.org/wiki/Heart_failure	Heart failure	https://commons.wikimedia.org/wiki/Special:FilePath/Heartfailure.jpg	125				
+http://en.wikipedia.org/wiki/Heart_failure	Heart failure	https://commons.wikimedia.org/wiki/Special:FilePath/Heartfailure.jpg	125		NEWPIC		
 http://en.wikipedia.org/wiki/Cell_signaling	Cell signaling	https://commons.wikimedia.org/wiki/Special:FilePath/USDAbacteria.jpg	124				
 http://en.wikipedia.org/wiki/Muscle	Muscle	https://commons.wikimedia.org/wiki/Special:FilePath/Skeletal_muscle.jpg	124				
 http://en.wikipedia.org/wiki/Enzyme_inhibitor	Enzyme inhibitor	https://commons.wikimedia.org/wiki/Special:FilePath/HIV_protease_with_bound_ritonavir.png	123				

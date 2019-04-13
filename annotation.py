@@ -2,6 +2,28 @@ from multiprocessing.pool import ThreadPool
 from time import time as timer
 import requests
 
+annotation_file_contents = []
+fp = open("entities.tsv", "r")
+lines = fp.readlines()
+# skip header
+for line in lines[1:]:
+    (image_uri, annotation_title, image_url, n, class_type, alt_img, weight, comment) = line.split("\t")
+    if alt_img == "NEWPIC":
+        alt_img = "https://i.imgur.com/J4ABZlG.png"
+    response = {
+        "image_uri": image_uri,
+        "annotation_title": annotation_title,
+        "image_url": image_url,
+        "n": n,
+        "class_type": class_type,
+        "alt_img": alt_img,
+        "weight": weight,
+        "comment": comment
+    }
+    annotation_file_contents.append(response)
+fp.close()
+
+
 # because these annotations are almost always incorrectly applied and/or they are inappropriate
 # should be in uri format
 annotation_blacklist = [

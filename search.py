@@ -36,7 +36,7 @@ def get_nerd_term_lookup(original_query):
     return response_data
 
 
-def fulltext_search_title(original_query):
+def fulltext_search_title(original_query, oa_only):
 
     print "in fulltext_search_title"
     original_query_escaped = original_query.replace("'", "''")
@@ -64,6 +64,7 @@ def fulltext_search_title(original_query):
         order by rank desc
         limit 100;
         """.format(q=query_to_use)
+    print query_string
     rows = db.engine.execute(sql.text(query_string)).fetchall()
     print "done getting query"
     # print rows

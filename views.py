@@ -21,9 +21,11 @@ from pub_list import PubList
 from search import fulltext_search_title
 from search import get_synonym
 from search import get_nerd_term_lookup
+from annotation import annotation_file_contents
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
+from util import str_to_bool
 
 
 
@@ -136,8 +138,10 @@ def get_search_query(query):
     if pagesize > 20:
         abort_json(400, u"pagesize too large; max 20")
 
+    oa_only = str_to_bool(request.args.get("oa_only", "false"))
+
     start_time = time()
-    my_pubs = fulltext_search_title(query)
+    my_pubs = fulltext_search_title(query, oa_only)
 
     print "building response"
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
@@ -179,70 +183,62 @@ def get_all_pictures_hack():
     elapsed_time = 0
 
     all_results = []
-    fp = open("entities.tsv", "r")
-    lines = fp.readlines()
-    # skip header
-    for line in lines[1:]:
-        if line:
-            (image_uri, annotation_title, image_url, n, class_type, alt_img, weight, comment) = line.split("\t")
-            if alt_img:
-                image_url = alt_img
-            if class_type:
-                lookup_forbidden_image = {
-                        "nsfw": "https://i.imgur.com/pY9cTVs.png",
-                        "generic":"https://i.imgur.com/Xh7WxaX.png",
-                        "study type": "https://i.imgur.com/8wXxDrY.png",
-                        "mislabel": "https://i.imgur.com/D0yV5Hb.png"
-                    }
-                image_url = lookup_forbidden_image[class_type]
-            img_label = ""
-            if class_type:
-                img_label = class_type
-            if weight:
-                img_label += ", weight={}".format(weight)
-            all_results.append(
-                {
+    for line in annotation_file_contents:
+        image_uri = line["image_uri"]
+        image_url = line["image_url"]
+        if line["alt_img"]:
+            image_url = line["alt_img"]
+        n = line["n"]
+        annotation_title = line["annotation_title"]
+        if line["class_type"]:
+            image_url = ""
+        img_label = ""
+        if line["class_type"]:
+            img_label = u"EXCLUDED: {}".format(line["class_type"])
+        if line["weight"]:
+            img_label += u" weight={}".format(line["weight"])
+        all_results.append(
+            {
+            "abstract": "",
+            "annotations": {},
+            "author_lastnames": [],
+            "best_host": "None",
+            "best_version": "None",
+            "date_of_electronic_publication": "",
+            "doi": "42",
+            "doi_url": "42",
+            "image": {
                 "abstract": "",
-                "annotations": {},
-                "author_lastnames": [],
-                "best_host": "None",
-                "best_version": "None",
-                "date_of_electronic_publication": "",
-                "doi": "42",
-                "doi_url": "42",
-                "image": {
-                    "abstract": "",
-                    "confidence": .42,
-                    "end": 0,
-                    "id": 42,
-                    "image_url": image_url,
-                    "label": img_label,
-                    "picture_score": 0.42,
-                    "raw_top_entity_score": 0.42,
-                    "spot": "",
-                    "start": 0,
-                    "title": img_label,
-                    "types": [],
-                    "uri": image_uri,
-                    "url": image_url
-                    },
-                "is_oa": True,
-                "journal_name": u"n = {}".format(n),
-                "mesh": [],
-                "num_paperbuzz_events": 0,
-                "oa_url": None,
-                "picture_candidates": [],
-                "pmid": 42,
-                "pmid_url": "",
-                "pub_types": [],
-                "score": 0,
-                "short_abstract": None,
-                "snippet": "",
-                "title": annotation_title,
-                "year": None
-                }
-            )
-    fp.close()
+                "confidence": .42,
+                "end": 0,
+                "id": 42,
+                "image_url": image_url,
+                "label": img_label,
+                "picture_score": 0.42,
+                "raw_top_entity_score": 0.42,
+                "spot": "",
+                "start": 0,
+                "title": img_label,
+                "types": [],
+                "uri": image_uri,
+                "url": image_url
+                },
+            "is_oa": False,
+            "journal_name": u"n = {}".format(n),
+            "mesh": [],
+            "num_paperbuzz_events": 0,
+            "oa_url": None,
+            "picture_candidates": [],
+            "pmid": 42,
+            "pmid_url": "",
+            "pub_types": [],
+            "score": 0,
+            "short_abstract": None,
+            "snippet": "",
+            "title": annotation_title,
+            "year": None
+            }
+        )
 
     results = all_results[(pagesize * (page-1)):(pagesize * page)]
 
