@@ -30,7 +30,7 @@ annotation_blacklist = [
     "Film_editing", # gets tagged for gene editing 10.1056%2Fnejmcibr1716741
     "E.T._the_Extra-Terrestrial",  # gets tagged for et al 10.1093%2Fpubmed%2Ffdy038
     "IP_address", # gets mixed up with p-hacking 10.7717%2Fpeerj.3068
-    "Facial_%28sex_act%29" # gets mixed up with facial 10.1016/j.jad.2007.01.031
+    "Facial_%28sex_act%29", # gets mixed up with facial 10.1016/j.jad.2007.01.031
 ]
 
 
@@ -42,7 +42,11 @@ image_blacklist = [
 annotation_requires_exact_match = [
     "Chemotherapy",  #sometimes matches therapy or treatment
     "Senescence", # otherwise matches "age"
-    "Natural selection"  # otherwise matches "selective"
+    "Natural selection",  # otherwise matches "selective"
+    "Diagnosis_of_HIV%2FAIDS", # otherwise matches testing
+    "Grammatical_case",  #otherwise matches case
+    "Musical_note",
+    "Language_acquisition"
     ]
 
 
@@ -157,7 +161,13 @@ class Annotation(object):
         if "http://dbpedia.org/ontology/Food" in self.types:
             score += 0.8
 
-        if self.spot.lower() == "activity" and self.title.lower() == "physical exercise":
+        if "http://dbpedia.org/ontology/TelevisionEpisode" in self.types:
+            score -= 10
+
+        if self.spot.lower() == "origins" and self.title.lower() == "physical exercise":
+            score -= 10
+
+        if self.spot.lower() == "activity" and self.title.lower() == "fibonacci number":
             score -= 10
 
         if self.confidence < 0.6:
