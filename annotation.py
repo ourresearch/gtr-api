@@ -39,6 +39,11 @@ annotation_blacklist = [
 image_blacklist = [
     ]
 
+annotation_requires_exact_match = [
+    "Chemotherapy"  #sometimes matches therapy or treatment
+    ]
+
+
 class Annotation(object):
 
     def __init__(self, dandelion_raw):
@@ -79,6 +84,10 @@ class Annotation(object):
         uri_name = self.uri.rsplit("/", 1)[1]
         if uri_name in annotation_blacklist:
             return True
+
+        if uri_name in annotation_requires_exact_match:
+            if uri_name.lower() != self.spot.lower():
+                return True
 
         # too many incorrect hits on people, and they are too costly (remove this and search for "et al" to see)
         if "http://dbpedia.org/ontology/Person" in self.types:
