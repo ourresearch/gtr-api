@@ -46,7 +46,19 @@ annotation_requires_exact_match = [
     "Diagnosis_of_HIV%2FAIDS", # otherwise matches testing
     "Grammatical_case",  #otherwise matches case
     "Musical_note",
-    "Language_acquisition"
+    "Language_acquisition",
+    "Common_law",
+    "Observational_error",
+    "Big_bang",
+    "Art",
+    "Thrombin",
+    "Asian_americans",
+    "French_third_republic",
+    "Grief",
+    "Mediation",
+    "Social_change",
+    "University_of_arizona",
+    "Ancient_egypt"
     ]
 
 
@@ -164,10 +176,16 @@ class Annotation(object):
         if "http://dbpedia.org/ontology/TelevisionEpisode" in self.types:
             score -= 10
 
-        if self.spot.lower() == "origins" and self.title.lower() == "physical exercise":
+        if "http://dbpedia.org/ontology/TelevisionShow" in self.types:
             score -= 10
 
-        if self.spot.lower() == "activity" and self.title.lower() == "fibonacci number":
+        if self.spot.lower() == "activity" and self.title.lower() == "physical exercise":
+            score -= 10
+
+        if self.spot.lower() == "origins" and self.title.lower() == "fibonacci number":
+            score -= 10
+
+        if self.spot.lower() == "ages" and self.title.lower() == "ageing":
             score -= 10
 
         if self.confidence < 0.6:
