@@ -1,12 +1,12 @@
 uri	title	url	n	class for black list	alternate image	weight (if not black list or 1)	comment
-http://en.wikipedia.org/wiki/Patient	Patient		1237		https://snappygoat.com/o/6d85e972155b103b9199e5b1164b22bdf933715c/Doctor%20consults%20with%20patient%20(7).jpg	0.5	
+http://en.wikipedia.org/wiki/Patient	Patient		1237		https://i.imgur.com/viptu9T.png	0.5	
 http://en.wikipedia.org/wiki/Systematic_review	Systematic review	https://commons.wikimedia.org/wiki/Special:FilePath/Systematic_reviews_-_what_authors_do.png	1084	study type			
 http://en.wikipedia.org/wiki/Therapy	Therapy	https://commons.wikimedia.org/wiki/Special:FilePath/Polio_physical_therapy.jpg	720	generic			
-http://en.wikipedia.org/wiki/Human	Human	https://commons.wikimedia.org/wiki/Special:FilePath/Akha_cropped_hires.JPG	658		https://snappygoat.com/o/c5af3f336775b81d1122a709663c50ac98fd315c/group-children-happiness-lovely-407806.jpg	0.2	
+http://en.wikipedia.org/wiki/Human	Human	https://commons.wikimedia.org/wiki/Special:FilePath/Akha_cropped_hires.JPG	658		https://i.imgur.com/qGTiSpp.png	0.2	
 http://en.wikipedia.org/wiki/Meta-analysis	Meta-analysis		626	study type			
 http://en.wikipedia.org/wiki/Randomized_controlled_trial	Randomized controlled trial	https://commons.wikimedia.org/wiki/Special:FilePath/Flowchart_of_Phases_of_Parallel_Randomized_Trial_-_Modified_from_CONSORT_2010.png	569	study type			
 http://en.wikipedia.org/wiki/Evolution	Evolution	https://commons.wikimedia.org/wiki/Special:FilePath/Lucretius_Rome.jpg	509		https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Human_evolution.svg/800px-Human_evolution.svg.png	0.5	
-http://en.wikipedia.org/wiki/Species	Species	https://commons.wikimedia.org/wiki/Special:FilePath/John_Ray_from_NPG.jpg	486		https://snappygoat.com/o/7b35ba9648434fc8892a840d0481d9f55f62d0d7/butterfly-species-butterflies-poster-56058.jpg	0.5	
+http://en.wikipedia.org/wiki/Species	Species	https://commons.wikimedia.org/wiki/Special:FilePath/John_Ray_from_NPG.jpg	486		https://i.imgur.com/BcLpJsR.png	0.5	
 http://en.wikipedia.org/wiki/Research	Research	https://commons.wikimedia.org/wiki/Special:FilePath/Research-Warner-Highsmith.jpeg	477	study type			
 http://en.wikipedia.org/wiki/Medicine	Medicine	https://commons.wikimedia.org/wiki/Special:FilePath/Three_early_medicine_bottles.jpg	472		https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Star_of_life2.svg/220px-Star_of_life2.svg.png	0.5	
 http://en.wikipedia.org/wiki/Health	Health	https://commons.wikimedia.org/wiki/Special:FilePath/Smallpox_eradication_team.jpg	460	generic			
@@ -15,20 +15,20 @@ http://en.wikipedia.org/wiki/Physical_exercise	Physical exercise	https://commons
 http://en.wikipedia.org/wiki/Clinical_trial	Clinical trial		433	study type			
 http://en.wikipedia.org/wiki/Risk	Risk	https://commons.wikimedia.org/wiki/Special:FilePath/3_Alarm_Building_Fire.jpg	422	generic			
 http://en.wikipedia.org/wiki/Disease	Disease	https://commons.wikimedia.org/wiki/Special:FilePath/Mycobacterium_tuberculosis.jpg	421			0.5	
-http://en.wikipedia.org/wiki/Child	Child	https://commons.wikimedia.org/wiki/Special:FilePath/Children_games_Louvre_Ma99_n2.jpg	418		https://snappygoat.com/o/18eda0c9bea6099237862cccfffd3c2cab18093b/kid-girl-female-young-child-633414.jpg		
+http://en.wikipedia.org/wiki/Child	Child	https://commons.wikimedia.org/wiki/Special:FilePath/Children_games_Louvre_Ma99_n2.jpg	418		https://snappygoat.com/o/b8b774fe75c601bcface87d3a74622a338510ec2/child-with-braids-braids-937658.jpg		
 http://en.wikipedia.org/wiki/Cancer	Cancer	https://commons.wikimedia.org/wiki/Special:FilePath/Tumor_Mesothelioma2_legend.jpg	418		https://upload.wikimedia.org/wikipedia/commons/3/35/Cancer_cells_%281%29.jpg		
 http://en.wikipedia.org/wiki/Causality	Causality		375	generic			
 http://en.wikipedia.org/wiki/Adolescence	Adolescence	https://commons.wikimedia.org/wiki/Special:FilePath/Teens_sharing_a_song.jpg	351				
-http://en.wikipedia.org/wiki/Biodiversity	Biodiversity	https://commons.wikimedia.org/wiki/Special:FilePath/Fungi_of_Saskatchewan.JPG	333			0.5	
+http://en.wikipedia.org/wiki/Biodiversity	Biodiversity	https://commons.wikimedia.org/wiki/Special:FilePath/Fungi_of_Saskatchewan.JPG	333		https://en.wikipedia.org/wiki/File:Amazon_CIAT_(5).jpg	0.5	
 http://en.wikipedia.org/wiki/Experiment	Experiment	https://commons.wikimedia.org/wiki/Special:FilePath/Mirror_baby.jpg	332	study type			
-http://en.wikipedia.org/wiki/Adult	Adult	https://commons.wikimedia.org/wiki/Special:FilePath/RudolfMilly.jpg	324				
+http://en.wikipedia.org/wiki/Adult	Adult	https://commons.wikimedia.org/wiki/Special:FilePath/RudolfMilly.jpg	324		https://snappygoat.com/o/2e31e846e6d303450226a94ed6cbc2d3ca927d27/couple-man-woman-old-satisfied-579172.jpg		
 http://en.wikipedia.org/wiki/Behavior	Behavior		307	generic		0.3	
 http://en.wikipedia.org/wiki/Mortality_rate	Mortality rate	https://commons.wikimedia.org/wiki/Special:FilePath/Death_rate_world_map.PNG	307			0.3	
 http://en.wikipedia.org/wiki/Correlation_and_dependence	Correlation and dependence	https://commons.wikimedia.org/wiki/Special:FilePath/Correlation_examples2.svg	303	study type			
 http://en.wikipedia.org/wiki/Genome	Genome	https://commons.wikimedia.org/wiki/Special:FilePath/UCSC_human_chromosome_colours.png	302				
 http://en.wikipedia.org/wiki/Medical_diagnosis	Medical diagnosis	https://commons.wikimedia.org/wiki/Special:FilePath/Xraymachine.JPG	286		https://snappygoat.com/o/36fd2957687a4b1d4848aa61dcbf64b8913240d6/diagnostics-stethoscope-doctor-161140.svg		
-http://en.wikipedia.org/wiki/Genetics	Genetics		281				
-http://en.wikipedia.org/wiki/Regulation_of_gene_expression	Regulation of gene expression	https://commons.wikimedia.org/wiki/Special:FilePath/Gene_expression_control.png	279				
+http://en.wikipedia.org/wiki/Genetics	Genetics		281		https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Hybridogenesis_in_water_frogs_gametes.svg/1280px-Hybridogenesis_in_water_frogs_gametes.svg.png		
+http://en.wikipedia.org/wiki/Regulation_of_gene_expression	Regulation of gene expression	https://commons.wikimedia.org/wiki/Special:FilePath/Gene_expression_control.png	279		https://en.wikipedia.org/wiki/File:Regulation_of_gene_expression_by_steroid_hormone_receptor.svg		
 http://en.wikipedia.org/wiki/Science	Science	https://commons.wikimedia.org/wiki/Special:FilePath/The_Scientific_Universe.png	272	study type			
 http://en.wikipedia.org/wiki/Old_age	Old age	https://commons.wikimedia.org/wiki/Special:FilePath/Maes_Old_Woman_Dozing.jpg	267		https://snappygoat.com/o/41b6a50c29f69d7350e9c894e051cffcea49a961/old-age-pensioners-elder-life-style-957492.jpg		
 http://en.wikipedia.org/wiki/United_States	United States	https://en.wikipedia.org/wiki/Special:FilePath/Flag_of_the_United_States.svg	266				
@@ -53,47 +53,47 @@ http://en.wikipedia.org/wiki/Bacteria	Bacteria	https://commons.wikimedia.org/wik
 http://en.wikipedia.org/wiki/Protein	Protein	https://commons.wikimedia.org/wiki/Special:FilePath/Myoglobin.png	198				
 http://en.wikipedia.org/wiki/Time	Time	https://commons.wikimedia.org/wiki/Special:FilePath/Wooden_hourglass_3.jpg	196		https://snappygoat.com/o/ccd20b3df1b98957ab51ee302d7a488140965647/time-timer-clock-watch-hour-371226.jpg	0.5	
 http://en.wikipedia.org/wiki/Qualitative_research	Qualitative research		195	study type			
-http://en.wikipedia.org/wiki/Mental_health	Mental health		191				
+http://en.wikipedia.org/wiki/Mental_health	Mental health		191		https://snappygoat.com/o/c073208ecd1f1e5a4b8c9712a2152ef82c154263/tree-carved-face-person-symbol-251480.jpg		
 http://en.wikipedia.org/wiki/Intensive_care_medicine	Intensive care medicine	https://commons.wikimedia.org/wiki/Special:FilePath/VIP_Bird2.jpg	187		https://snappygoat.com/o/893fc113baf52f7b305f5e8acd6402f105592969/intensive_care_T.png		
 http://en.wikipedia.org/wiki/Prospective_cohort_study	Prospective cohort study		186	study type			
 http://en.wikipedia.org/wiki/Medical_guideline	Medical guideline		184	study type			
-http://en.wikipedia.org/wiki/Physician	Physician	https://commons.wikimedia.org/wiki/Special:FilePath/The_Doctor_Luke_Fildes_crop.jpg	181		https://snappygoat.com/o/59f8cb6ce9ec8959ddf2d68f1b5269c4495a7cda/Doctor%20consults%20with%20patient%20(8).jpg		
+http://en.wikipedia.org/wiki/Physician	Physician	https://commons.wikimedia.org/wiki/Special:FilePath/The_Doctor_Luke_Fildes_crop.jpg	181		https://snappygoat.com/o/e46bddddd7c0b7453080920044e2f520ac5e913a/doctor-patient-hospital-child-899037.jpg		
 http://en.wikipedia.org/wiki/Gene	Gene	https://commons.wikimedia.org/wiki/Special:FilePath/Gregor_Mendel.png	181		https://snappygoat.com/o/f79128f8e41de8bb40596623b90570ad68e08ea6/A-B-Z-DNA%20Side%20View.png		
-http://en.wikipedia.org/wiki/Preventive_healthcare	Preventive healthcare		179				
+http://en.wikipedia.org/wiki/Preventive_healthcare	Preventive healthcare		179		https://snappygoat.com/o/d3514adb73ca30e0994da454802cf8ea5dc2e49b/dentist-dental-hygiene-healthcare-676421.jpg		
 http://en.wikipedia.org/wiki/Neoplasm	Neoplasm	https://snappygoat.com/o/df2587f13a80fffe4106f1e1103132f26882839b/405518-FIBRILLARY_OR_DIFFUSE_ASTROCYTIC_NEOPLASM.jpg	178		https://snappygoat.com/o/df2587f13a80fffe4106f1e1103132f26882839b/405518-FIBRILLARY_OR_DIFFUSE_ASTROCYTIC_NEOPLASM.jpg		
-http://en.wikipedia.org/wiki/Genus	Genus		178				
+http://en.wikipedia.org/wiki/Genus	Genus		178		https://snappygoat.com/b/1170c04cfb1520a4f011353416e15df6d7368b1b		
 http://en.wikipedia.org/wiki/Abiogenesis	Abiogenesis	https://commons.wikimedia.org/wiki/Special:FilePath/Stromatolites.jpg	177				
 http://en.wikipedia.org/wiki/Ageing	Ageing	https://commons.wikimedia.org/wiki/Special:FilePath/Senescence.JPG	176		https://snappygoat.com/o/6143c0cc3c13f3f59fa94735cc77ad2b37e3d402/old-man-man-face-senior-older-1208210.jpg		
 http://en.wikipedia.org/wiki/Woman	Woman		174		https://snappygoat.com/o/7d4e71d715d256fd4b5b36b74b0bf9ad8e65a03c/restroom-bathroom-sign-ladies-304985.svg		
 http://en.wikipedia.org/wiki/Infant	Infant	https://commons.wikimedia.org/wiki/Special:FilePath/Being_a_twin_means_you_always_have_a_pillow_or_blanket_handy.jpg	174		https://snappygoat.com/o/cac6c712668daf8c7dfd2117aa259b1faf6d0360/baby-newborn-infant-peaceful-feet-1314843.jpg		
 http://en.wikipedia.org/wiki/Efficacy	Efficacy		173				
-http://en.wikipedia.org/wiki/Pregnancy	Pregnancy	https://commons.wikimedia.org/wiki/Special:FilePath/PregnantWoman.jpg	171		https://snappygoat.com/o/f18f55e0896bcbf48d6a5b693662c0755f1bc677/woman-pregnant-pier-belly-356141.jpg		
-http://en.wikipedia.org/wiki/Perception	Perception	https://commons.wikimedia.org/wiki/Special:FilePath/Multistability.svg	171				
+http://en.wikipedia.org/wiki/Pregnancy	Pregnancy	https://commons.wikimedia.org/wiki/Special:FilePath/PregnantWoman.jpg	171		https://snappygoat.com/o/7db3e45908283b226518c025efb2d0ae7397f2fe/woman-baby-mother-pregnant-lady-1284353.jpg		
+http://en.wikipedia.org/wiki/Perception	Perception	https://commons.wikimedia.org/wiki/Special:FilePath/Multistability.svg	171		https://snappygoat.com/o/dc559c13470ac6cd2aa10920ab9f70ee82d9ba0d/Impossible%20staircase.svg		
 http://en.wikipedia.org/wiki/Symptom	Symptom		171				
 http://en.wikipedia.org/wiki/Evidence	Evidence	https://commons.wikimedia.org/wiki/Special:FilePath/Dublin_Castle_Gates_of_Fortitude_and_Justice_05.JPG	167	study type			
 http://en.wikipedia.org/wiki/Mouse	Mouse	https://commons.wikimedia.org/wiki/Special:FilePath/Мышь_2.jpg	167				
 http://en.wikipedia.org/wiki/Antibiotics	Antibiotics	https://commons.wikimedia.org/wiki/Special:FilePath/Staphylococcus_aureus_(AB_Test).jpg	167				
 http://en.wikipedia.org/wiki/Ecology	Ecology	https://en.wikipedia.org/wiki/Special:FilePath/The_Earth_seen_from_Apollo_17.jpg	164				
-http://en.wikipedia.org/wiki/Climate_change	Climate change		164				
+http://en.wikipedia.org/wiki/Climate_change	Climate change		164		https://snappygoat.com/o/e8208cfd7d6e3da540b61f0941900062b833209e/greenland-iceberg-mer-de-glace-891458.jpg		
 http://en.wikipedia.org/wiki/Gut_flora	Gut flora	https://commons.wikimedia.org/wiki/Special:FilePath/EscherichiaColi_NIAID.jpg	163				
 http://en.wikipedia.org/wiki/Bird	Bird	https://commons.wikimedia.org/wiki/Special:FilePath/Bird_Diversity_2013.png	162		https://snappygoat.com/o/a52c83b75428b62d43dde4b0c6284c209e6b9be5/robin-bird-nature-539789.jpg	1.5	
 http://en.wikipedia.org/wiki/Sensitivity_and_specificity	Sensitivity and specificity		162	study type			
 http://en.wikipedia.org/wiki/Hospital	Hospital	https://commons.wikimedia.org/wiki/Special:FilePath/AIIMS_central_lawn.jpg	162				
-http://en.wikipedia.org/wiki/Adaptation	Adaptation		162				
+http://en.wikipedia.org/wiki/Adaptation	Adaptation		162		https://en.wikipedia.org/wiki/File:Darwin%27s_finches_by_Gould.jpg		
 http://en.wikipedia.org/wiki/Cognition	Cognition		160				
-http://en.wikipedia.org/wiki/Life	Life	https://commons.wikimedia.org/wiki/Special:FilePath/Ruwenpflanzen.jpg	159				
+http://en.wikipedia.org/wiki/Life	Life	https://commons.wikimedia.org/wiki/Special:FilePath/Ruwenpflanzen.jpg	159		https://snappygoat.com/o/a06350606123c5890d0075d878410f41379108e1/Purple%20crokus%20crokus%20vern.jpg		
 http://en.wikipedia.org/wiki/Nursing	Nursing	https://commons.wikimedia.org/wiki/Special:FilePath/Nursing_baby.jpg	158		https://snappygoat.com/o/b9f85d740a717a100a90d07424cea4d9a48ba86c/Sue_Martens.jpg		
 http://en.wikipedia.org/wiki/Evaluation	Evaluation		155	study type			
 http://en.wikipedia.org/wiki/Antimicrobial_resistance	Antimicrobial resistance	https://commons.wikimedia.org/wiki/Special:FilePath/Antibiotic_sensitvity_and_resistance.JPG	155				
-http://en.wikipedia.org/wiki/Dinosaur	Dinosaur	https://commons.wikimedia.org/wiki/Special:FilePath/Dinosauria_montage_2.jpg	153				
+http://en.wikipedia.org/wiki/Dinosaur	Dinosaur	https://commons.wikimedia.org/wiki/Special:FilePath/Dinosauria_montage_2.jpg	153		https://en.wikipedia.org/wiki/File:Macronaria_scrubbed_enh.jpg		
 http://en.wikipedia.org/wiki/Microorganism	Microorganism	https://en.wikipedia.org/wiki/Special:FilePath/E_coli_at_10000x,_original.jpg	152				
 http://en.wikipedia.org/wiki/Social_influence	Social influence		152				
-http://en.wikipedia.org/wiki/Genomics	Genomics		151				
+http://en.wikipedia.org/wiki/Genomics	Genomics		151		https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Mapping_Reads.png/1024px-Mapping_Reads.png		
 http://en.wikipedia.org/wiki/Gastrointestinal_tract	Gastrointestinal tract	https://commons.wikimedia.org/wiki/Special:FilePath/Protovsdeuterostomes.svg	150				
 http://en.wikipedia.org/wiki/Prevalence	Prevalence		149	study type			
 http://en.wikipedia.org/wiki/Hypertension	Hypertension	https://commons.wikimedia.org/wiki/Special:FilePath/Grade_1_hypertension.jpg	148		https://snappygoat.com/o/82d5074de3f64b3fa4a14afcdac8bcab74d34032/US_Navy_100606-N-4044H-159_Lt._Cmdr._Hung_Tran_checks_the_blood_pressure_of_a_Vietnamese_patient_during_a_Pacific_Partnership_2010_medical_civic_action_program.jpg		
 http://en.wikipedia.org/wiki/Circulatory_system	Circulatory system	https://en.wikipedia.org/wiki/Special:FilePath/Circulatory_System_en.svg	148				
-http://en.wikipedia.org/wiki/Natural_selection	Natural selection	https://commons.wikimedia.org/wiki/Special:FilePath/Biston_betularia_male.jpg	147				
+http://en.wikipedia.org/wiki/Natural_selection	Natural selection	https://commons.wikimedia.org/wiki/Special:FilePath/Biston_betularia_male.jpg	147		https://en.wikipedia.org/wiki/File:Darwin%27s_finches_by_Gould.jpg		
 http://en.wikipedia.org/wiki/Depression_%28mood%29	Depression (mood)	https://commons.wikimedia.org/wiki/Special:FilePath/Melencolia_I_(Durero).jpg	146		https://snappygoat.com/o/78fce73dbbb99af2b1eb49eaac4d4a08b0af9fa0/depression-man-marital-status-mood-20195.jpg		
 http://en.wikipedia.org/wiki/Public_health	Public health	https://commons.wikimedia.org/wiki/Special:FilePath/Salk_headlines.jpg	146				
 http://en.wikipedia.org/wiki/Redox	Redox	https://commons.wikimedia.org/wiki/Special:FilePath/Redox_Halves_text.svg	144				
@@ -114,28 +114,28 @@ http://en.wikipedia.org/wiki/Stress_%28biology%29	Stress (biology)		136
 http://en.wikipedia.org/wiki/Autism_spectrum	Autism spectrum	https://commons.wikimedia.org/wiki/Special:FilePath/Autism_Awareness_Ribbon.png	133				
 http://en.wikipedia.org/wiki/Cross-sectional_study	Cross-sectional study		132	study type			
 http://en.wikipedia.org/wiki/Longitudinal_study	Longitudinal study		132	study type			
-http://en.wikipedia.org/wiki/Mental_disorder	Mental disorder	https://commons.wikimedia.org/wiki/Special:FilePath/Gautier_-_Salpetriere.JPG	131				
-http://en.wikipedia.org/wiki/Taxonomy_%28biology%29	Taxonomy (biology)		131				
+http://en.wikipedia.org/wiki/Mental_disorder	Mental disorder	https://commons.wikimedia.org/wiki/Special:FilePath/Gautier_-_Salpetriere.JPG	131		https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Mental_Disorder_Silhouette.png/250px-Mental_Disorder_Silhouette.png		
+http://en.wikipedia.org/wiki/Taxonomy_%28biology%29	Taxonomy (biology)		131		https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Darwin%27s_finches_by_Gould.jpg/180px-Darwin%27s_finches_by_Gould.jpg		
 http://en.wikipedia.org/wiki/Drug	Drug	https://commons.wikimedia.org/wiki/Special:FilePath/A_small_cup_of_coffee.JPG	129		https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Nexium_%28esomeprazole_magnesium%29_pills.JPG/220px-Nexium_%28esomeprazole_magnesium%29_pills.JPG		
 http://en.wikipedia.org/wiki/Prediction	Prediction	https://commons.wikimedia.org/wiki/Special:FilePath/Old_Farmer's_Almanac_1793_cover.jpg	129	study type			
 http://en.wikipedia.org/wiki/Mitochondrial_DNA	Mitochondrial DNA	https://commons.wikimedia.org/wiki/Special:FilePath/Map_of_the_human_mitochondrial_genome.svg	129				
 http://en.wikipedia.org/wiki/Molecule	Molecule	https://commons.wikimedia.org/wiki/Special:FilePath/PTCDA_AFM.jpg	128				
 http://en.wikipedia.org/wiki/Stroke	Stroke	https://commons.wikimedia.org/wiki/Special:FilePath/MCA_Territory_Infarct.svg	128				
-http://en.wikipedia.org/wiki/Diabetes_mellitus_type_2	Diabetes mellitus type 2	https://commons.wikimedia.org/wiki/Special:FilePath/Blue_circle_for_diabetes.svg	128				
+http://en.wikipedia.org/wiki/Diabetes_mellitus_type_2	Diabetes mellitus type 2	https://commons.wikimedia.org/wiki/Special:FilePath/Blue_circle_for_diabetes.svg	128		https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Type_2_Diabetes_Mellitus.jpg/220px-Type_2_Diabetes_Mellitus.jpg		
 http://en.wikipedia.org/wiki/DNA	DNA	https://commons.wikimedia.org/wiki/Special:FilePath/DNA_Structure+Key+Labelled.pn_NoBB.png	126				
 http://en.wikipedia.org/wiki/Pharmaceutical_drug	Pharmaceutical drug	https://commons.wikimedia.org/wiki/Special:FilePath/12-08-18-tilidin-retard.jpg	126				
 http://en.wikipedia.org/wiki/Heart_failure	Heart failure	https://commons.wikimedia.org/wiki/Special:FilePath/Heartfailure.jpg	125		https://snappygoat.com/o/29e92459abc8f20ebaa4fffd7921b8f67513db9e/electrocardiogram-beat-cardiology-16948.jpg		
 http://en.wikipedia.org/wiki/Microbiota	Microbiota	https://commons.wikimedia.org/wiki/Special:FilePath/Skin_Microbiome20169-300.jpg	125				
 http://en.wikipedia.org/wiki/Cell_signaling	Cell signaling	https://commons.wikimedia.org/wiki/Special:FilePath/USDAbacteria.jpg	124				
-http://en.wikipedia.org/wiki/Muscle	Muscle	https://commons.wikimedia.org/wiki/Special:FilePath/Skeletal_muscle.jpg	124				
+http://en.wikipedia.org/wiki/Muscle	Muscle	https://commons.wikimedia.org/wiki/Special:FilePath/Skeletal_muscle.jpg	124		https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Bougle_whole2_retouched.png/250px-Bougle_whole2_retouched.png		
 http://en.wikipedia.org/wiki/Enzyme_inhibitor	Enzyme inhibitor	https://commons.wikimedia.org/wiki/Special:FilePath/HIV_protease_with_bound_ritonavir.png	123				
-http://en.wikipedia.org/wiki/Mammal	Mammal	https://commons.wikimedia.org/wiki/Special:FilePath/Mammal_Diversity_2011.png	122				
-http://en.wikipedia.org/wiki/Survey_methodology	Survey methodology		122				
+http://en.wikipedia.org/wiki/Mammal	Mammal	https://commons.wikimedia.org/wiki/Special:FilePath/Mammal_Diversity_2011.png	122		https://snappygoat.com/b/54f828de4ecccb1a9537bb28d3e89dea5668be4e		
+http://en.wikipedia.org/wiki/Survey_methodology	Survey methodology		122		https://snappygoat.com/b/4f3e5d8b133f36f671d242f2d0325cd39bf4e1e4		
 http://en.wikipedia.org/wiki/Colorectal_cancer	Colorectal cancer	https://commons.wikimedia.org/wiki/Special:FilePath/Stomach_colon_rectum_diagram.svg	120				
-http://en.wikipedia.org/wiki/Phylogenetics	Phylogenetics		120				
+http://en.wikipedia.org/wiki/Phylogenetics	Phylogenetics		120		https://snappygoat.com/o/ba85d41dad09a53b7ab4337b9322941f09842de1/Darwin_tree_cut.png		
 http://en.wikipedia.org/wiki/Observational_study	Observational study		119	study type			
 http://en.wikipedia.org/wiki/Host_%28biology%29	Host (biology)	https://commons.wikimedia.org/wiki/Special:FilePath/Roof_rat-(rattus_rattus).jpg	119				
-http://en.wikipedia.org/wiki/Interpersonal_relationship	Interpersonal relationship		119				
+http://en.wikipedia.org/wiki/Interpersonal_relationship	Interpersonal relationship		119		https://snappygoat.com/b/2118bd3a924328bcfe763af0971f4520c55baad8		
 http://en.wikipedia.org/wiki/Anatomy	Anatomy	https://commons.wikimedia.org/wiki/Special:FilePath/Vesalius-copy.jpg	117				
 http://en.wikipedia.org/wiki/Functional_magnetic_resonance_imaging	Functional magnetic resonance imaging	https://commons.wikimedia.org/wiki/Special:FilePath/Researcher-test.jpg	116				
 http://en.wikipedia.org/wiki/Management	Management		115	study type			
@@ -158,7 +158,7 @@ http://en.wikipedia.org/wiki/Phenotype	Phenotype	https://en.wikipedia.org/wiki/S
 http://en.wikipedia.org/wiki/Tuberculosis	Tuberculosis	https://commons.wikimedia.org/wiki/Special:FilePath/Tuberculosis-x-ray-1.jpg	106				
 http://en.wikipedia.org/wiki/Fossil	Fossil	https://commons.wikimedia.org/wiki/Special:FilePath/Permian_Silicified_Sclerobionts.JPG	106				
 http://en.wikipedia.org/wiki/Food	Food	https://commons.wikimedia.org/wiki/Special:FilePath/Good_Food_Display_-_NCI_Visuals_Online.jpg	106				
-http://en.wikipedia.org/wiki/Diabetes_mellitus	Diabetes mellitus	https://commons.wikimedia.org/wiki/Special:FilePath/Blue_circle_for_diabetes.svg	106				
+http://en.wikipedia.org/wiki/Diabetes_mellitus	Diabetes mellitus	https://commons.wikimedia.org/wiki/Special:FilePath/Blue_circle_for_diabetes.svg	106		https://en.wikipedia.org/wiki/File:Suckale08_fig3_glucose_insulin_day.png		
 http://en.wikipedia.org/wiki/Social_media	Social media	https://commons.wikimedia.org/wiki/Special:FilePath/Conversationprism.jpeg	105				
 http://en.wikipedia.org/wiki/Risk_factor	Risk factor		104	generic			
 http://en.wikipedia.org/wiki/Major_trauma	Major trauma	https://commons.wikimedia.org/wiki/Special:FilePath/US_Navy_040723-N-8977L-008_Navy_Hospital_Corpsmen_and_Medical_Officers_assess_the_treatment_and_prognosis_of_a_patient_with_a_gunshot_wound.jpg	104				
@@ -214,19 +214,19 @@ http://en.wikipedia.org/wiki/Physical_therapy	Physical therapy	https://commons.w
 http://en.wikipedia.org/wiki/Y_chromosome	Y chromosome	https://commons.wikimedia.org/wiki/Special:FilePath/Human_male_karyotpe_high_resolution_-_Y_chromosome_cropped.png	86				
 http://en.wikipedia.org/wiki/Strength_training	Strength training		86				
 http://en.wikipedia.org/wiki/Fungus	Fungus	https://commons.wikimedia.org/wiki/Special:FilePath/Fungi_collage.jpg	85				
-http://en.wikipedia.org/wiki/Temperature	Temperature	https://commons.wikimedia.org/wiki/Special:FilePath/Body_Temp_Variation.png	85				
+http://en.wikipedia.org/wiki/Temperature	Temperature	https://commons.wikimedia.org/wiki/Special:FilePath/Body_Temp_Variation.png	85		https://snappygoat.com/o/d68c5d1e3d4f76bc0c2748f5fcac935c9bc9d117/thermometer-temperature-fever-309120.svg		
 http://en.wikipedia.org/wiki/Demography	Demography		84	generic			
 http://en.wikipedia.org/wiki/Pathology	Pathology	https://commons.wikimedia.org/wiki/Special:FilePath/Pathologists_looking_into_microscopes_(1).jpg	84				
 http://en.wikipedia.org/wiki/Air_pollution	Air pollution	https://commons.wikimedia.org/wiki/Special:FilePath/AlfedPalmersmokestacks.jpg	84				
-http://en.wikipedia.org/wiki/Genetic_diversity	Genetic diversity		83				
+http://en.wikipedia.org/wiki/Genetic_diversity	Genetic diversity		83		https://upload.wikimedia.org/wikipedia/commons/7/76/Spindle_diagram.jpg		
 http://en.wikipedia.org/wiki/History	History	https://commons.wikimedia.org/wiki/Special:FilePath/Gyzis_006_(Ηistoria).jpeg	82				
-http://en.wikipedia.org/wiki/Alternative_medicine	Alternative medicine		82				
-http://en.wikipedia.org/wiki/Human_body	Human body	https://commons.wikimedia.org/wiki/Special:FilePath/Human_Body.jpg	81	nsfw			
+http://en.wikipedia.org/wiki/Alternative_medicine	Alternative medicine		82		https://snappygoat.com/b/027f7740efc7ccdaa0e9831664d338f54db1a046		
+http://en.wikipedia.org/wiki/Human_body	Human body	https://commons.wikimedia.org/wiki/Special:FilePath/Human_Body.jpg	81		https://vignette.wikia.nocookie.net/kylarsroleplay/images/d/d2/Human-being.png/revision/latest?cb=20180303021631		
 http://en.wikipedia.org/wiki/Psychoanalysis	Psychoanalysis		81				
 http://en.wikipedia.org/wiki/Future	Future	https://commons.wikimedia.org/wiki/Special:FilePath/The_Last_of_the_Spirits-John_Leech,_1843.jpg	80	generic			
 http://en.wikipedia.org/wiki/Agriculture	Agriculture	https://commons.wikimedia.org/wiki/Special:FilePath/Chvojnica_hills_near_Unin.jpg	80				
-http://en.wikipedia.org/wiki/Quality_of_life	Quality of life		80				
-http://en.wikipedia.org/wiki/Emotion	Emotion		80				
+http://en.wikipedia.org/wiki/Quality_of_life	Quality of life		80		https://snappygoat.com/b/d19c3a4ee4201b98d452b2a45215e3361e01a05b		
+http://en.wikipedia.org/wiki/Emotion	Emotion		80		https://snappygoat.com/b/6f3f00f0d1df2690990e0fc2028133b8950406c0		
 http://en.wikipedia.org/wiki/Psychosis	Psychosis	https://en.wikipedia.org/wiki/Special:FilePath/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg	79				
 http://en.wikipedia.org/wiki/Atrial_fibrillation	Atrial fibrillation	https://commons.wikimedia.org/wiki/Special:FilePath/SinusRhythmLabels.svg	79				
 http://en.wikipedia.org/wiki/Student	Student	https://commons.wikimedia.org/wiki/Special:FilePath/LDAI_2002.jpg	79				
@@ -235,7 +235,7 @@ http://en.wikipedia.org/wiki/Health_professional	Health professional		79
 http://en.wikipedia.org/wiki/Case_study	Case study		78	study type			
 http://en.wikipedia.org/wiki/Suicide	Suicide	https://commons.wikimedia.org/wiki/Special:FilePath/Edouard_Manet_059.jpg	78				
 http://en.wikipedia.org/wiki/Analysis	Analysis	https://commons.wikimedia.org/wiki/Special:FilePath/Clinical_Chemistry_Analyzer_,_Клинички_биохемиски_анализатор_3.jpg	78				
-http://en.wikipedia.org/wiki/National_Health_Service	National Health Service	https://commons.wikimedia.org/wiki/Special:FilePath/Aneurin_Bevan_and_his_wife_Jenny_Lee_in_Corwen_(15368872658).jpg	78				
+http://en.wikipedia.org/wiki/National_Health_Service	National Health Service	https://commons.wikimedia.org/wiki/Special:FilePath/Aneurin_Bevan_and_his_wife_Jenny_Lee_in_Corwen_(15368872658).jpg	78		https://en.wikipedia.org/wiki/File:NHS-Logo.svg		
 http://en.wikipedia.org/wiki/Extinction	Extinction	https://commons.wikimedia.org/wiki/Special:FilePath/Palaeoloxodon_namadicus.JPG	77				
 http://en.wikipedia.org/wiki/Memory	Memory	https://commons.wikimedia.org/wiki/Special:FilePath/Memory.gif	77				
 http://en.wikipedia.org/wiki/Impact_event	Impact event	https://commons.wikimedia.org/wiki/Special:FilePath/Impact_event.jpg	77				
@@ -252,7 +252,7 @@ http://en.wikipedia.org/wiki/Metastasis	Metastasis	https://commons.wikimedia.org
 http://en.wikipedia.org/wiki/Heart	Heart	https://commons.wikimedia.org/wiki/Special:FilePath/Heart_near.png	74				
 http://en.wikipedia.org/wiki/Chronic_obstructive_pulmonary_disease	Chronic obstructive pulmonary disease	https://commons.wikimedia.org/wiki/Special:FilePath/Centrilobular_emphysema_865_lores.jpg	74				
 http://en.wikipedia.org/wiki/Africa	Africa	https://commons.wikimedia.org/wiki/Special:FilePath/Africa_(orthographic_projection).svg	74				
-http://en.wikipedia.org/wiki/Information	Information	https://commons.wikimedia.org/wiki/Special:FilePath/WikipediaBinary.svg	73				
+http://en.wikipedia.org/wiki/Information	Information	https://commons.wikimedia.org/wiki/Special:FilePath/WikipediaBinary.svg	73		https://snappygoat.com/b/67fc4d0232af738f97d48ebdbea230dc68f198ab		
 http://en.wikipedia.org/wiki/Global_warming	Global warming	https://commons.wikimedia.org/wiki/Special:FilePath/Global_Temperature_Anomaly.svg	73				
 http://en.wikipedia.org/wiki/Community_%28ecology%29	Community (ecology)	https://commons.wikimedia.org/wiki/Special:FilePath/Carabus_auratus_with_prey.jpg	73				
 http://en.wikipedia.org/wiki/Epidemic	Epidemic	https://commons.wikimedia.org/wiki/Special:FilePath/2014_West_Africa_Ebola_Epidemic_-_New_Cases_per_Week.svg	73				
@@ -262,9 +262,9 @@ http://en.wikipedia.org/wiki/Nation	Nation		73
 http://en.wikipedia.org/wiki/Motivation	Motivation		72	generic			
 http://en.wikipedia.org/wiki/Genetic_variation	Genetic variation	https://en.wikipedia.org/wiki/Special:FilePath/Wheat.gif	72				
 http://en.wikipedia.org/wiki/Dynamical_system	Dynamical system	https://en.wikipedia.org/wiki/Special:FilePath/Lorenz_attractor_yb.svg	72				
-http://en.wikipedia.org/wiki/Twitter	Twitter	https://commons.wikimedia.org/wiki/Special:FilePath/Twttr_sketch-Dorsey-2006.jpg	72				
+http://en.wikipedia.org/wiki/Twitter	Twitter	https://commons.wikimedia.org/wiki/Special:FilePath/Twttr_sketch-Dorsey-2006.jpg	72		https://en.wikipedia.org/wiki/File:Twitter_bird_logo_2012.svg		
 http://en.wikipedia.org/wiki/Asthma	Asthma	https://commons.wikimedia.org/wiki/Special:FilePath/Two_Peak_Flow_Meters.jpg	72				
-http://en.wikipedia.org/wiki/Childhood	Childhood	https://commons.wikimedia.org/wiki/Special:FilePath/Ralph_Hedley_The_tournament_1898.jpg	72				
+http://en.wikipedia.org/wiki/Childhood	Childhood	https://commons.wikimedia.org/wiki/Special:FilePath/Ralph_Hedley_The_tournament_1898.jpg	72		https://snappygoat.com/o/25575695f254f02c6e403b3ac019a5a3b7b436ab/children-smiling-asian-filipino-597471.jpg		
 http://en.wikipedia.org/wiki/Neuroscience	Neuroscience	https://commons.wikimedia.org/wiki/Special:FilePath/PurkinjeCell.jpg	72				
 http://en.wikipedia.org/wiki/Attention_deficit_hyperactivity_disorder	Attention deficit hyperactivity disorder	https://commons.wikimedia.org/wiki/Special:FilePath/Primary_Laos2.jpg	72				
 http://en.wikipedia.org/wiki/Cell_growth	Cell growth		72				
@@ -274,12 +274,12 @@ http://en.wikipedia.org/wiki/Point_of_view_%28philosophy%29	Point of view (philo
 http://en.wikipedia.org/wiki/Statistics	Statistics	https://commons.wikimedia.org/wiki/Special:FilePath/The_Normal_Distribution.svg	71				
 http://en.wikipedia.org/wiki/Anxiety	Anxiety	https://commons.wikimedia.org/wiki/Special:FilePath/Emperor_Traianus_Decius_(Mary_Harrsch).jpg	71				
 http://en.wikipedia.org/wiki/Transmission_%28medicine%29	Transmission (medicine)		71				
-http://en.wikipedia.org/wiki/Opioid	Opioid		71				
+http://en.wikipedia.org/wiki/Opioid	Opioid		71		https://en.wikipedia.org/wiki/File:Morphin_-_Morphine.svg		
 http://en.wikipedia.org/wiki/Ethics	Ethics		71				
 http://en.wikipedia.org/wiki/Prostate_cancer	Prostate cancer	https://commons.wikimedia.org/wiki/Special:FilePath/Diagram_showing_the_position_of_the_prostate_and_rectum_CRUK_358.svg	70				
 http://en.wikipedia.org/wiki/Adverse_effect	Adverse effect		70				
 http://en.wikipedia.org/wiki/Accuracy_and_precision	Accuracy and precision	https://commons.wikimedia.org/wiki/Special:FilePath/Accuracy_and_precision.svg	69	study type			
-http://en.wikipedia.org/wiki/Water	Water	https://en.wikipedia.org/wiki/Special:FilePath/Iceberg_with_hole_near_Sandersons_Hope_2007-07-28_2.jpg	69				
+http://en.wikipedia.org/wiki/Water	Water	https://en.wikipedia.org/wiki/Special:FilePath/Iceberg_with_hole_near_Sandersons_Hope_2007-07-28_2.jpg	69		https://snappygoat.com/b/846bf84d5e1fb465466145d71beb1887fbd49d19		
 http://en.wikipedia.org/wiki/Gender	Gender	https://commons.wikimedia.org/wiki/Special:FilePath/Combotrans.svg	69				
 http://en.wikipedia.org/wiki/Mechanism_of_action	Mechanism of action		68	generic			
 http://en.wikipedia.org/wiki/Retrospective_cohort_study	Retrospective cohort study		68	study type			
@@ -302,13 +302,13 @@ http://en.wikipedia.org/wiki/Etymology	Etymology		65
 http://en.wikipedia.org/wiki/Toxin	Toxin		65				
 http://en.wikipedia.org/wiki/Policy	Policy		65				
 http://en.wikipedia.org/wiki/Social_status	Social status		65				
-http://en.wikipedia.org/wiki/Skull	Skull	https://en.wikipedia.org/wiki/Special:FilePath/VolRenderShearWarp.gif	64				
+http://en.wikipedia.org/wiki/Skull	Skull	https://en.wikipedia.org/wiki/Special:FilePath/VolRenderShearWarp.gif	64		https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Sobo_1909_38.png/260px-Sobo_1909_38.png		
 http://en.wikipedia.org/wiki/Ultrasound	Ultrasound	https://commons.wikimedia.org/wiki/Special:FilePath/CRL_Crown_rump_lengh_12_weeks_ecografia_Dr._Wolfgang_Moroder.jpg	64				
 http://en.wikipedia.org/wiki/Cannabis_%28drug%29	Cannabis (drug)	https://commons.wikimedia.org/wiki/Special:FilePath/Cannabis_Plant.jpg	64				
 http://en.wikipedia.org/wiki/Statistical_population	Statistical population		64				
 http://en.wikipedia.org/wiki/Nature	Nature	https://en.wikipedia.org/wiki/Special:FilePath/Hopetoun_falls.jpg	63				
 http://en.wikipedia.org/wiki/Toxicity	Toxicity	https://commons.wikimedia.org/wiki/Special:FilePath/Skull_and_crossbones.svg	63				
-http://en.wikipedia.org/wiki/General_practitioner	General practitioner	https://commons.wikimedia.org/wiki/Special:FilePath/Edward_Jenner.jpg	63				
+http://en.wikipedia.org/wiki/General_practitioner	General practitioner	https://commons.wikimedia.org/wiki/Special:FilePath/Edward_Jenner.jpg	63		https://snappygoat.com/o/473ac5f9dfe0c5d599d75d718b1c96a6f50b5417/doctor-physician-md-1639328.png		
 http://en.wikipedia.org/wiki/Palliative_care	Palliative care		63				
 http://en.wikipedia.org/wiki/Biological_target	Biological target		63				
 http://en.wikipedia.org/wiki/Communication	Communication		62	study type			
@@ -318,7 +318,7 @@ http://en.wikipedia.org/wiki/Coronary_artery_disease	Coronary artery disease	htt
 http://en.wikipedia.org/wiki/Developmental_psychology	Developmental psychology		62				
 http://en.wikipedia.org/wiki/Three-dimensional_space	Three-dimensional space		62				
 http://en.wikipedia.org/wiki/Homeostasis	Homeostasis	https://commons.wikimedia.org/wiki/Special:FilePath/Wiki_tarantula.jpg	61				
-http://en.wikipedia.org/wiki/Homogeneity_and_heterogeneity	Homogeneity and heterogeneity	https://commons.wikimedia.org/wiki/Special:FilePath/The_FireHouse_Grill_-_Lunch.jpg	61				
+http://en.wikipedia.org/wiki/Homogeneity_and_heterogeneity	Homogeneity and heterogeneity	https://commons.wikimedia.org/wiki/Special:FilePath/The_FireHouse_Grill_-_Lunch.jpg	61	general			
 http://en.wikipedia.org/wiki/Sampling_%28statistics%29	Sampling (statistics)	https://commons.wikimedia.org/wiki/Special:FilePath/Simple_random_sampling.PNG	61				
 http://en.wikipedia.org/wiki/Hypothermia	Hypothermia	https://commons.wikimedia.org/wiki/Special:FilePath/Napoleons_retreat_from_moscow.jpg	61				
 http://en.wikipedia.org/wiki/Screening_%28medicine%29	Screening (medicine)	https://commons.wikimedia.org/wiki/Special:FilePath/Colorado_Coal_Miner_waiting_on_black_lung_screening_(9256404966).jpg	61				
