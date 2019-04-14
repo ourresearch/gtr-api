@@ -139,6 +139,7 @@ def get_search_query(query):
         abort_json(400, u"pagesize too large; max 100")
 
     oa_only = str_to_bool(request.args.get("oa", "false"))
+    include_abstracts = str_to_bool(request.args.get("abstracts", "true"))
 
     start_time = time()
     my_pubs = fulltext_search_title(query, oa_only)
@@ -157,7 +158,7 @@ def get_search_query(query):
 
     elapsed_time = elapsed(start_time, 3)
     print u"finished query for {}: took {} seconds".format(query, elapsed_time)
-    return jsonify({"results": my_pub_list.to_dict_serp_list(),
+    return jsonify({"results": my_pub_list.to_dict_serp_list(include_abstracts),
                     "page": page,
                     "synonym": synonym,
                     "term_lookup": term_lookup,

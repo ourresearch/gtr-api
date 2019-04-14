@@ -41,7 +41,8 @@ image_blacklist = [
 
 annotation_requires_exact_match = [
     "Chemotherapy",  #sometimes matches therapy or treatment
-    "Senescence" # otherwise matches "age"
+    "Senescence", # otherwise matches "age"
+    "Natural selection"  # otherwise matches "selective"
     ]
 
 

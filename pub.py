@@ -406,7 +406,7 @@ class Pub(db.Model):
 
         return results
 
-    def to_dict_serp(self):
+    def to_dict_serp(self, include_abstracts=True):
         # dandelion_results = None
         # if hasattr(self, "dandelion_results"):
         #     dandelion_results = self.dandelion_results
@@ -429,8 +429,6 @@ class Pub(db.Model):
             "doi": self.display_doi_url,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
-            "abstract": self.abstract_text,
-            "short_abstract": self.short_abstract,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "date_of_electronic_publication": self.date_of_electronic_publication,
@@ -453,6 +451,10 @@ class Pub(db.Model):
             "snippet": getattr(self, "snippet", None),
             "score": self.adjusted_score
         }
+
+        if not include_abstracts:
+            response["abstract"] = None
+            response["short_abstract"] = None
 
         return response
 
