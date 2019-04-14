@@ -135,8 +135,8 @@ def get_search_query(query):
         pagesize = int(request.args.get("pagesize"))
     else:
         pagesize = 20
-    if pagesize > 20:
-        abort_json(400, u"pagesize too large; max 20")
+    if pagesize > 100:
+        abort_json(400, u"pagesize too large; max 100")
 
     oa_only = str_to_bool(request.args.get("oa", "false"))
 
