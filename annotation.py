@@ -60,7 +60,12 @@ annotation_requires_exact_match = [
     "University_of_arizona",
     "Ancient_egypt",
     "Netherlands_national_football_team",
-    "Profanity"
+    "Profanity",
+    "Medical_test",
+    "Pollution",
+    "Human_development_%28biology%29",
+    "Risk_management",
+    "Ocean_current"
     ]
 
 
