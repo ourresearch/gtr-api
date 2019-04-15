@@ -25,7 +25,7 @@ class AnnotationList(object):
         return self.good_annotations
 
     def to_dict_simple(self):
-        response = [a.to_dict_simple() for a in self.good_annotations if self.confidence >= 0.6]
+        response = [a.to_dict_simple() for a in self.good_annotations if a.confidence >= 0.6]
         return response
 
     def picture_candidates(self):
