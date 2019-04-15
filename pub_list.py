@@ -53,14 +53,14 @@ class PubList(object):
                 print "error fetching", pmid, error
         my_thread_pool.terminate()
 
-        my_thread_pool = ThreadPool(25)
-        results = my_thread_pool.imap_unordered(call_dandelion_on_short_abstract, self.pubs)
-        my_thread_pool.close()
-        my_thread_pool.join()
-        for result, pmid, error in results:
-            if error:
-                print "error fetching", pmid, error
-        my_thread_pool.terminate()
+        # my_thread_pool = ThreadPool(25)
+        # results = my_thread_pool.imap_unordered(call_dandelion_on_short_abstract, self.pubs)
+        # my_thread_pool.close()
+        # my_thread_pool.join()
+        # for result, pmid, error in results:
+        #     if error:
+        #         print "error fetching", pmid, error
+        # my_thread_pool.terminate()
 
         print("elapsed time spent calling dandelion: %s" % (timer() - start,))
 
@@ -117,8 +117,8 @@ class PubList(object):
             if include_abstracts:
                 if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
                     pub_dict["annotations"]["using_article_abstract"] = my_pub.dandelion_abstract_annotation_list.to_dict_simple()
-                if hasattr(my_pub, "dandelion_short_abstract_annotation_list") and my_pub.dandelion_short_abstract_annotation_list:
-                    pub_dict["annotations"]["using_article_short_abstract"] = my_pub.dandelion_short_abstract_annotation_list.to_dict_simple()
+                # if hasattr(my_pub, "dandelion_short_abstract_annotation_list") and my_pub.dandelion_short_abstract_annotation_list:
+                #     pub_dict["annotations"]["using_article_short_abstract"] = my_pub.dandelion_short_abstract_annotation_list.to_dict_simple()
 
             response.append(pub_dict)
 

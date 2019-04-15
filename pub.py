@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import os
+import re
 import datetime
 import shortuuid
 import hashlib
@@ -30,6 +31,37 @@ for line in lines:
         "news_url": json_line["subj"]["url"]
     }
     temp_news_articles.append(news_article)
+
+
+abstract_headings = [
+    "AIM:",
+    "ANALYSIS:",
+    "AUTHORS' CONCLUSIONS:",
+    "BACKGROUND:",
+    "BACKGROUND AND AIM:",
+    "CONCLUSION:",
+    "CONCLUSIONS:",
+    "DATA COLLECTION AND ANALYSIS:",
+    "DATA SOURCES:",
+    "DISCUSSION:",
+    "MAIN RESULTS:",
+    "MATERIALS:",
+    "METHOD:",
+    "METHODOLOGY:",
+    "METHODS:",
+    "METHODS AND MATERIALS:",
+    "METHODS AND RESULTS:",
+    "METHODS OF STUDY SELECTION:",
+    "OBJECTIVE:",
+    "RESULTS:",
+    "SEARCH METHODS:",
+    "SELECTION CRITERIA:",
+    "STRATEGY:",
+    "STUDY DESIGN:"
+    ]
+abstract_headings_pattern = u"|".join([u"({}.+?)".format(heading) for heading in abstract_headings])
+
+
 
 def call_dandelion(query_text_raw):
     if not query_text_raw:
@@ -285,6 +317,19 @@ class Pub(db.Model):
 
 
     @property
+    def abstract_structured(self):
+        results = []
+
+        if self.abstract_text and re.findall("([A-Z]+): ", self.abstract_text):
+            matches = re.findall("([A-Z' ,]+): (.*?) (?=$|[A-Z' ,]+: )", self.abstract_text)
+            for match in matches:
+                results.append({
+                    "heading": match[0],
+                    "text": match[1]
+                })
+        return results
+
+    @property
     def short_abstract(self):
         if not self.abstract_text:
             return self.abstract_text
@@ -461,7 +506,8 @@ class Pub(db.Model):
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "abstract": self.abstract_text,
-            "short_abstract": self.short_abstract,
+            "abstract_structured": self.abstract_structured,
+            # "short_abstract": self.short_abstract,
             "date_of_electronic_publication": self.date_of_electronic_publication,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,
@@ -485,7 +531,7 @@ class Pub(db.Model):
 
         if not include_abstracts:
             response["abstract"] = None
-            response["short_abstract"] = None
+            # response["short_abstract"] = None
 
         return response
 
