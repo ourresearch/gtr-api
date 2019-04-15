@@ -321,7 +321,7 @@ class Pub(db.Model):
         results = []
 
         if self.abstract_text and re.findall("([A-Z]{4,}): ", self.abstract_text):
-            matches = re.findall(([A-Z' ,]{4,}): (.*?) (?=$|[A-Z' ,]{4,}: ), self.abstract_text)
+            matches = re.findall("([A-Z' ,]{4,}): (.*?) (?=$|[A-Z' ,]{4,}: )", self.abstract_text)
             for match in matches:
                 results.append({
                     "heading": match[0],
