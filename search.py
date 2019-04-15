@@ -73,10 +73,13 @@ def fulltext_search_title(original_query, oa_only):
     # print query_string
     rows = db.engine.execute(sql.text(query_string)).fetchall()
     print "done getting query"
+
     # print rows
     pmids = [row[0] for row in rows]
+
     my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).all()
     print "done query for my_pubs"
+
     for row in rows:
         my_id = row[0]
         for my_pub in my_pubs:
@@ -84,4 +87,7 @@ def fulltext_search_title(original_query, oa_only):
                 my_pub.snippet = row[1]
                 my_pub.score = row[2]
     print "done filling out my_pub"
-    return my_pubs
+
+    my_pubs_filtered = [p for p in my_pubs if not p.suppress]
+
+    return my_pubs_filtered

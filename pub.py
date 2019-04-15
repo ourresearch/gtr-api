@@ -306,6 +306,14 @@ class Pub(db.Model):
         return response
 
     @property
+    def suppress(self):
+        if self.display_pub_types:
+            pub_type_pubmed = [p["pub_type_pubmed"] for p in self.display_pub_types]
+            if "Retracted Publication" in pub_type_pubmed:
+                return True
+        return False
+
+    @property
     def adjusted_score(self):
         score = getattr(self, "score", 0)
 
@@ -317,6 +325,9 @@ class Pub(db.Model):
 
         if not self.paperbuzz:
             score -= 5
+
+        if self.news_articles:
+            score += 1
 
         if self.display_pub_types:
             pub_type_pubmed = [p["pub_type_pubmed"] for p in self.display_pub_types]
@@ -337,6 +348,8 @@ class Pub(db.Model):
             if "Comparative Study" in pub_type_pubmed:
                 score += 0.5
             if "Case Reports" in pub_type_pubmed:
+                score += -5
+            if "English Abstract" in pub_type_pubmed:
                 score += -5
             if "English Abstract" in pub_type_pubmed:
                 score += -5

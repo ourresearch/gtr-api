@@ -69,7 +69,8 @@ annotation_requires_exact_match = [
     "Pollution",
     "Human_development_%28biology%29",
     "Risk_management",
-    "Ocean_current"
+    "Ocean_current",
+    "Adoption"
     ]
 
 
