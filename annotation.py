@@ -39,6 +39,10 @@ annotation_blacklist = [
 image_blacklist = [
     ]
 
+spot_requires_exact_match = [
+    "cultivars"  # otherwise matches "Common Fig" and probably other common foods
+]
+
 annotation_requires_exact_match = [
     "Chemotherapy",  #sometimes matches therapy or treatment
     "Senescence", # otherwise matches "age"
@@ -112,6 +116,10 @@ class Annotation(object):
 
         if uri_name in annotation_requires_exact_match:
             if uri_name.lower() != self.spot.lower():
+                return True
+
+        if self.spot in spot_requires_exact_match:
+            if uri_name.lower().replace("_", " ") != self.spot.lower():
                 return True
 
         # too many incorrect hits on people, and they are too costly (remove this and search for "et al" to see)
