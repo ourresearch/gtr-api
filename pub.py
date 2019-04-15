@@ -320,8 +320,8 @@ class Pub(db.Model):
     def abstract_structured(self):
         results = []
 
-        if self.abstract_text and re.findall("([A-Z]+): ", self.abstract_text):
-            matches = re.findall("([A-Z' ,]+): (.*?) (?=$|[A-Z' ,]+: )", self.abstract_text)
+        if self.abstract_text and re.findall("([A-Z]{4,}): ", self.abstract_text):
+            matches = re.findall(([A-Z' ,]{4,}): (.*?) (?=$|[A-Z' ,]{4,}: ), self.abstract_text)
             for match in matches:
                 results.append({
                     "heading": match[0],
