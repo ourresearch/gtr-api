@@ -106,11 +106,28 @@ class DoiLookup(db.Model):
     doi = db.Column(db.Text, primary_key=True)
     pmid_numeric = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
     paperbuzz = db.relationship("Paperbuzz", uselist=False, lazy='subquery')
+    news = db.relationship("News", lazy='subquery')
 
 class Paperbuzz(db.Model):
     __tablename__ = "dois_with_ced_events"
     doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi), primary_key=True)
     num_events = db.Column(db.Numeric)
+
+class News(db.Model):
+    __tablename__ = "paperbuzz_news_20190414"
+    event_id = db.Column(db.Text, primary_key=True)
+    doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi))
+    news_url = db.Column(db.Text)
+    news_title = db.Column(db.Text)
+    occurred_at = db.Column(db.DateTime)
+
+    def to_dict(self):
+        response = {
+            "news_url": self.news_url,
+            "news_title": self.news_title,
+            "occurred_at": self.occurred_at
+        }
+        return response
 
 
 class Pub(db.Model):
@@ -196,12 +213,10 @@ class Pub(db.Model):
 
     @property
     def news_articles(self):
-        fake_number_news_articles = self.display_number_of_paperbuzz_events/10
-        articles = random.sample(temp_news_articles, min(fake_number_news_articles, 10))
-        articles = sorted(articles, key=lambda x: x["occurred_at"], reverse=True)
-        return articles
-
-
+        if self.doi_lookup and self.doi_lookup.news:
+            articles = sorted(self.doi_lookup.news, key=lambda x: x.occurred_at, reverse=True)
+            return articles
+        return []
 
     def call_dandelion_on_abstract(self):
         self.dandelion_abstract_annotation_list = None
@@ -444,7 +459,7 @@ class Pub(db.Model):
             "pub_types": self.display_pub_types,
             "mesh": [m.to_dict() for m in self.mesh],
 
-            "news_articles": self.news_articles,
+            "news_articles": [a.to_dict() for a in self.news_articles],
 
             # "dandelion": dandelion_results,
             "image": {

@@ -65,6 +65,7 @@ def fulltext_search_title(original_query, oa_only):
         FROM search_mv
         WHERE  
         to_tsvector('english', article_title) @@  to_tsquery('{q}')
+        and doi is not null 
         {oa_clause}
         order by rank desc
         limit 100;
