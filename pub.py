@@ -198,6 +198,7 @@ class Pub(db.Model):
     def news_articles(self):
         fake_number_news_articles = self.display_number_of_paperbuzz_events/10
         articles = random.sample(temp_news_articles, min(fake_number_news_articles, 10))
+        articles = sorted(articles, key=lambda x: x["occurred_at"], reverse=True)
         return articles
 
 
@@ -431,6 +432,8 @@ class Pub(db.Model):
             "title": self.article_title,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
+            "abstract": self.abstract_text,
+            "short_abstract": self.short_abstract,
             "date_of_electronic_publication": self.date_of_electronic_publication,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,

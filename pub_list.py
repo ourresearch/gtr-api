@@ -95,6 +95,7 @@ class PubList(object):
                         my_pub.image = candidate
 
             if my_pub.image:
+                print u"finalizing on {} for {}".format(candidate.title, my_pub.article_title)
                 chosen_image_urls.add(my_pub.image.image_url)
 
 
