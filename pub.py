@@ -436,8 +436,8 @@ class Pub(db.Model):
             "author_lastnames": self.author_lastnames,
             "is_oa": self.display_is_oa,
             "oa_url": self.display_oa_url,
-            "best_host": self.display_best_host,
-            "best_version": self.display_best_version,
+            "oa_host": self.display_best_host,
+            "oa_version": self.display_best_version,
             "pub_types": self.display_pub_types,
             "mesh": [m.to_dict() for m in self.mesh],
 
