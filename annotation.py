@@ -58,7 +58,9 @@ annotation_requires_exact_match = [
     "Mediation",
     "Social_change",
     "University_of_arizona",
-    "Ancient_egypt"
+    "Ancient_egypt",
+    "Netherlands_national_football_team",
+    "Profanity"
     ]
 
 
@@ -172,6 +174,9 @@ class Annotation(object):
 
         if "http://dbpedia.org/ontology/Food" in self.types:
             score += 0.8
+
+        if "http://dbpedia.org/ontology/SportsTeam" in self.types:
+            score -= 1
 
         if "http://dbpedia.org/ontology/TelevisionEpisode" in self.types:
             score -= 10
