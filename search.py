@@ -53,7 +53,7 @@ def fulltext_search_title(original_query, oa_only):
         synonym_with_ands = ' & '.join(synonym_escaped.split(" "))
         query_to_use += u" | ({})".format(synonym_with_ands)
 
-    print "starting query"
+    print u"starting query for {}".format(query_to_use)
     if oa_only:
         oa_clause = u" and is_oa=True "
     else:
