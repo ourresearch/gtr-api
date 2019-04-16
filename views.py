@@ -198,7 +198,7 @@ def get_all_pictures_hack():
     if request.args.get("pagesize"):
         pagesize = int(request.args.get("pagesize"))
     else:
-        pagesize = 20
+        pagesize = 10
 
     start_time = time()
 
