@@ -208,10 +208,10 @@ class Annotation(object):
         if self.spot.lower() == "ages" and self.title.lower() == "ageing":
             score -= 10
 
-        if self.confidence < 0.6:
-            score -= 1
+        if self.confidence < 0.65:
+            score -= 10
 
-        score += 0.1 * self.confidence
+        score += 0.2 * self.confidence
 
         if annotation_file_contents.get(self.uri, None) and annotation_file_contents[self.uri]["weight"]:
             score *= float(annotation_file_contents[self.uri]["weight"])
