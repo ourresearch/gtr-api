@@ -516,7 +516,6 @@ class Pub(db.Model):
             "abstract": self.abstract_text,
             "abstract_short": self.abstract_short,
             "abstract_structured": None, # self.abstract_structured,
-            "date_of_electronic_publication": self.date_of_electronic_publication,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,
             "is_oa": self.display_is_oa,

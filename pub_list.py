@@ -6,26 +6,14 @@ from collections import defaultdict
 
 from annotation_list import AnnotationList
 
-def call_dandelion_on_article_title(pub):
-    try:
-        response_data = pub.call_dandelion_on_article_title()
-        return (response_data, pub.pmid, None)
-    except Exception as e:
-        return (None, pub.pmid, e)
+# approach from https://stackoverflow.com/a/21130146/596939
+def multi_run_wrapper(args):
+   return farm_out_call(*args)
 
-def call_dandelion_on_abstract(pub):
-    try:
-        response_data = pub.call_dandelion_on_abstract()
-        return (response_data, pub.pmid, None)
-    except Exception as e:
-        return (None, pub.pmid, e)
-
-def call_dandelion_on_short_abstract(pub):
-    try:
-        response_data = pub.call_dandelion_on_short_abstract()
-        return (response_data, pub.pmid, None)
-    except Exception as e:
-        return (None, pub.pmid, e)
+def farm_out_call(my_pub, method_name):
+    my_method = getattr(my_pub, method_name)
+    response = my_method()
+    return response
 
 class PubList(object):
 
@@ -35,31 +23,18 @@ class PubList(object):
     def set_dandelions(self):
         start = timer()
 
-        my_thread_pool = ThreadPool(25)
-        results = my_thread_pool.imap_unordered(call_dandelion_on_article_title, self.pubs)
-        my_thread_pool.close()
-        my_thread_pool.join()
-        for result, pmid, error in results:
-            if error:
-                print "error fetching", pmid, error
-        my_thread_pool.terminate()
+        my_thread_pool = ThreadPool(50)
+        run_tuples = []
+        for my_pub in self.pubs:
+            for run_dandelion_on in ["call_dandelion_on_article_title",
+                                     "call_dandelion_on_abstract",
+                                     "call_dandelion_on_short_abstract"]:
+                run_tuples += [(my_pub, run_dandelion_on)]
 
-        my_thread_pool = ThreadPool(25)
-        results = my_thread_pool.imap_unordered(call_dandelion_on_abstract, self.pubs)
-        my_thread_pool.close()
-        my_thread_pool.join()
-        for result, pmid, error in results:
-            if error:
-                print "error fetching", pmid, error
-        my_thread_pool.terminate()
+        results = my_thread_pool.imap_unordered(multi_run_wrapper, run_tuples)
 
-        my_thread_pool = ThreadPool(25)
-        results = my_thread_pool.imap_unordered(call_dandelion_on_short_abstract, self.pubs)
         my_thread_pool.close()
         my_thread_pool.join()
-        for result, pmid, error in results:
-            if error:
-                print "error fetching", pmid, error
         my_thread_pool.terminate()
 
         print("elapsed time spent calling dandelion: %s" % (timer() - start,))

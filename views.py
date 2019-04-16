@@ -226,7 +226,6 @@ def get_all_pictures_hack():
             "author_lastnames": [],
             "best_host": "None",
             "best_version": "None",
-            "date_of_electronic_publication": "",
             "doi": "42",
             "doi_url": "42",
             "image": {
