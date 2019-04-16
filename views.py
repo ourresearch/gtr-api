@@ -136,7 +136,7 @@ def get_search_query(query):
     if request.args.get("pagesize"):
         pagesize = int(request.args.get("pagesize"))
     else:
-        pagesize = 20
+        pagesize = 10
     if pagesize > 100:
         abort_json(400, u"pagesize too large; max 100")
 
