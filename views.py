@@ -234,7 +234,7 @@ def get_all_pictures_hack():
             "pmid_url": "",
             "pub_types": [],
             "score": 0,
-            "short_abstract": None,
+            "abstract_short": None,
             "snippet": "",
             "title": annotation_title,
             "year": None,

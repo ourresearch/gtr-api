@@ -258,8 +258,8 @@ class Pub(db.Model):
 
     def call_dandelion_on_short_abstract(self):
         self.dandelion_short_abstract_annotation_list = None
-        if self.short_abstract:
-            dandelion_results = call_dandelion(self.short_abstract)
+        if self.abstract_short:
+            dandelion_results = call_dandelion(self.abstract_short)
             self.dandelion_short_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_article_title(self):
@@ -330,7 +330,7 @@ class Pub(db.Model):
         return results
 
     @property
-    def short_abstract(self):
+    def abstract_short(self):
         if not self.abstract_text:
             return self.abstract_text
 
@@ -506,8 +506,8 @@ class Pub(db.Model):
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
             "abstract": self.abstract_text,
+            "abstract_short": self.abstract_short,
             "abstract_structured": self.abstract_structured,
-            # "short_abstract": self.short_abstract,
             "date_of_electronic_publication": self.date_of_electronic_publication,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,
@@ -531,7 +531,8 @@ class Pub(db.Model):
 
         if not include_abstracts:
             response["abstract"] = None
-            # response["short_abstract"] = None
+            response["abstract_short"] = None
+            response["abstract_structured"] = None
 
         return response
 
