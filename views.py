@@ -123,6 +123,8 @@ def get_pub_by_pmid(pmid):
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
+    start_time = time()
+
     # page starts at 1 not 0
     if request.args.get("page"):
         page = int(request.args.get("page"))
@@ -141,13 +143,18 @@ def get_search_query(query):
     oa_only = str_to_bool(request.args.get("oa", "false"))
     include_abstracts = str_to_bool(request.args.get("abstracts", "true"))
 
-    start_time = time()
-    my_pubs = fulltext_search_title(query, oa_only)
+    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, oa_only)
+
+    db_query_elapsed = elapsed(start_time, 3)
+    initializing_publist_start_time = time()
 
     print "building response"
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
 
     my_pub_list = PubList(pubs=sorted_pubs[(pagesize * (page-1)):(pagesize * page)])
+
+    initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
+    getting_term_lookup_start_time = time()
 
     print "getting synonyms"
     synonym = get_synonym(query)
@@ -156,13 +163,27 @@ def get_search_query(query):
     if synonym and not term_lookup:
         term_lookup = get_nerd_term_lookup(synonym)
 
-    elapsed_time = elapsed(start_time, 3)
-    print u"finished query for {}: took {} seconds".format(query, elapsed_time)
-    return jsonify({"results": my_pub_list.to_dict_serp_list(include_abstracts),
+    getting_term_lookup_elapsed = elapsed(getting_term_lookup_start_time, 3)
+    to_dict_start_time = time()
+
+    results = my_pub_list.to_dict_serp_list(include_abstracts)
+
+    to_dict_elapsed = elapsed(to_dict_start_time, 3)
+    total_time = elapsed(start_time, 3)
+
+    print u"finished query for {}: took {} seconds".format(query, total_time)
+    return jsonify({"results": results,
                     "page": page,
                     "synonym": synonym,
                     "term_lookup": term_lookup,
-                    "elapsed_seconds": elapsed_time})
+                    "timing": {"total": total_time,
+                               "time_to_pmids_elapsed": time_to_pmids_elapsed,
+                               "time_for_pubs_elapsed": time_for_pubs_elapsed,
+                               "initializing_publist_elapsed": initializing_publist_elapsed,
+                               "to_dict_elapsed": to_dict_elapsed,
+                               "getting_term_lookup_elapsed": getting_term_lookup_elapsed
+                               }
+                    })
 
 # temporary hack to display all pictures
 @app.route("/search/all_pictures", methods=["GET"])

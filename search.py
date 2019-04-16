@@ -4,6 +4,7 @@ import requests
 
 from app import db
 from pub import Pub
+from util import elapsed
 
 def get_synonym(original_query):
     clean_query = original_query.replace("'", "")
@@ -37,6 +38,8 @@ def get_nerd_term_lookup(original_query):
 
 
 def fulltext_search_title(original_query, oa_only):
+
+    start_time = time()
 
     print "in fulltext_search_title"
     original_query_escaped = original_query.replace("'", "''")
@@ -76,6 +79,8 @@ def fulltext_search_title(original_query, oa_only):
 
     # print rows
     pmids = [row[0] for row in rows]
+    time_for_pmids = elapsed(start_time, 3)
+    time_for_pubs_start_time = time()
 
     my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).all()
     print "done query for my_pubs"
@@ -89,5 +94,6 @@ def fulltext_search_title(original_query, oa_only):
     print "done filling out my_pub"
 
     my_pubs_filtered = [p for p in my_pubs if not p.suppress]
+    time_for_pubs = elapsed(time_for_pubs_start_time, 3)
 
-    return my_pubs_filtered
+    return (my_pubs_filtered, time_for_pmids, time_for_pubs)

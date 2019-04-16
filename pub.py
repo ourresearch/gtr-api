@@ -1,3 +1,6 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 import os
 import re
@@ -347,7 +350,12 @@ class Pub(db.Model):
             except IndexError:
                 response += self.abstract_text[-500:-1]
 
+        # if u"©" in self.abstract_text:
+        #     response = self.abstract_text.rsplit(u"©", 1)[0]
+
         response = response.strip()
+
+
         return response
 
     @property
@@ -507,7 +515,7 @@ class Pub(db.Model):
             "journal_name": self.journal_title,
             "abstract": self.abstract_text,
             "abstract_short": self.abstract_short,
-            "abstract_structured": self.abstract_structured,
+            "abstract_structured": None, # self.abstract_structured,
             "date_of_electronic_publication": self.date_of_electronic_publication,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "author_lastnames": self.author_lastnames,
