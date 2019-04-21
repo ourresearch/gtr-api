@@ -18,6 +18,7 @@ from app import db
 from annotation_list import AnnotationList
 from util import get_sql_answer
 from util import run_sql
+from util import TooManyRequestsException
 
 annotation_file_contents = {}
 fp = open("temp_news.jsonl", "r")
@@ -66,9 +67,14 @@ abstract_headings_pattern = u"|".join([u"({}.+?)".format(heading) for heading in
 
 
 
-def call_dandelion(query_text_raw):
+def call_dandelion(query_text_raw, batch_api_key=None):
     if not query_text_raw:
         return None
+
+    if batch_api_key:
+        api_key = batch_api_key
+    else:
+        api_key = os.getenv("DANDELION_API_KEY")
 
     query_text = quote_plus(query_text_raw.encode('utf-8'), safe=':/'.encode('utf-8'))
 
@@ -77,10 +83,14 @@ def call_dandelion(query_text_raw):
     if len(query_text) < 40:
         language = "en"
 
-    url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&lang={language}&country=-1&social=False&top_entities=8&include=image,abstract,types,categories,alternate_labels&token={key}"
-    url = url_template.format(query=query_text, language=language, key=os.getenv("DANDELION_API_KEY"))
+    url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&lang={language}&country=-1&social=False&top_entities=8&include=image,abstract,types,categories,alternate_labels&token={api_key}"
+    url = url_template.format(query=query_text, language=language, api_key=api_key)
     # print url
     r = requests.get(url)
+    print r.headers["X-DL-units-left"]
+    if r.headers.get("X-DL-units-left", None) == 0 or r.status_code == 423:
+        raise TooManyRequestsException
+
     try:
         response_data = r.json()
     except ValueError:

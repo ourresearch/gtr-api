@@ -19,6 +19,9 @@ from sqlalchemy import exc
 class NoDoiException(Exception):
     pass
 
+class TooManyRequestsException(Exception):
+    pass
+
 # from http://stackoverflow.com/a/3233356/596939
 def update_recursive_sum(d, u):
     for k, v in u.iteritems():
