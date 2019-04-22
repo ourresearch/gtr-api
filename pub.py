@@ -83,7 +83,7 @@ def call_dandelion(query_text_raw, batch_api_key=None):
     if len(query_text) < 40:
         language = "en"
 
-    url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&lang={language}&country=-1&social=False&top_entities=8&include=image,abstract,types,categories,alternate_labels&token={api_key}"
+    url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&lang={language}&country=-1&social=False&top_entities=8&include=image,abstract,types,categories,alternate_labels,lod&token={api_key}"
     url = url_template.format(query=query_text, language=language, api_key=api_key)
     # print url
     r = requests.get(url)

@@ -21,7 +21,11 @@ def call_dandelion_on_article(my_queue_save_obj):
     error = None
     batch_api_key = os.getenv("DANDELION_API_KEYS_FOR_BATCH")
 
-    if not my_queue_save_obj.my_pub:
+    if not my_queue_save_obj:
+        print u"no my_queue_save_obj"
+        return (None, error)  # don't bother setting error
+
+    if not hasattr(my_queue_save_obj, "my_pub") or not my_queue_save_obj.my_pub:
         print u"no pub for {}, returning".format(my_queue_save_obj.pmid)
         return (None, error)  # don't bother setting error
 
