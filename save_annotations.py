@@ -23,10 +23,12 @@ def call_dandelion_on_article(my_queue_save_obj):
 
     if not my_queue_save_obj:
         print u"no my_queue_save_obj"
+        print "x",
         return (None, error)  # don't bother setting error
 
     if not hasattr(my_queue_save_obj, "my_pub") or not my_queue_save_obj.my_pub:
         # print u"no pub for {}, returning".format(my_queue_save_obj.pmid)
+        print "X",
         return (None, error)  # don't bother setting error
 
     for annotation_type in ["article_title", "abstract_short", "abstract_text"]:
@@ -35,6 +37,7 @@ def call_dandelion_on_article(my_queue_save_obj):
             my_text = getattr(my_queue_save_obj.my_pub, annotation_type)
             dandelion_results = call_dandelion(my_text, batch_api_key)
         except TooManyRequestsException:
+            print "x",
             error = u"TooManyRequestsException"
             return (None, error)
 
@@ -66,7 +69,7 @@ def call_dandelion_on_article(my_queue_save_obj):
 class QueueSave(db.Model):
     __tablename__ = "dois_paperbuzz_dandelion"
     doi = db.Column(db.Text, primary_key=True)
-    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
+    pmid = db.Column(db.Numeric)
     num_events = db.Column(db.Numeric)
     dandelion_raw_article_title = db.Column(JSONB)
     dandelion_raw_abstract_short = db.Column(JSONB)
@@ -120,13 +123,16 @@ if __name__ == "__main__":
 
     if __name__ == '__main__':
         for i in range(100000):
-            query = QueueSave.query.filter(QueueSave.dandelion_collected==None,
-                                           QueueSave.num_events!=None).\
+            query = QueueSave.query.filter(QueueSave.dandelion_collected == None,
+                                           QueueSave.num_events != None,
+                                           QueueSave.pmid != None).\
                 order_by(QueueSave.num_events.desc())\
                 .limit(15)  # max 50/3, doing 3 calls for each DOI and can hit dandelion w 50 at a time
             queue_save_objs = query.all()
-            pmids = [save_obj.pmid for save_obj in queue_save_objs]
+            pmids = [int(save_obj.pmid) for save_obj in queue_save_objs]
+            # print pmids
             my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.noload('*')).all()
+            # print my_pubs
             for save_obj in queue_save_objs:
                 matches = [my_pub for my_pub in my_pubs if my_pub.pmid==save_obj.pmid]
                 if matches:
