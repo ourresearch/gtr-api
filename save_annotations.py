@@ -18,52 +18,54 @@ from util import TooManyRequestsException
 
 
 def call_dandelion_on_article(my_queue_save_obj):
+    dandelion_results = None
     error = None
+    rate_limit_exceeded = False
     batch_api_key = os.getenv("DANDELION_API_KEYS_FOR_BATCH")
 
     if not my_queue_save_obj:
-        print u"no my_queue_save_obj"
+        error = "no my_queue_save_obj"
         print "x",
-        return (None, error)  # don't bother setting error
 
     if not hasattr(my_queue_save_obj, "my_pub") or not my_queue_save_obj.my_pub:
         # print u"no pub for {}, returning".format(my_queue_save_obj.pmid)
+        error = "no pub object"
         print "X",
-        return (None, error)  # don't bother setting error
 
-    for annotation_type in ["article_title", "abstract_short", "abstract_text"]:
+    if not error:
+        for annotation_type in ["article_title", "abstract_short", "abstract_text"]:
 
-        try:
-            my_text = getattr(my_queue_save_obj.my_pub, annotation_type)
-            dandelion_results = call_dandelion(my_text, batch_api_key)
-        except TooManyRequestsException:
-            print "x",
-            error = u"TooManyRequestsException"
-            return (None, error)
+            try:
+                my_text = getattr(my_queue_save_obj.my_pub, annotation_type)
+                dandelion_results = call_dandelion(my_text, batch_api_key)
+                setattr(my_queue_save_obj, u"dandelion_raw_{}".format(annotation_type), dandelion_results)
 
-        setattr(my_queue_save_obj, u"dandelion_raw_{}".format(annotation_type), dandelion_results)
+                # print "\n"
+                # print my_queue_save_obj.article_title
 
-        # print "\n"
-        # print my_queue_save_obj.article_title
+                if dandelion_results:
+                    for annotation_dict in dandelion_results.get("annotations", []):
+                        my_annotation = AnnotationSave(annotation_dict)
+                        my_annotation.doi = my_queue_save_obj.doi
+                        my_annotation.annotation_type = annotation_type
 
-        if dandelion_results:
-            for annotation_dict in dandelion_results.get("annotations", []):
-                my_annotation = AnnotationSave(annotation_dict)
-                my_annotation.doi = my_queue_save_obj.doi
-                my_annotation.annotation_type = annotation_type
+                        for top_entity in dandelion_results.get("topEntities", []):
+                            if my_annotation.uri == top_entity["uri"]:
+                                my_annotation.top_entity_score = top_entity["score"]
 
-                for top_entity in dandelion_results.get("topEntities", []):
-                    if my_annotation.uri == top_entity["uri"]:
-                        my_annotation.top_entity_score = top_entity["score"]
+                        # print my_annotation
+                        db.session.merge(my_annotation)
 
-                # print my_annotation
-                db.session.merge(my_annotation)
+            except TooManyRequestsException:
+                print "x",
+                error = u"TooManyRequestsException"
+                rate_limit_exceeded = True
 
     my_queue_save_obj.dandelion_collected = datetime.datetime.utcnow()
     db.session.merge(my_queue_save_obj)
     safe_commit(db)
     print ".",
-    return (dandelion_results, error)
+    return (dandelion_results, error, rate_limit_exceeded)
 
 
 class QueueSave(db.Model):
@@ -151,9 +153,9 @@ if __name__ == "__main__":
                 for my_obj in queue_save_objs:
                     results.append(call_dandelion_on_article(my_obj))
 
-            for (my_result, my_error) in results:
-                if my_error:
-                    print "sleeping because got an error", my_error
+            for (my_result, my_error, rate_limit_exceeded) in results:
+                if rate_limit_exceeded:
+                    print "sleeping because rate_limit_exceeded", my_error
                     sleep(60*60)
 
             my_thread_pool.terminate()
