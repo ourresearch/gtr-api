@@ -16,7 +16,7 @@ import requests
 import requests_cache
 from util import safe_commit
 
-HEROKU_APP_NAME = "paperbuzz-api"
+HEROKU_APP_NAME = "gtr-api"
 
 # set up logging
 # see http://wiki.pylonshq.com/display/pylonscookbook/Alternative+logging+configuration

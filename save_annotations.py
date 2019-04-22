@@ -153,10 +153,15 @@ if __name__ == "__main__":
                 for my_obj in queue_save_objs:
                     results.append(call_dandelion_on_article(my_obj))
 
-            for (my_result, my_error, rate_limit_exceeded) in results:
-                if rate_limit_exceeded:
-                    print "sleeping because rate_limit_exceeded", my_error
-                    sleep(60*60)
+            try:
+                for (my_result, my_error, rate_limit_exceeded) in results:
+                    if rate_limit_exceeded:
+                        print "sleeping because rate_limit_exceeded", my_error
+                        sleep(60*60)
+            except Exception as e:
+                print e
+                print "sleeping for a minute"
+                sleep(60)
 
             my_thread_pool.terminate()
 
