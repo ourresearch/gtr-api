@@ -107,15 +107,15 @@ def index_endpoint():
 @app.route("/paper/doi/<path:my_doi>", methods=["GET"])
 def get_pub_by_doi(my_doi):
     my_clean_doi = clean_doi(my_doi)
-    print my_clean_doi
+    # print my_clean_doi
     my_doi_lookup = db.session.query(DoiLookup).filter(DoiLookup.doi==my_clean_doi).first()
     if not my_doi_lookup:
         abort_json(404, u"'{}' not found in db".format(my_clean_doi))
 
     query = db.session.query(Pub).filter(Pub.pmid==my_doi_lookup.pmid_numeric)
-    print query
+    # print query
     my_pub = query.first()
-    print my_pub
+    # print my_pub
     if not my_pub:
         abort_json(404, u"'{}' is an invalid doi.  See https://doi.org/{}".format(my_clean_doi, my_clean_doi))
 

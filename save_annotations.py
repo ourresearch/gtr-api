@@ -26,7 +26,7 @@ def call_dandelion_on_article(my_queue_save_obj):
         return (None, error)  # don't bother setting error
 
     if not hasattr(my_queue_save_obj, "my_pub") or not my_queue_save_obj.my_pub:
-        print u"no pub for {}, returning".format(my_queue_save_obj.pmid)
+        # print u"no pub for {}, returning".format(my_queue_save_obj.pmid)
         return (None, error)  # don't bother setting error
 
     for annotation_type in ["article_title", "abstract_short", "abstract_text"]:
@@ -43,17 +43,18 @@ def call_dandelion_on_article(my_queue_save_obj):
         # print "\n"
         # print my_queue_save_obj.article_title
 
-        for annotation_dict in dandelion_results["annotations"]:
-            my_annotation = AnnotationSave(annotation_dict)
-            my_annotation.doi = my_queue_save_obj.doi
-            my_annotation.annotation_type = annotation_type
+        if dandelion_results:
+            for annotation_dict in dandelion_results.get("annotations", []):
+                my_annotation = AnnotationSave(annotation_dict)
+                my_annotation.doi = my_queue_save_obj.doi
+                my_annotation.annotation_type = annotation_type
 
-            for top_entity in dandelion_results.get("topEntities", []):
-                if my_annotation.uri == top_entity["uri"]:
-                    my_annotation.top_entity_score = top_entity["score"]
+                for top_entity in dandelion_results.get("topEntities", []):
+                    if my_annotation.uri == top_entity["uri"]:
+                        my_annotation.top_entity_score = top_entity["score"]
 
-            # print my_annotation
-            db.session.merge(my_annotation)
+                # print my_annotation
+                db.session.merge(my_annotation)
 
     my_queue_save_obj.dandelion_collected = datetime.datetime.utcnow()
     db.session.merge(my_queue_save_obj)
@@ -133,10 +134,17 @@ if __name__ == "__main__":
                 else:
                     save_obj.my_pub = None
 
-            my_thread_pool = ThreadPool(25)
-            results = my_thread_pool.imap_unordered(call_dandelion_on_article, queue_save_objs)
-            my_thread_pool.close()
-            my_thread_pool.join()
+            use_threads = True  # useful to turn off pooling to help debugging
+            my_thread_pool = ThreadPool(50)
+            if use_threads:
+                results = my_thread_pool.imap_unordered(call_dandelion_on_article, queue_save_objs)
+                my_thread_pool.close()
+                my_thread_pool.join()
+            else:
+                results = []
+                for my_obj in queue_save_objs:
+                    results.append(call_dandelion_on_article(my_obj))
+
             for (my_result, my_error) in results:
                 if my_error:
                     print "sleeping because got an error", my_error
