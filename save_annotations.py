@@ -154,8 +154,8 @@ if __name__ == "__main__":
             try:
                 for (my_result, my_error, rate_limit_exceeded) in results:
                     if rate_limit_exceeded:
-                        print "sleeping because rate_limit_exceeded", my_error
-                        sleep(60*60)
+                        print "sleeping for a few minutes because rate_limit_exceeded", my_error
+                        sleep(60*5)
             except Exception as e:
                 print e
                 print "sleeping for a minute"
