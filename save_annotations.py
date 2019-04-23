@@ -43,18 +43,18 @@ def call_dandelion_on_article(my_queue_save_obj):
                 # print "\n"
                 # print my_queue_save_obj.article_title
 
-                if dandelion_results:
-                    for annotation_dict in dandelion_results.get("annotations", []):
-                        my_annotation = AnnotationSave(annotation_dict)
-                        my_annotation.doi = my_queue_save_obj.doi
-                        my_annotation.annotation_type = annotation_type
-
-                        for top_entity in dandelion_results.get("topEntities", []):
-                            if my_annotation.uri == top_entity["uri"]:
-                                my_annotation.top_entity_score = top_entity["score"]
-
-                        # print my_annotation
-                        db.session.merge(my_annotation)
+                # if dandelion_results:
+                #     for annotation_dict in dandelion_results.get("annotations", []):
+                #         my_annotation = AnnotationSave(annotation_dict)
+                #         my_annotation.doi = my_queue_save_obj.doi
+                #         my_annotation.annotation_type = annotation_type
+                #
+                #         for top_entity in dandelion_results.get("topEntities", []):
+                #             if my_annotation.uri == top_entity["uri"]:
+                #                 my_annotation.top_entity_score = top_entity["score"]
+                #
+                #         # print my_annotation
+                #         db.session.merge(my_annotation)
 
             except TooManyRequestsException:
                 print "x",
