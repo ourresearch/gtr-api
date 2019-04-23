@@ -87,7 +87,7 @@ class QueueSave(db.Model):
 class AnnotationSave(db.Model):
     __tablename__ = "doi_annotations"
     doi = db.Column(db.Text, primary_key=True)
-    annotation_type = db.Column(db.Text)
+    annotation_type = db.Column(db.Text, primary_key=True)
     spot = db.Column(db.Text)
     title = db.Column(db.Text)
     uri = db.Column(db.Text, primary_key=True)
