@@ -85,10 +85,9 @@ def call_dandelion(query_text_raw, batch_api_key=None):
 
     url_template = u"https://api.dandelion.eu/datatxt/nex/v1/?min_confidence=0.5&text={query}&lang={language}&country=-1&social=False&top_entities=8&include=image,abstract,types,categories,alternate_labels,lod&token={api_key}"
     url = url_template.format(query=query_text, language=language, api_key=api_key)
-    # print url
     r = requests.get(url)
-    # print r.headers["X-DL-units-left"]
-    if r.headers.get("X-DL-units-left", None) == 0 or r.status_code == 423:
+    if r.headers.get("X-DL-units-left", None) == 0 or r.status_code == 401:
+        print u"TooManyRequestsException"
         raise TooManyRequestsException
 
     try:

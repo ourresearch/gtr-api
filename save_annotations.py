@@ -32,32 +32,30 @@ def call_dandelion_on_article(my_queue_save_obj):
         error = "no pub object"
         print "X",
 
-    if not error:
+    if not rate_limit_exceeded:
         for annotation_type in ["article_title", "abstract_short", "abstract_text"]:
 
             try:
-                my_text = getattr(my_queue_save_obj.my_pub, annotation_type)
-                dandelion_results = call_dandelion(my_text, batch_api_key)
-                setattr(my_queue_save_obj, u"dandelion_raw_{}".format(annotation_type), dandelion_results)
+                if not rate_limit_exceeded and my_queue_save_obj.my_pub:
+                    my_text = getattr(my_queue_save_obj.my_pub, annotation_type)
+                    dandelion_results = call_dandelion(my_text, batch_api_key)
+                    setattr(my_queue_save_obj, u"dandelion_raw_{}".format(annotation_type), dandelion_results)
 
-                # print "\n"
-                # print my_queue_save_obj.article_title
-
-                # if dandelion_results:
-                #     for annotation_dict in dandelion_results.get("annotations", []):
-                #         my_annotation = AnnotationSave(annotation_dict)
-                #         my_annotation.doi = my_queue_save_obj.doi
-                #         my_annotation.annotation_type = annotation_type
-                #
-                #         for top_entity in dandelion_results.get("topEntities", []):
-                #             if my_annotation.uri == top_entity["uri"]:
-                #                 my_annotation.top_entity_score = top_entity["score"]
-                #
-                #         # print my_annotation
-                #         db.session.merge(my_annotation)
+                    # if dandelion_results:
+                    #     for annotation_dict in dandelion_results.get("annotations", []):
+                    #         my_annotation = AnnotationSave(annotation_dict)
+                    #         my_annotation.doi = my_queue_save_obj.doi
+                    #         my_annotation.annotation_type = annotation_type
+                    #
+                    #         for top_entity in dandelion_results.get("topEntities", []):
+                    #             if my_annotation.uri == top_entity["uri"]:
+                    #                 my_annotation.top_entity_score = top_entity["score"]
+                    #
+                    #         # print my_annotation
+                    #         db.session.merge(my_annotation)
 
             except TooManyRequestsException:
-                print "x",
+                print "!",
                 error = u"TooManyRequestsException"
                 rate_limit_exceeded = True
 
@@ -142,7 +140,7 @@ if __name__ == "__main__":
                 else:
                     save_obj.my_pub = None
 
-            use_threads = True  # useful to turn off pooling to help debugging
+            use_threads = False  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(50)
             if use_threads:
                 results = my_thread_pool.imap_unordered(call_dandelion_on_article, queue_save_objs)
