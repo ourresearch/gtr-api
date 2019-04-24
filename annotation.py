@@ -32,16 +32,18 @@ annotation_blacklist = [
     "IP_address", # gets mixed up with p-hacking 10.7717%2Fpeerj.3068
     "Facial_%28sex_act%29", # gets mixed up with facial 10.1016/j.jad.2007.01.031
 ]
-
+annotation_blacklist = [a.lower() for a in annotation_blacklist]
 
 # the annotations are fine we just don't want them to be our main image
 # should be in uri format
 image_blacklist = [
     ]
+image_blacklist = [a.lower() for a in image_blacklist]
 
 spot_requires_exact_match = [
     "cultivars"  # otherwise matches "Common Fig" and probably other common foods
 ]
+spot_requires_exact_match = [a.lower() for a in spot_requires_exact_match]
 
 annotation_requires_exact_match = [
     "Chemotherapy",  #sometimes matches therapy or treatment
@@ -73,7 +75,7 @@ annotation_requires_exact_match = [
     "Adoption",
     "British_raj"
     ]
-
+annotation_requires_exact_match = [a.lower() for a in annotation_requires_exact_match]
 
 class Annotation(object):
 
@@ -105,23 +107,25 @@ class Annotation(object):
 
     @property
     def in_image_blacklist(self):
-        uri_name = self.uri.rsplit("/", 1)[1]
-        if uri_name in annotation_blacklist:
+        uri_name_for_matching = self.uri.lower().rsplit("/", 1)[1]
+        if uri_name_for_matching in image_blacklist:
             return True
         return False
 
     @property
     def suppress(self):
-        uri_name = self.uri.rsplit("/", 1)[1]
-        if uri_name in annotation_blacklist:
+        uri_name_for_matching = self.uri.lower().rsplit("/", 1)[1]
+        spot_for_matching = self.spot.lower()
+
+        if uri_name_for_matching in annotation_blacklist:
             return True
 
-        if uri_name in annotation_requires_exact_match:
-            if uri_name.lower() != self.spot.lower():
+        if uri_name_for_matching in annotation_requires_exact_match:
+            if uri_name_for_matching != spot_for_matching:
                 return True
 
         if self.spot in spot_requires_exact_match:
-            if uri_name.lower().replace("_", " ") != self.spot.lower():
+            if uri_name_for_matching.replace("_", " ") != spot_for_matching:
                 return True
 
         # too many incorrect hits on people, and they are too costly (remove this and search for "et al" to see)
