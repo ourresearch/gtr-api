@@ -125,10 +125,21 @@ def get_pub_by_doi(my_doi):
     return jsonify({"results": my_pub_list.to_dict_serp_list()})
 
 
-@app.route("/search/<path:query>", methods=["GET"])
+@app.route("/search/OLD/<path:query>", methods=["GET"])
 def get_search_query(query):
 
     start_time = time()
+
+    print "getting synonyms"
+    synonym = get_synonym(query)
+    print "getting terms from nerd"
+    term_lookup = get_nerd_term_lookup(query)
+    if synonym and not term_lookup:
+        term_lookup = get_nerd_term_lookup(synonym)
+
+    getting_term_lookup_elapsed = elapsed(getting_term_lookup_start_time, 3)
+
+    pmid_query_start_time = time()
 
     # page starts at 1 not 0
     if request.args.get("page"):
@@ -147,9 +158,10 @@ def get_search_query(query):
 
     oa_only = str_to_bool(request.args.get("oa", "false"))
 
-    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, oa_only)
+    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, synonym, oa_only)
 
-    db_query_elapsed = elapsed(start_time, 3)
+    db_query_elapsed = elapsed(pmid_query_start_time, 3)
+
     initializing_publist_start_time = time()
 
     print "building response"
@@ -158,16 +170,7 @@ def get_search_query(query):
     my_pub_list = PubList(pubs=sorted_pubs[(pagesize * (page-1)):(pagesize * page)])
 
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
-    getting_term_lookup_start_time = time()
 
-    print "getting synonyms"
-    synonym = get_synonym(query)
-    print "getting terms from nerd"
-    term_lookup = get_nerd_term_lookup(query)
-    if synonym and not term_lookup:
-        term_lookup = get_nerd_term_lookup(synonym)
-
-    getting_term_lookup_elapsed = elapsed(getting_term_lookup_start_time, 3)
     to_dict_start_time = time()
 
     results = my_pub_list.to_dict_serp_list(full=True)
@@ -190,10 +193,17 @@ def get_search_query(query):
                     })
 
 
-@app.route("/search/serp/<path:query>", methods=["GET"])
+@app.route("/search/<path:query>", methods=["GET"])
 def get_search_query_serp(query):
 
     start_time = time()
+
+    print "getting synonyms"
+    synonym = get_synonym(query)
+
+    getting_synonym_lookup_elapsed = elapsed(start_time, 3)
+
+    pmid_query_start_time = time()
 
     # page starts at 1 not 0
     if request.args.get("page"):
@@ -212,9 +222,9 @@ def get_search_query_serp(query):
 
     oa_only = str_to_bool(request.args.get("oa", "false"))
 
-    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, oa_only)
+    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, synonym, oa_only)
 
-    db_query_elapsed = elapsed(start_time, 3)
+    db_query_elapsed = elapsed(pmid_query_start_time, 3)
     initializing_publist_start_time = time()
 
     print "building response"
@@ -225,12 +235,6 @@ def get_search_query_serp(query):
     my_pub_list = PubList(pubs=my_chosen_pubs)
 
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
-    getting_synonym_lookup_start_time = time()
-
-    print "getting synonyms"
-    synonym = get_synonym(query)
-
-    getting_synonym_lookup_elapsed = elapsed(getting_synonym_lookup_start_time, 3)
     to_dict_start_time = time()
 
     results = my_pub_list.to_dict_serp_list(full=False)
