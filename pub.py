@@ -298,21 +298,25 @@ class Pub(db.Model):
         return []
 
     def call_dandelion_on_abstract(self):
+        dandelion_results = None
         self.dandelion_abstract_annotation_list = None
-        if self.abstract_text:
-            if self.dandelion_has_been_collected:
-                dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_text
-            else:
+        if self.dandelion_has_been_collected:
+            dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_text
+        else:
+            if self.abstract_text:
                 dandelion_results = call_dandelion(self.abstract_text)
+        if dandelion_results:
             self.dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_short_abstract(self):
+        dandelion_results = None
         self.dandelion_short_abstract_annotation_list = None
-        if self.abstract_short:
-            if self.dandelion_has_been_collected:
-                dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_short
-            else:
+        if self.dandelion_has_been_collected:
+            dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_short
+        else:
+            if self.abstract_short:
                 dandelion_results = call_dandelion(self.abstract_short)
+        if dandelion_results:
             self.dandelion_short_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_article_title(self):
