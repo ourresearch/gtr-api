@@ -137,7 +137,7 @@ def get_search_query(query):
     if synonym and not term_lookup:
         term_lookup = get_nerd_term_lookup(synonym)
 
-    getting_term_lookup_elapsed = elapsed(getting_term_lookup_start_time, 3)
+    getting_term_lookup_elapsed = elapsed(start_time, 3)
 
     pmid_query_start_time = time()
 
