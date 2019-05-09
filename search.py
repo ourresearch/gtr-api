@@ -1,4 +1,5 @@
 from sqlalchemy import sql
+from sqlalchemy import orm
 from time import time
 import requests
 
@@ -37,7 +38,7 @@ def get_nerd_term_lookup(original_query):
     return response_data
 
 
-def fulltext_search_title(original_query, oa_only):
+def fulltext_search_title(original_query, oa_only, full=True):
 
     start_time = time()
 
@@ -82,7 +83,14 @@ def fulltext_search_title(original_query, oa_only):
     time_for_pmids = elapsed(start_time, 3)
     time_for_pubs_start_time = time()
 
-    my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).all()
+    if full:
+        my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.undefer_group('full')).all()
+    else:
+        my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
+            options(orm.raiseload(Pub.authors, Pub.unpaywall_lookup)).\
+            options(orm.defer('full')).\
+            all()
+
     print "done query for my_pubs"
 
     for row in rows:

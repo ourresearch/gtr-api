@@ -3,6 +3,7 @@ from flask import request
 from flask import abort
 from flask import render_template
 from flask import jsonify
+from sqlalchemy import orm
 
 import json
 import os
@@ -124,15 +125,6 @@ def get_pub_by_doi(my_doi):
     return jsonify({"results": my_pub_list.to_dict_serp_list()})
 
 
-@app.route("/paper/pmid/<path:pmid>", methods=["GET"])
-def get_pub_by_pmid(pmid):
-    my_pmid = int(pmid)
-    my_pub = db.session.query(Pub).filter(Pub.pmid == my_pmid).first()
-    if not my_pub:
-        abort_json(404, u"'{}' is an invalid pmid.  See https://pubmed.com/{}".format(my_pmid, my_pmid))
-    return jsonify(my_pub.to_dict_full())
-
-
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
@@ -154,7 +146,6 @@ def get_search_query(query):
         abort_json(400, u"pagesize too large; max 100")
 
     oa_only = str_to_bool(request.args.get("oa", "false"))
-    include_abstracts = str_to_bool(request.args.get("abstracts", "true"))
 
     (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, oa_only)
 
@@ -179,7 +170,7 @@ def get_search_query(query):
     getting_term_lookup_elapsed = elapsed(getting_term_lookup_start_time, 3)
     to_dict_start_time = time()
 
-    results = my_pub_list.to_dict_serp_list(include_abstracts)
+    results = my_pub_list.to_dict_serp_list(full=True)
 
     to_dict_elapsed = elapsed(to_dict_start_time, 3)
     total_time = elapsed(start_time, 3)
@@ -197,6 +188,69 @@ def get_search_query(query):
                                "getting_term_lookup_elapsed": getting_term_lookup_elapsed
                                }
                     })
+
+
+@app.route("/search/serp/<path:query>", methods=["GET"])
+def get_search_query_serp(query):
+
+    start_time = time()
+
+    # page starts at 1 not 0
+    if request.args.get("page"):
+        page = int(request.args.get("page"))
+    else:
+        page = 1
+    if page > 5:
+        abort_json(400, u"Page too large. API currently only supports 5 pages right now, so page must be in the range 0-4.")
+
+    if request.args.get("pagesize"):
+        pagesize = int(request.args.get("pagesize"))
+    else:
+        pagesize = 10
+    if pagesize > 100:
+        abort_json(400, u"pagesize too large; max 100")
+
+    oa_only = str_to_bool(request.args.get("oa", "false"))
+
+    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, oa_only)
+
+    db_query_elapsed = elapsed(start_time, 3)
+    initializing_publist_start_time = time()
+
+    print "building response"
+    # sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
+    sorted_pubs = my_pubs
+    chosen_pmid = [p.pmid for p in sorted_pubs[(pagesize * (page-1)):(pagesize * page)]]
+    my_chosen_pubs = db.session.query(Pub).filter(Pub.pmid.in_(chosen_pmid)).options(orm.undefer_group('full')).all()
+    my_pub_list = PubList(pubs=my_chosen_pubs)
+
+    initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
+    getting_synonym_lookup_start_time = time()
+
+    print "getting synonyms"
+    synonym = get_synonym(query)
+
+    getting_synonym_lookup_elapsed = elapsed(getting_synonym_lookup_start_time, 3)
+    to_dict_start_time = time()
+
+    results = my_pub_list.to_dict_serp_list(full=False)
+
+    to_dict_elapsed = elapsed(to_dict_start_time, 3)
+    total_time = elapsed(start_time, 3)
+
+    print u"finished query for {}: took {} seconds".format(query, total_time)
+    return jsonify({"results": results,
+                    "page": page,
+                    "synonym": synonym,
+                    "timing": {"total": total_time,
+                               "time_to_pmids_elapsed": time_to_pmids_elapsed,
+                               "time_for_pubs_elapsed": time_for_pubs_elapsed,
+                               "initializing_publist_elapsed": initializing_publist_elapsed,
+                               "to_dict_elapsed": to_dict_elapsed,
+                               "getting_synonym_lookup_elapsed": getting_synonym_lookup_elapsed
+                               }
+                    })
+
 
 # temporary hack to display all pictures
 @app.route("/search/all_pictures", methods=["GET"])

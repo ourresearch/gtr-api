@@ -13,6 +13,7 @@ from urllib import quote_plus
 from collections import defaultdict
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import sql
+from sqlalchemy.orm import deferred
 
 from app import db
 from annotation_list import AnnotationList
@@ -177,17 +178,16 @@ class News(db.Model):
 class Pub(db.Model):
     __tablename__ = "medline_citation"
     pmid = db.Column(db.Numeric, primary_key=True)
-    article_title = db.Column(db.Text)
     journal_title = db.Column(db.Text)
-    abstract_text = db.Column(db.Text)
-    pub_date_year = db.Column(db.Text)
-    date_of_electronic_publication = db.Column(db.Text)
+    article_title = deferred(db.Column(db.Text), group="full")
+    abstract_text = deferred(db.Column(db.Text), group="full")
+    pub_date_year = deferred(db.Column(db.Text), group="full")
     authors = db.relationship("Author", lazy='subquery')
-    pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
     pub_types = db.relationship("PubType", lazy='subquery')
-    mesh = db.relationship("PubMesh", lazy='subquery')
     doi_lookup = db.relationship("DoiLookup", uselist=False, lazy='subquery')
     unpaywall_lookup = db.relationship("Unpaywall", uselist=False, lazy='subquery')
+    # pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
+    # mesh = db.relationship("PubMesh", lazy='subquery')
 
     @property
     def paperbuzz(self):
@@ -379,11 +379,11 @@ class Pub(db.Model):
     def adjusted_score(self):
         score = getattr(self, "score", 0)
 
+        if not self.abstract_text or len(self.abstract_text) < 10:
+            score -= 5
+
         if self.journal_title and "cochrane database" in self.journal_title.lower():
             score += 10
-
-        if not self.abstract_text or len(self.abstract_text) < 10:
-            score -= 1
 
         if not self.paperbuzz:
             score -= 5
@@ -410,8 +410,6 @@ class Pub(db.Model):
             if "Comparative Study" in pub_type_pubmed:
                 score += 0.5
             if "Case Reports" in pub_type_pubmed:
-                score += -5
-            if "English Abstract" in pub_type_pubmed:
                 score += -5
             if "English Abstract" in pub_type_pubmed:
                 score += -5
@@ -482,73 +480,38 @@ class Pub(db.Model):
         response = sorted(response, key=lambda x: x["evidence_level"] or 0, reverse=True)
         return response
 
-    def to_dict_full(self):
-        nerd_results = None
-        # nerd_results = self.get_nerd()
 
-        # commented out while we wait for a shorter, faster paperbuzz api result
-        # paperbuzz_results = get_paperbuzz(self.display_doi)
-        paperbuzz_results = None
 
-        results = self.to_dict_serp()
-        results["nerd"] = nerd_results
-        results["paperbuzz"] = paperbuzz_results
-        results["abstract"] = self.abstract_text
-
-        return results
-
-    def to_dict_serp(self, include_abstracts=True):
-        # dandelion_results = None
-        # if hasattr(self, "dandelion_results"):
-        #     dandelion_results = self.dandelion_results
-
-        # dandelion_results = {
-        #     "title": self.call_dandelion(self.article_title),
-        #     "abstract": self.call_dandelion(self.abstract_text)
-        # }
-
-        # dandelion_title_annotation_list = self.call_dandelion(self.article_title)
-
-        # if dandelion_results and dandelion_results.get("topEntities", None):
-        #     dandelion_results = dandelion_results["topEntities"]
-        # elif dandelion_results["annotations"]:
-        #     dandelion_results = [d["uri"] for d in dandelion_results["annotations"]]
+    def to_dict_serp(self, full=True):
 
         response = {
-            "pmid": self.pmid,
-            "pmid_url": self.pmid_url,
             "doi": self.display_doi_url,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
-            "abstract": self.abstract_text,
             "abstract_short": self.abstract_short,
-            "abstract_structured": None, # self.abstract_structured,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
-            "author_lastnames": self.author_lastnames,
             "is_oa": self.display_is_oa,
             "oa_url": self.display_oa_url,
             "oa_host": self.display_best_host,
             "oa_version": self.display_best_version,
             "pub_types": self.display_pub_types,
-            "mesh": [m.to_dict() for m in self.mesh],
-
-            "news_articles": [a.to_dict() for a in self.news_articles],
-
-            # "dandelion": dandelion_results,
-            "image": {
-                "url": "https://picsum.photos/300/200?random"
-            },
-
-            "snippet": getattr(self, "snippet", None),
+            # "snippet": getattr(self, "snippet", None),
             "score": self.adjusted_score
         }
 
-        if not include_abstracts:
-            response["abstract"] = None
-            response["abstract_short"] = None
-            response["abstract_structured"] = None
+        if full:
+            additional_items = {
+            "pmid": self.pmid,
+            "pmid_url": self.pmid_url,
+            "author_lastnames": self.author_lastnames,
+            "abstract": self.abstract_text,
+            "abstract_structured": self.abstract_structured,
+            # "mesh": [m.to_dict() for m in self.mesh],
+            "news_articles": [a.to_dict() for a in self.news_articles]
+            }
+            response.update(additional_items)
 
         return response
 
