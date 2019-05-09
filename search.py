@@ -113,7 +113,7 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
         my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.undefer_group('full')).all()
     else:
         my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
-            options(orm.raiseload(Pub.authors, Pub.unpaywall_lookup)).\
+            options(orm.raiseload(Pub.authors, Pub.unpaywall_lookup, Pub.dandelion_lookup)).\
             options(orm.defer('full')).\
             all()
 

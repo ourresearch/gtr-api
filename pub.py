@@ -174,6 +174,15 @@ class News(db.Model):
         }
         return response
 
+class Dandelion(db.Model):
+    __tablename__ = "dois_paperbuzz_dandelion"
+    doi = db.Column(db.Text)
+    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
+    dandelion_collected = db.Column(db.DateTime, primary_key=True)
+    dandelion_raw_article_title = db.Column(db.Text)
+    dandelion_raw_abstract_short = db.Column(db.Text)
+    dandelion_raw_abstract_text = db.Column(db.Text)
+
 
 class Pub(db.Model):
     __tablename__ = "medline_citation"
@@ -186,6 +195,7 @@ class Pub(db.Model):
     pub_types = db.relationship("PubType", lazy='subquery')
     doi_lookup = db.relationship("DoiLookup", uselist=False, lazy='subquery')
     unpaywall_lookup = db.relationship("Unpaywall", uselist=False, lazy='subquery')
+    dandelion_lookup = db.relationship("Dandelion", uselist=False, lazy='subquery')
     # pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
     # mesh = db.relationship("PubMesh", lazy='subquery')
 
@@ -232,6 +242,31 @@ class Pub(db.Model):
         return self.paperbuzz
 
     @property
+    def dandelion_title(self):
+        if self.dandelion_lookup:
+            return self.dandelion_lookup.dandelion_raw_article_title
+        return None
+
+    @property
+    def dandelion_abstract(self):
+        if self.dandelion_lookup:
+            return self.dandelion_lookup.dandelion_raw_abstract_text
+        return None
+
+    @property
+    def dandelion_short_abstract(self):
+        if self.dandelion_lookup:
+            return self.dandelion_lookup.dandelion_raw_abstract_short
+        return None
+
+    @property
+    def dandelion_has_been_collected(self):
+        if self.dandelion_lookup:
+            if self.dandelion_lookup.dandelion_collected:
+                return True
+        return False
+
+    @property
     def display_is_oa(self):
         if self.unpaywall_lookup:
             return self.unpaywall_lookup.is_oa
@@ -265,17 +300,26 @@ class Pub(db.Model):
     def call_dandelion_on_abstract(self):
         self.dandelion_abstract_annotation_list = None
         if self.abstract_text:
-            dandelion_results = call_dandelion(self.abstract_text)
+            if self.dandelion_has_been_collected:
+                dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_text
+            else:
+                dandelion_results = call_dandelion(self.abstract_text)
             self.dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_short_abstract(self):
         self.dandelion_short_abstract_annotation_list = None
         if self.abstract_short:
-            dandelion_results = call_dandelion(self.abstract_short)
+            if self.dandelion_has_been_collected:
+                dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_short
+            else:
+                dandelion_results = call_dandelion(self.abstract_short)
             self.dandelion_short_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_article_title(self):
-        dandelion_results = call_dandelion(self.article_title)
+        if self.dandelion_has_been_collected:
+            dandelion_results = self.dandelion_lookup.dandelion_raw_article_title
+        else:
+            dandelion_results = call_dandelion(self.article_title)
         self.dandelion_title_annotation_list = AnnotationList(dandelion_results)
 
     @property
