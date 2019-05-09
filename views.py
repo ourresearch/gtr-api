@@ -125,7 +125,7 @@ def get_pub_by_doi(my_doi):
     return jsonify({"results": my_pub_list.to_dict_serp_list()})
 
 
-@app.route("/search/OLD/<path:query>", methods=["GET"])
+@app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
     start_time = time()
@@ -193,7 +193,7 @@ def get_search_query(query):
                     })
 
 
-@app.route("/search/<path:query>", methods=["GET"])
+@app.route("/search/NEW/<path:query>", methods=["GET"])
 def get_search_query_serp(query):
 
     start_time = time()
