@@ -179,7 +179,7 @@ class Dandelion(db.Model):
     doi = db.Column(db.Text)
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
     dandelion_collected = db.Column(db.DateTime, primary_key=True)
-    dandelion_raw_article_title = db.Column(db.Text)
+    dandelion_raw_article_title = db.Column(JSONB)
     dandelion_raw_abstract_short = db.Column(db.Text)
     dandelion_raw_abstract_text = db.Column(db.Text)
 
@@ -319,7 +319,7 @@ class Pub(db.Model):
 
     def call_dandelion_on_article_title(self):
         if self.dandelion_has_been_collected:
-            dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_article_title)
+            dandelion_results = self.dandelion_lookup.dandelion_raw_article_title  # this one is JSON already
         else:
             dandelion_results = call_dandelion(self.article_title)
         self.dandelion_title_annotation_list = AnnotationList(dandelion_results)
