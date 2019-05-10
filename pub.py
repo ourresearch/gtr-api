@@ -299,9 +299,8 @@ class Pub(db.Model):
 
     def call_dandelion_on_abstract(self):
         dandelion_results = None
-        self.dandelion_abstract_annotation_list = None
         if self.dandelion_has_been_collected:
-            dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_text
+            dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_abstract_text)
         else:
             if self.abstract_text:
                 dandelion_results = call_dandelion(self.abstract_text)
@@ -310,9 +309,8 @@ class Pub(db.Model):
 
     def call_dandelion_on_short_abstract(self):
         dandelion_results = None
-        self.dandelion_short_abstract_annotation_list = None
         if self.dandelion_has_been_collected:
-            dandelion_results = self.dandelion_lookup.dandelion_raw_abstract_short
+            dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_abstract_short)
         else:
             if self.abstract_short:
                 dandelion_results = call_dandelion(self.abstract_short)
@@ -321,7 +319,7 @@ class Pub(db.Model):
 
     def call_dandelion_on_article_title(self):
         if self.dandelion_has_been_collected:
-            dandelion_results = self.dandelion_lookup.dandelion_raw_article_title
+            dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_article_title)
         else:
             dandelion_results = call_dandelion(self.article_title)
         self.dandelion_title_annotation_list = AnnotationList(dandelion_results)

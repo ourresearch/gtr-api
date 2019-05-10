@@ -25,7 +25,8 @@ class PubList(object):
 
         my_thread_pool = ThreadPool(50)
         run_tuples = []
-        for my_pub in self.pubs:
+        my_pubs = self.pubs
+        for my_pub in my_pubs:
             for run_dandelion_on in ["call_dandelion_on_article_title",
                                      "call_dandelion_on_abstract",
                                      "call_dandelion_on_short_abstract"]:
@@ -38,14 +39,16 @@ class PubList(object):
         my_thread_pool.terminate()
 
         print("elapsed time spent calling dandelion: %s" % (timer() - start,))
+        self.pubs = my_pubs
+        return my_pubs
 
     def set_annotations_and_pictures(self):
-        self.set_dandelions()
+        my_pubs = self.set_dandelions()
         chosen_image_urls = set()
 
         # get annotations distribution, so pubs can use this to boost rare mentions
         annotation_counter = Counter()
-        for my_pub in self.pubs:
+        for my_pub in my_pubs:
             for annotation in my_pub.annotations_for_pictures:
                 if annotation.image_url:
                     annotation_counter[annotation.image_url] += 1
@@ -57,7 +60,7 @@ class PubList(object):
         except:
             pass
 
-        for my_pub in self.pubs:
+        for my_pub in my_pubs:
             my_pub.set_annotation_distribution(annotation_counter_normalized)
             reverse_sorted_picture_candidates = sorted(my_pub.annotations_for_pictures, key=lambda x: x.picture_score, reverse=False)
             my_pub.picture_candidates = reverse_sorted_picture_candidates
@@ -72,6 +75,8 @@ class PubList(object):
             if my_pub.image:
                 chosen_image_urls.add(my_pub.image.image_url)
 
+        self.pubs = my_pubs
+
 
     def to_dict_serp_list(self, full=True):
 
@@ -85,7 +90,7 @@ class PubList(object):
                 pub_dict["image"] = my_pub.image.to_dict_simple()
             else:
                 pub_dict["image"] = {}
-            pub_dict["annotations"] = {"using_article_abstract": None, "using_article_abstract_short": None, "using_article_title": None}
+            pub_dict["annotations"] = {"using_article_abstract_short": None, "using_article_title": None}
 
             if hasattr(my_pub, "dandelion_title_annotation_list") and my_pub.dandelion_title_annotation_list:
                 pub_dict["annotations"]["using_article_title"] = my_pub.dandelion_title_annotation_list.to_dict_simple()
@@ -93,12 +98,9 @@ class PubList(object):
             if hasattr(my_pub, "dandelion_short_abstract_annotation_list") and my_pub.dandelion_short_abstract_annotation_list:
                 pub_dict["annotations"]["using_article_abstract_short"] = my_pub.dandelion_short_abstract_annotation_list.to_dict_simple()
 
-            # temp hack
-            if hasattr(my_pub, "dandelion_title_annotation_list") and my_pub.dandelion_title_annotation_list:
-                pub_dict["annotations"]["using_article_abstract_short"] = my_pub.dandelion_title_annotation_list.to_dict_simple()
-
-            if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
-                pub_dict["annotations"]["using_article_abstract"] = my_pub.dandelion_abstract_annotation_list.to_dict_simple()
+            if full:
+                if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
+                    pub_dict["annotations"]["using_article_abstract"] = my_pub.dandelion_abstract_annotation_list.to_dict_simple()
 
             response.append(pub_dict)
 
