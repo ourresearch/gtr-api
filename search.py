@@ -135,12 +135,12 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
 def autcomplete_entity_titles(original_query):
 
     query_string = u"""
-        select title, sum(num_events) as num, max(pmid) 
-        from search_title_dandelion_mv 
-        where title ilike '%{original_query}%' 
-        group by title 
-        order by num desc 
-        limit 20   
+        select entity_title, sum_num_events, num_papers
+        from search_autocomplete_dandelion_mv 
+        where entity_title ilike '%jew%' 
+        and num_papers > 1
+        order by sum_num_events desc 
+        limit 10 
         """.format(original_query=original_query)
     # print query_string
     rows = db.engine.execute(sql.text(query_string)).fetchall()
