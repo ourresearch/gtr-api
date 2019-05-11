@@ -193,6 +193,24 @@ def get_search_query(query):
                     })
 
 
+@app.route("/autocomplete/<query>", methods=["GET"])
+def get_autocomplete(query):
+
+    start_time = time()
+
+    results = "hi heather"
+
+    total_time = elapsed(start_time)
+
+    timings = [
+       ("TOTAL", total_time)
+       ]
+
+    return jsonify({"results": results,
+                    "_timing": [u"{:>30}: {}".format(a, b) for (a, b) in timings]
+                    })
+
+
 @app.route("/search/NEW/<path:query>", methods=["GET"])
 def get_search_query_serp(query):
 
@@ -242,107 +260,30 @@ def get_search_query_serp(query):
     to_dict_elapsed = elapsed(to_dict_start_time, 3)
     total_time = elapsed(start_time, 3)
 
+    timings = [
+       ("time_to_pmids_elapsed", time_to_pmids_elapsed),
+       ("time_for_pubs_elapsed", time_for_pubs_elapsed),
+       ("initializing_publist_elapsed", initializing_publist_elapsed),
+       ("to_dict_elapsed", to_dict_elapsed),
+       ("getting_synonym_lookup_elapsed", getting_synonym_lookup_elapsed),
+       ("", "      "),
+       ("TOTAL", total_time)
+       ]
+
     print u"finished query for {}: took {} seconds".format(query, total_time)
     return jsonify({"results": results,
                     "page": page,
                     "synonym": synonym,
-                    "timing": {"total": total_time,
-                               "time_to_pmids_elapsed": time_to_pmids_elapsed,
-                               "time_for_pubs_elapsed": time_for_pubs_elapsed,
-                               "initializing_publist_elapsed": initializing_publist_elapsed,
-                               "to_dict_elapsed": to_dict_elapsed,
-                               "getting_synonym_lookup_elapsed": getting_synonym_lookup_elapsed
-                               }
+                    "_timing": [u"{:>30}: {}".format(a, b) for (a, b) in timings]
                     })
 
-
-# temporary hack to display all pictures
-@app.route("/search/all_pictures", methods=["GET"])
-def get_all_pictures_hack():
-
-    # page starts at 1 not 0
-    if request.args.get("page"):
-        page = int(request.args.get("page"))
-    else:
-        page = 1
-
-    if request.args.get("pagesize"):
-        pagesize = int(request.args.get("pagesize"))
-    else:
-        pagesize = 10
-
-    start_time = time()
-
-    elapsed_time = 0
-
-    all_results = []
-    for image_uri in annotation_file_contents:
-        image_dict = annotation_file_contents[image_uri]
-        image_url = image_dict["orig_image_url"]
-        if image_dict["alt_img"]:
-            image_url = image_dict["alt_img"]
-        n = image_dict["n"]
-        annotation_title = image_dict["annotation_title"]
-        if image_dict["bad_image_reason"]:
-            image_url = ""
-        img_label = ""
-        if image_dict["bad_image_reason"]:
-            img_label = u"EXCLUDED: {}".format(image_dict["bad_image_reason"])
-        if image_dict["weight"]:
-            img_label += u" weight={}".format(image_dict["weight"])
-        all_results.append(
-            {
-            "abstract": "",
-            "annotations": {},
-            "author_lastnames": [],
-            "best_host": "None",
-            "best_version": "None",
-            "doi": "42",
-            "doi_url": "42",
-            "image": {
-                "abstract": "",
-                "confidence": .42,
-                "end": 0,
-                "id": 42,
-                "image_url": image_url,
-                "label": img_label,
-                "picture_score": 0.42,
-                "raw_top_entity_score": 0.42,
-                "spot": "",
-                "start": 0,
-                "title": img_label,
-                "types": [],
-                "uri": image_uri,
-                "url": image_url
-                },
-            "is_oa": False,
-            "journal_name": u"n = {}".format(n),
-            "mesh": [],
-            "num_paperbuzz_events": 0,
-            "oa_url": None,
-            "picture_candidates": [],
-            "pmid": 42,
-            "pmid_url": "",
-            "pub_types": [],
-            "score": 0,
-            "abstract_short": None,
-            "snippet": "",
-            "title": annotation_title,
-            "year": None,
-            "n_in_annotation_sample": int(n)
-            }
-        )
-
-    all_results = sorted(all_results, key=lambda x: x["n_in_annotation_sample"], reverse=True)
-    results = all_results[(pagesize * (page-1)):(pagesize * page)]
-
-    return jsonify({"results": results,
-                    "page": page,
-                    "pagesize": pagesize,
-                    "synonym": None,
-                    "term_lookup": None,
-                    "elapsed_seconds": elapsed_time})
-
+# things to try
+# don't return annotations to start with
+# don't return full abstracts to start with
+# only return 3 things
+# fewer than 100 articles to sort
+# maybe new indices etc?
+# just the count of the length of the abstract etc
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5011))

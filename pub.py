@@ -331,6 +331,13 @@ class Pub(db.Model):
         except:
             return []
 
+    @property
+    def topics(self):
+        topic_annotation_objects = sorted(self.dandelion_title_annotation_list.list(), key=lambda x: x.topic_score, reverse=True)
+        response = [a.title for a in topic_annotation_objects]
+        return response
+
+
     def set_annotation_distribution(self, annotation_distribution):
         for my_annotation in self.annotations_for_pictures:
             my_annotation.annotation_distribution = annotation_distribution
@@ -531,7 +538,7 @@ class Pub(db.Model):
     def to_dict_serp(self, full=True):
 
         response = {
-            "doi": self.display_doi_url,
+            "doi": self.display_doi,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
             "year": self.pub_date_year,

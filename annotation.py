@@ -153,22 +153,14 @@ class Annotation(object):
             return None
 
 
-
     @property
-    def picture_score(self):
+    def topic_score(self):
         score = self.top_entity_score
 
         if self.suppress:
             return -1000
 
         if self.in_image_blacklist:
-            return -1000
-
-        if annotation_file_contents.get(self.uri, None):
-            if annotation_file_contents[self.uri]["bad_image_reason"]:
-                return -1000
-
-        if not self.image_url:
             return -1000
 
         # gotta avoid https://gettheresearch.org/search/pmdd?zoom=https%3A%2F%2Fdoi.org%2F10.1016%2Fj.jad.2007.01.031
@@ -216,6 +208,21 @@ class Annotation(object):
             score -= 10
 
         score += 0.2 * self.confidence
+
+
+
+        return score
+
+    @property
+    def picture_score(self):
+        score = self.topic_score
+
+        if annotation_file_contents.get(self.uri, None):
+            if annotation_file_contents[self.uri]["bad_image_reason"]:
+                return -1000
+
+        if not self.image_url:
+            return -1000
 
         if annotation_file_contents.get(self.uri, None) and annotation_file_contents[self.uri]["weight"]:
             score *= float(annotation_file_contents[self.uri]["weight"])
