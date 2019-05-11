@@ -130,3 +130,25 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
     time_for_pubs = elapsed(time_for_pubs_start_time, 3)
 
     return (my_pubs_filtered, time_for_pmids, time_for_pubs)
+
+
+def autcomplete_entity_titles(original_query):
+
+    query_string = u"""
+        select title, sum(num_events) as num, max(pmid) 
+        from search_title_dandelion_mv 
+        where title ilike '%{original_query}%' 
+        group by title 
+        order by num desc 
+        limit 20   
+        """.format(original_query=original_query)
+    # print query_string
+    rows = db.engine.execute(sql.text(query_string)).fetchall()
+    print "done getting query"
+
+    # print rows
+    entity_titles = []
+    if rows:
+        entity_titles = [row[0] for row in rows]
+
+    return entity_titles

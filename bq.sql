@@ -20,9 +20,7 @@ create materialized view search_mv as (
      LEFT JOIN bq_pubmed_doi_unpaywall ON lookup.doi = bq_pubmed_doi_unpaywall.doi
      );
 
-CREATE INDEX search_mv_title_gist_trgm_idx ON search_mv USING gist (article_title gist_trgm_ops);
-CREATE INDEX search_mv_title_gin_trgm_idx ON search_mv USING gin (article_title gist_trgm_ops);
-create index search_mv_title_gist_tsvector_idx on search_mv using gist (to_tsvector('english', article_title));
+CREATE INDEX search_mv_title_gin_trgm_idx ON search_mv USING gin (article_title gin_trgm_ops);
 create index search_mv_title_gin_tsvector_idx on search_mv using gin(to_tsvector('english', article_title))
 
 VACUUM ANALYZE search_mv

@@ -23,6 +23,7 @@ from pub_list import PubList
 from search import fulltext_search_title
 from search import get_synonym
 from search import get_nerd_term_lookup
+from search import autcomplete_entity_titles
 from annotation import annotation_file_contents
 from util import elapsed
 from util import clean_doi
@@ -194,11 +195,11 @@ def get_search_query(query):
 
 
 @app.route("/autocomplete/<query>", methods=["GET"])
-def get_autocomplete(query):
+def get_autocomplete_entity_titles(query):
 
     start_time = time()
 
-    results = "hi heather"
+    results = autcomplete_entity_titles(query)
 
     total_time = elapsed(start_time)
 
