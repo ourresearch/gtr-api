@@ -137,8 +137,8 @@ def autcomplete_entity_titles(original_query):
     query_string = u"""
         select entity_title, sum_num_events, num_papers
         from search_autocomplete_dandelion_mv 
-        where entity_title ilike '%jew%' 
-        and num_papers > 1
+        where entity_title ilike '%{original_query}%' 
+        and num_papers >= 25
         order by sum_num_events desc 
         limit 10 
         """.format(original_query=original_query)
