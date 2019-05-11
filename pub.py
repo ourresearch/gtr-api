@@ -333,8 +333,11 @@ class Pub(db.Model):
 
     @property
     def topics(self):
-        topic_annotation_objects = sorted(self.dandelion_title_annotation_list.list(), key=lambda x: x.topic_score, reverse=True)
-        response = [a.title for a in topic_annotation_objects]
+        try:
+            topic_annotation_objects = sorted(self.dandelion_title_annotation_list.list(), key=lambda x: x.topic_score, reverse=True)
+            response = [a.title for a in topic_annotation_objects]
+        except:
+            response = []
         return response
 
 

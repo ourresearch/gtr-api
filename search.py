@@ -105,7 +105,7 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
         pmids = [row[0] for row in rows]
 
     time_for_pmids = elapsed(start_time, 3)
-    print "done query for pmids"
+    print u"done query for pmids: got {} pmids".format(len(pmids))
 
     time_for_pubs_start_time = time()
 
