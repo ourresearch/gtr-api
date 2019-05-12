@@ -58,10 +58,11 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
 
     pmids = []
     rows = []
-    if "from:" in original_query and "to:" in original_query:
+    if "from_" in original_query and "to_" in original_query:
         print u"getting recent query"
-        from_date = re.findall("from:([\d-]+)", original_query)[0]
-        to_date = re.findall("to:([\d-]+)", original_query)[0]
+        matches = re.findall("from_([\d_]+)_to_([\d_]+)", original_query)
+        from_date = matches[0][0].replace("_", "-")
+        to_date = matches[0][1].replace("_", "-")
         query_string = u"""
             select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank 
             from search_recent_hits_mv 
