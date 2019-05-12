@@ -131,7 +131,7 @@ def get_pub_by_doi(my_doi):
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
-    attributes_to_hide = request.args.get("hide", "")
+    attributes_to_hide = request.args.get("minimum", "")
 
     start_time = time()
     entity = get_synonym(query)
