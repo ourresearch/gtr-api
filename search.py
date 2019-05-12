@@ -57,7 +57,20 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
 
     pmids = []
     rows = []
-    if synonym:
+    if original_query=="recent":
+        print u"getting recent query"
+        query_string = u"""
+            select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank 
+            from search_recent_hits_mv 
+            where published_date > :first_date ::timestamp and published_date < :second_date ::timestamp + interval '1 month'  
+            and num_events is not null
+            {oa_clause}
+            order by num_events desc 
+            limit 100 """.format(oa_clause=oa_clause)
+        rows = db.engine.execute(sql.text(query_string), first_date='2019-04-01', second_date='2019-04-01').fetchall()
+        print "done getting query"
+
+    elif synonym:
         print u"have synonym"
         query_string = u"""
             select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank, doi, title, is_oa, num_events 
@@ -67,14 +80,12 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
             {oa_clause}
             order by num_events desc 
             limit 100""".format(oa_clause=oa_clause)
-        # print query_string
         rows = db.engine.execute(sql.text(query_string), synonym=synonym).fetchall()
         print "done getting query"
 
-        # print rows
-        if rows:
-            pmids = [row[0] for row in rows]
-            print "len pmids", len(pmids)
+    if rows:
+        pmids = [row[0] for row in rows]
+        print "len pmids", len(pmids)
 
     if len(pmids) < 25:
         # need to do the full search
