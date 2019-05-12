@@ -159,41 +159,52 @@ def get_search_query(query):
     except:
         oa_only = False
 
-    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only)
+    full = len(attributes_to_hide) <= 0
+
+    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only, full=full)
 
     initializing_publist_start_time = time()
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
-    my_pub_list = PubList(pubs=sorted_pubs[(pagesize * (page-1)):(pagesize * page)])
+    selected_pubs = sorted_pubs[(pagesize * (page-1)):(pagesize * page)]
+
+    selected_pubs_full = db.session.query(Pub).filter(Pub.pmid.in_([p.pmid for p in selected_pubs])).options(orm.undefer_group('full')).all()
+
+    my_pub_list = PubList(pubs=selected_pubs_full)
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
 
+    set_dandelions_start_time = time()
+    my_pub_list.set_dandelions()
+    set_dandelions_elapsed = elapsed(set_dandelions_start_time)
+    set_pictures_start_time = time()
+    my_pub_list.set_pictures()
+    set_pictures_elapsed = elapsed(set_pictures_start_time)
+
     to_dict_start_time = time()
-    full = "abstracts" not in attributes_to_hide
     results = my_pub_list.to_dict_serp_list(full=full)
-    to_dict_elapsed = elapsed(to_dict_start_time, 3)
 
     response = {"results": results,
                     "page": page,
                     "oa_only": oa_only,
                     "query_entity": entity
                     }
-    if not "annotations" in attributes_to_hide:
+    if full:
         response["annotations"] = my_pub_list.to_dict_annotation_metadata()
 
-    jsonify_start_time = time()
+    to_dict_elapsed = elapsed(to_dict_start_time, 3)
     total_time = elapsed(start_time, 3)
 
-    response["_timing"] = {"total": total_time,
-                           "time_to_pmids_elapsed": time_to_pmids_elapsed,
-                           "time_for_pubs_elapsed": time_for_pubs_elapsed,
-                           "initializing_publist_elapsed": initializing_publist_elapsed,
-                           "to_dict_elapsed": to_dict_elapsed,
-                           "getting_entity_lookup_elapsed": getting_entity_lookup_elapsed
+    response["_timing"] = {"9 total": total_time,
+                           "1 getting_entity_lookup_elapsed": getting_entity_lookup_elapsed,
+                           "2 time_to_pmids_elapsed": time_to_pmids_elapsed,
+                           "3 time_for_pubs_elapsed": time_for_pubs_elapsed,
+                           "4 initializing_publist_elapsed": initializing_publist_elapsed,
+                           "5 set_dandelions_elapsed": set_dandelions_elapsed,
+                           "6 set_pictures_elapsed": set_pictures_elapsed,
+                           "7 to_dict_elapsed": to_dict_elapsed,
                         }
-    jsonified_response = jsonify(response)
-    jsonify_elapsed = elapsed(jsonify_start_time)
-    print u"jsonify_elapsed took {} seconds".format(jsonify_elapsed)
+
     print u"finished query for {}: took {} seconds".format(query, elapsed(start_time))
-    return jsonified_response
+    return jsonify(response)
 
 
 @app.route("/autocomplete/<query>", methods=["GET"])

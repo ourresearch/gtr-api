@@ -13,7 +13,10 @@ from urllib import quote_plus
 from collections import defaultdict
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import sql
+from sqlalchemy import func
 from sqlalchemy.orm import deferred
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy.orm import column_property
 
 from app import db
 from annotation_list import AnnotationList
@@ -158,8 +161,8 @@ class Pub(db.Model):
     __tablename__ = "medline_citation"
     pmid = db.Column(db.Numeric, primary_key=True)
     journal_title = db.Column(db.Text)
+    abstract_text = db.Column(db.Text)
     article_title = deferred(db.Column(db.Text), group="full")
-    abstract_text = deferred(db.Column(db.Text), group="full")
     pub_date_year = deferred(db.Column(db.Text), group="full")
     authors = db.relationship("Author", lazy='subquery')
     pub_types = db.relationship("PubType", lazy='subquery')
@@ -168,6 +171,12 @@ class Pub(db.Model):
     dandelion_lookup = db.relationship("Dandelion", uselist=False, lazy='subquery')
     # pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
     # mesh = db.relationship("PubMesh", lazy='subquery')
+
+    @property
+    def abstract_length(self):
+        if not self.abstract_text:
+            return 0
+        return len(self.abstract_text)
 
     @property
     def paperbuzz(self):
@@ -434,7 +443,7 @@ class Pub(db.Model):
     def adjusted_score(self):
         score = getattr(self, "score", 0)
 
-        if not self.abstract_text or len(self.abstract_text) < 10:
+        if self.abstract_length < 10:
             score -= 5
 
         if self.journal_title and "cochrane database" in self.journal_title.lower():
