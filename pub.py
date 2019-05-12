@@ -171,12 +171,7 @@ class Pub(db.Model):
     dandelion_lookup = db.relationship("Dandelion", uselist=False, lazy='subquery')
     # pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
     # mesh = db.relationship("PubMesh", lazy='subquery')
-
-    @property
-    def abstract_length(self):
-        if not self.abstract_text:
-            return 0
-        return len(self.abstract_text)
+    abstract_length = column_property(func.char_length(abstract_text))
 
     @property
     def paperbuzz(self):
@@ -336,7 +331,7 @@ class Pub(db.Model):
 
             sections = [
                 {"text": background_text, "heading": "BACKGROUND", "section_split_source": "automated", "summary": False, "original_start":0, "original_end":len(background_text)},
-                {"text": summary_text, "heading": "SUMMARY", "section_split_source": "automated", "summary": True, "original_start":len(background_text), "original_end":len(self.abstract_text)}
+                {"text": summary_text, "heading": "SUMMARY", "section_split_source": "automated", "summary": True, "original_start":len(background_text)+2, "original_end":len(self.abstract_text)}
             ]
 
         if full:
