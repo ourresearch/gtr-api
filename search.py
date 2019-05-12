@@ -9,16 +9,24 @@ from util import elapsed
 
 def get_synonym(original_query):
     clean_query = original_query.replace("'", "")
-    url = "http://wikisynonyms.ipeirotis.com/api/{}".format(clean_query.title())
+    # url = "http://wikisynonyms.ipeirotis.com/api/{}".format(clean_query.title())
 
-    r = requests.get(url)
+    # try https://en.wikipedia.org/w/api.php?action=query&format=json&titles=diabetes&redirects=
+    url = u"https://en.wikipedia.org/w/api.php?action=query&format=json&titles={}&redirects=".format(clean_query.title())
+    headers = {"User-Agent": "team@impactstory.org"}
+
+    r = requests.get(url, headers=headers)
     if r and r.status_code == 200:
         data = r.json()
-        if "terms" in data:
-            best_term = data["terms"][0]
-            if best_term["canonical"] == 1:
-                synonym = best_term["term"]
-                return synonym
+        if "query" in data and "pages" in data["query"]:
+            page = data["query"]["pages"].values()[0]
+            synonym = page["title"]
+            return synonym
+        # if "terms" in data:
+        #     best_term = data["terms"][0]
+        #     if best_term["canonical"] == 1:
+        #         synonym = best_term["term"]
+        #         return synonym
     return None
 
 def get_nerd_term_lookup(original_query):

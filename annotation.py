@@ -90,6 +90,14 @@ class Annotation(object):
         return self.dandelion_raw["uri"]
 
     @property
+    def start(self):
+        return self.dandelion_raw["start"]
+
+    @property
+    def end(self):
+        return self.dandelion_raw["end"]
+
+    @property
     def spot(self):
         return self.dandelion_raw["spot"]
 
@@ -232,6 +240,27 @@ class Annotation(object):
 
         return score
 
+    def to_dict_metadata(self):
+        if not self.dandelion_raw:
+            return []
+
+        raw_annotation = self.dandelion_raw
+        response = {}
+        keep_keys = [
+            "id",
+            "title",
+            "uri",
+            "abstract",
+            "label"
+        ]
+        for key in raw_annotation.keys():
+            if key in keep_keys:
+                response[key] = raw_annotation[key]
+
+        response["image_url"] = self.image_url
+
+        return response
+
 
     def to_dict_simple(self):
         if not self.dandelion_raw:
@@ -243,26 +272,25 @@ class Annotation(object):
             "start",
             "end",
             "confidence",
-            "id",
+            # "id",
             "title",
-            "uri",
-            "abstract",
-            "label",
+            # "uri",
+            # "abstract",
+            # "label",
             "spot",
-            # "categories",
-            "types",
-            "alternate_labels"
+            # "types",
+            # "alternate_labels"
         ]
         for key in raw_annotation.keys():
             if key in keep_keys:
                 response[key] = raw_annotation[key]
 
-        response["image_url"] = self.image_url
-        response["url"] = self.image_url  # this is where it is expected for the picture
-        response["picture_score"] = self.picture_score
-        response["raw_top_entity_score"] = self.top_entity_score
-        if hasattr(self, "attribution_distribution"):
-            response["attribution_distribution"] = self.attribution_distribution
+        # response["image_url"] = self.image_url
+        # response["url"] = self.image_url  # this is where it is expected for the picture
+        # response["picture_score"] = self.picture_score
+        # response["raw_top_entity_score"] = self.top_entity_score
+        # if hasattr(self, "attribution_distribution"):
+        #     response["attribution_distribution"] = self.attribution_distribution
 
         return response
 

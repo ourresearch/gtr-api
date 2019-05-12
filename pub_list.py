@@ -83,6 +83,7 @@ class PubList(object):
         self.set_annotations_and_pictures()
 
         response = []
+
         for my_pub in self.pubs:
 
             pub_dict = my_pub.to_dict_serp(full)
@@ -93,22 +94,32 @@ class PubList(object):
                 pub_dict["image"] = {}
 
             pub_dict["topics"] = my_pub.topics
-
-            pub_dict["annotations"] = {"using_article_abstract_short": None, "using_article_title": None}
-
-            if hasattr(my_pub, "dandelion_title_annotation_list") and my_pub.dandelion_title_annotation_list:
-                pub_dict["annotations"]["using_article_title"] = my_pub.dandelion_title_annotation_list.to_dict_simple()
-
-            if hasattr(my_pub, "dandelion_short_abstract_annotation_list") and my_pub.dandelion_short_abstract_annotation_list:
-                pub_dict["annotations"]["using_article_abstract_short"] = my_pub.dandelion_short_abstract_annotation_list.to_dict_simple()
-
-            if full:
-                if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
-                    pub_dict["annotations"]["using_article_abstract"] = my_pub.dandelion_abstract_annotation_list.to_dict_simple()
+            pub_dict["title_annotations"] = my_pub.title_annotations_dict
+            pub_dict["abstract"] = my_pub.abstract_with_annotations_dict
 
             response.append(pub_dict)
 
         return response
 
 
+    def to_dict_annotation_metadata(self):
+        all_annotation_objects = {}
 
+        for my_pub in self.pubs:
+            if hasattr(my_pub, "dandelion_title_annotation_list") and my_pub.dandelion_title_annotation_list:
+                for anno in my_pub.dandelion_title_annotation_list.list():
+                    all_annotation_objects[anno.title] = anno
+
+            if hasattr(my_pub, "dandelion_short_abstract_annotation_list") and my_pub.dandelion_short_abstract_annotation_list:
+                for anno in my_pub.dandelion_title_annotation_list.list():
+                    all_annotation_objects[anno.title] = anno
+
+            if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
+                for anno in my_pub.dandelion_title_annotation_list.list():
+                    all_annotation_objects[anno.title] = anno
+
+        response = {}
+        for (anno_title, anno) in all_annotation_objects.items():
+            response[anno_title] = anno.to_dict_metadata()
+
+        return response

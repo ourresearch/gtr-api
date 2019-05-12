@@ -123,7 +123,9 @@ def get_pub_by_doi(my_doi):
 
     my_pub_list = PubList(pubs=[my_pub])
 
-    return jsonify({"results": my_pub_list.to_dict_serp_list()})
+    return jsonify({"results": my_pub_list.to_dict_serp_list(),
+                    "annotations": my_pub_list.to_dict_annotation_metadata(),
+                    })
 
 
 @app.route("/search/<path:query>", methods=["GET"])
@@ -131,14 +133,10 @@ def get_search_query(query):
 
     start_time = time()
 
-    print "getting synonyms"
-    synonym = get_synonym(query)
-    print "getting terms from nerd"
-    term_lookup = get_nerd_term_lookup(query)
-    if synonym and not term_lookup:
-        term_lookup = get_nerd_term_lookup(synonym)
+    print "getting entity lookup"
+    entity = get_synonym(query)
 
-    getting_term_lookup_elapsed = elapsed(start_time, 3)
+    getting_entity_lookup_elapsed = elapsed(start_time, 3)
 
     pmid_query_start_time = time()
 
@@ -164,7 +162,7 @@ def get_search_query(query):
     except:
         oa_only = False
 
-    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, synonym, oa_only)
+    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only)
 
     db_query_elapsed = elapsed(pmid_query_start_time, 3)
 
@@ -186,16 +184,16 @@ def get_search_query(query):
 
     print u"finished query for {}: took {} seconds".format(query, total_time)
     return jsonify({"results": results,
+                    "annotations": my_pub_list.to_dict_annotation_metadata(),
                     "page": page,
-                    "synonym": synonym,
                     "oa_only": oa_only,
-                    "term_lookup": term_lookup,
+                    "query_entity": entity,
                     "timing": {"total": total_time,
                                "time_to_pmids_elapsed": time_to_pmids_elapsed,
                                "time_for_pubs_elapsed": time_for_pubs_elapsed,
                                "initializing_publist_elapsed": initializing_publist_elapsed,
                                "to_dict_elapsed": to_dict_elapsed,
-                               "getting_term_lookup_elapsed": getting_term_lookup_elapsed
+                               "getting_entity_lookup_elapsed": getting_entity_lookup_elapsed
                                }
                     })
 
@@ -279,6 +277,7 @@ def get_search_query_serp(query):
 
     print u"finished query for {}: took {} seconds".format(query, total_time)
     return jsonify({"results": results,
+                    "annotations": my_pub_list.to_dict_annotation_metadata(),
                     "page": page,
                     "synonym": synonym,
                     "_timing": [u"{:>30}: {}".format(a, b) for (a, b) in timings]

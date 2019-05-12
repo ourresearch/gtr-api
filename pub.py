@@ -38,35 +38,6 @@ for line in lines:
     temp_news_articles.append(news_article)
 
 
-abstract_headings = [
-    "AIM:",
-    "ANALYSIS:",
-    "AUTHORS' CONCLUSIONS:",
-    "BACKGROUND:",
-    "BACKGROUND AND AIM:",
-    "CONCLUSION:",
-    "CONCLUSIONS:",
-    "DATA COLLECTION AND ANALYSIS:",
-    "DATA SOURCES:",
-    "DISCUSSION:",
-    "MAIN RESULTS:",
-    "MATERIALS:",
-    "METHOD:",
-    "METHODOLOGY:",
-    "METHODS:",
-    "METHODS AND MATERIALS:",
-    "METHODS AND RESULTS:",
-    "METHODS OF STUDY SELECTION:",
-    "OBJECTIVE:",
-    "RESULTS:",
-    "SEARCH METHODS:",
-    "SELECTION CRITERIA:",
-    "STRATEGY:",
-    "STUDY DESIGN:"
-    ]
-abstract_headings_pattern = u"|".join([u"({}.+?)".format(heading) for heading in abstract_headings])
-
-
 
 def call_dandelion(query_text_raw, batch_api_key=None):
     if not query_text_raw:
@@ -346,6 +317,57 @@ class Pub(db.Model):
             my_annotation.annotation_distribution = annotation_distribution
 
 
+    @property
+    def abstract_with_annotations_dict(self):
+        sections = []
+        if self.abstract_structured:
+            sections = self.abstract_structured
+        elif self.abstract_text:
+            background_text = ""
+            summary_text = ""
+            if "CONCLUSION:" in self.abstract_text:
+                background_text = self.abstract_text.rsplit("CONCLUSION:", 1)[0]
+                summary_text = self.abstract_text.rsplit("CONCLUSION:", 1)[1]
+            elif "CONCLUSIONS:" in self.abstract_text:
+                background_text = self.abstract_text.rsplit("CONCLUSIONS:", 1)[0]
+                summary_text = self.abstract_text.rsplit("CONCLUSIONS:", 1)[1]
+            else:
+                try:
+                    background_text += ". ".join(self.abstract_text.rsplit(". ", 3)[0:1]) + "."
+                    summary_text += ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
+                except IndexError:
+                    background_text += self.abstract_text[-500:-1]
+                    summary_text += self.abstract_text[-500:-1]
+
+            background_text = background_text.strip()
+            summary_text = summary_text.strip()
+
+            sections = [
+                {"text": background_text, "heading": "BACKGROUND", "section_split_source": "automated", "summary": False, "original_start":0, "original_end":len(background_text)},
+                {"text": summary_text, "heading": "SUMMARY", "section_split_source": "automated", "summary": True, "original_start":len(background_text), "original_end":len(self.abstract_text)}
+            ]
+
+        for section in sections:
+            section["annotations"] = []
+            if hasattr(self, "dandelion_abstract_annotation_list"):
+                for anno in self.dandelion_abstract_annotation_list.list():
+                    if anno.confidence > 0.65:
+                        if anno.start >= section["original_start"] and anno.end <= section["original_end"]:
+                            my_anno_dict = anno.to_dict_simple()
+                            my_anno_dict["start"] -= section["original_start"]
+                            my_anno_dict["end"] -= section["original_start"]
+                            section["annotations"] += [my_anno_dict]
+
+        return sections
+
+
+    @property
+    def title_annotations_dict(self):
+        response = []
+        if hasattr(self, "dandelion_title_annotation_list") and self.dandelion_title_annotation_list:
+            response = self.dandelion_title_annotation_list.to_dict_simple()
+        return response
+
     def get_nerd(self):
         if not self.abstract_text or len(self.abstract_text) <=3:
             return
@@ -386,16 +408,31 @@ class Pub(db.Model):
 
     @property
     def abstract_structured(self):
-        results = []
+        all_sections = []
 
-        if self.abstract_text and re.findall("([A-Z]{4,}): ", self.abstract_text):
+        if self.abstract_text and re.findall("(^[A-Z]{4,}): ", self.abstract_text):
             matches = re.findall("([A-Z' ,]{4,}): (.*?) (?=$|[A-Z' ,]{4,}: )", self.abstract_text)
             for match in matches:
-                results.append({
+                all_sections.append({
                     "heading": match[0],
                     "text": match[1]
                 })
-        return results
+
+        cursor = 0
+        for section in all_sections:
+            cursor += len(section["heading"])
+            cursor += 2
+            # don't include heading in what can be annotated
+            section["original_start"] = cursor
+            cursor += len(section["text"])
+            section["original_end"] = cursor
+            cursor += 1
+            section["section_split_source"] = "structured"
+            section["summary"] = False
+
+        if all_sections:
+            all_sections[-1]["summary"] = True
+        return all_sections
 
     @property
     def abstract_short(self):
@@ -419,7 +456,6 @@ class Pub(db.Model):
         #     response = self.abstract_text.rsplit(u"©", 1)[0]
 
         response = response.strip()
-
 
         return response
 
@@ -546,7 +582,6 @@ class Pub(db.Model):
             "title": self.article_title,
             "year": self.pub_date_year,
             "journal_name": self.journal_title,
-            "abstract_short": self.abstract_short,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "is_oa": self.display_is_oa,
             "oa_url": self.display_oa_url,
@@ -562,8 +597,6 @@ class Pub(db.Model):
             "pmid": self.pmid,
             "pmid_url": self.pmid_url,
             "author_lastnames": self.author_lastnames,
-            "abstract": self.abstract_text,
-            "abstract_structured": self.abstract_structured,
             # "mesh": [m.to_dict() for m in self.mesh],
             "news_articles": [a.to_dict() for a in self.news_articles]
             }
