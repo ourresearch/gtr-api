@@ -343,7 +343,7 @@ class Pub(db.Model):
                             if anno.start >= section["original_start"] and anno.end <= section["original_end"]:
                                 my_anno_dict = anno.to_dict_simple()
                                 my_anno_dict["start"] -= section["original_start"]
-                                my_anno_dict["end"] -= section["original_start"]
+                                my_anno_dict["end"] -= section["original_start"] - 1
                                 section["annotations"] += [my_anno_dict]
 
         if not full:
