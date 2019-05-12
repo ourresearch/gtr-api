@@ -330,16 +330,16 @@ class Pub(db.Model):
                 {"text": summary_text, "heading": "SUMMARY", "section_split_source": "automated", "summary": True, "original_start":len(background_text), "original_end":len(self.abstract_text)}
             ]
 
-        for section in sections:
-            section["annotations"] = []
-            if hasattr(self, "dandelion_abstract_annotation_list"):
-                for anno in self.dandelion_abstract_annotation_list.list():
-                    if anno.confidence >= 0.65:
-                        if anno.start >= section["original_start"] and anno.end <= section["original_end"]:
-                            my_anno_dict = anno.to_dict_simple()
-                            my_anno_dict["start"] -= section["original_start"]
-                            my_anno_dict["end"] -= section["original_start"]
-                            if full:
+        if full:
+            for section in sections:
+                section["annotations"] = []
+                if hasattr(self, "dandelion_abstract_annotation_list"):
+                    for anno in self.dandelion_abstract_annotation_list.list():
+                        if anno.confidence >= 0.65:
+                            if anno.start >= section["original_start"] and anno.end <= section["original_end"]:
+                                my_anno_dict = anno.to_dict_simple()
+                                my_anno_dict["start"] -= section["original_start"]
+                                my_anno_dict["end"] -= section["original_start"]
                                 section["annotations"] += [my_anno_dict]
 
         if not full:
