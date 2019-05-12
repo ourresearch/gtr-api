@@ -8,10 +8,12 @@ import datetime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import sql
 from sqlalchemy import orm
+import json
 
 from app import db
 from pub import call_dandelion
 from pub import Pub
+from pub import Dandelion
 from util import elapsed
 from util import safe_commit
 from util import TooManyRequestsException
@@ -30,69 +32,36 @@ def call_dandelion_on_article(my_queue_save_obj):
     if not hasattr(my_queue_save_obj, "my_pub") or not my_queue_save_obj.my_pub:
         # print u"no pub for {}, returning".format(my_queue_save_obj.pmid)
         error = "no pub object"
-        print "X",
+        print "n",
+    else:
+        print "y",
 
     if not rate_limit_exceeded:
-        for annotation_type in ["article_title", "abstract_text"]:
+        try:
+            if not rate_limit_exceeded and my_queue_save_obj.my_pub:
+                my_text = my_queue_save_obj.my_pub.article_title
+                dandelion_results = call_dandelion(my_text, batch_api_key)
+                my_queue_save_obj.dandelion_raw_article_title = dandelion_results
 
-            try:
-                if not rate_limit_exceeded and my_queue_save_obj.my_pub:
-                    my_text = getattr(my_queue_save_obj.my_pub, annotation_type)
-                    dandelion_results = call_dandelion(my_text, batch_api_key)
-                    setattr(my_queue_save_obj, u"dandelion_raw_{}".format(annotation_type), dandelion_results)
+            if not rate_limit_exceeded and my_queue_save_obj.my_pub:
+                my_text = my_queue_save_obj.my_pub.abstract_text
+                dandelion_results = call_dandelion(my_text, batch_api_key)
+                my_queue_save_obj.dandelion_raw_abstract_text = json.dumps(dandelion_results) # this one is a string for some reason
 
-            except TooManyRequestsException:
-                print "!",
-                error = u"TooManyRequestsException"
-                rate_limit_exceeded = True
+        except TooManyRequestsException:
+            print "!",
+            error = u"TooManyRequestsException"
+            rate_limit_exceeded = True
 
-    my_queue_save_obj.dandelion_collected = datetime.datetime.utcnow()
-    db.session.merge(my_queue_save_obj)
-    safe_commit(db)
-    print ".",
+    if not rate_limit_exceeded:
+        my_queue_save_obj.dandelion_collected = datetime.datetime.utcnow()
+        try:
+            db.session.merge(my_queue_save_obj)
+            safe_commit(db)
+        except Exception, e:
+            print e
+        print ".",
     return (dandelion_results, error, rate_limit_exceeded)
-
-
-class QueueSave(db.Model):
-    __tablename__ = "dois_paperbuzz_dandelion"
-    doi = db.Column(db.Text, primary_key=True)
-    pmid = db.Column(db.Numeric)
-    num_events = db.Column(db.Numeric)
-    dandelion_raw_article_title = db.Column(JSONB)
-    dandelion_raw_abstract_text = db.Column(JSONB)
-    dandelion_collected = db.Column(db.DateTime)
-
-    def __repr__(self):
-        return u'<QueueSave ({doi}) {num_events}>'.format(
-            doi=self.doi,
-            num_events=self.num_events
-        )
-
-class AnnotationSave(db.Model):
-    __tablename__ = "doi_annotations"
-    doi = db.Column(db.Text, primary_key=True)
-    annotation_type = db.Column(db.Text, primary_key=True)
-    spot = db.Column(db.Text)
-    title = db.Column(db.Text)
-    uri = db.Column(db.Text, primary_key=True)
-    image = db.Column(db.Text)
-    top_entity_score = db.Column(db.Text)
-    confidence = db.Column(db.Text)
-
-    def __init__(self, dandelion_raw_annotation):
-        self.spot = dandelion_raw_annotation.get("spot", None)
-        self.title = dandelion_raw_annotation.get("title", None)
-        self.uri = dandelion_raw_annotation.get("uri", None)
-        self.confidence = dandelion_raw_annotation.get("confidence", None)
-        if "image" in dandelion_raw_annotation and dandelion_raw_annotation["image"]:
-            self.image = dandelion_raw_annotation["image"]["full"]
-
-    def __repr__(self):
-        return u'<AnnotationSave ({doi}) {uri} {top_entity_score}>'.format(
-            doi=self.doi,
-            uri=self.uri,
-            top_entity_score=self.top_entity_score
-        )
 
 
 if __name__ == "__main__":
@@ -109,16 +78,14 @@ if __name__ == "__main__":
 
     if __name__ == '__main__':
         for i in range(100000):
-            query = QueueSave.query.filter(QueueSave.dandelion_collected == None,
-                                           QueueSave.num_events != None,
-                                           QueueSave.pmid != None).\
-                order_by(QueueSave.num_events.desc())\
+            query = Dandelion.query.filter(Dandelion.dandelion_collected == None,
+                                           Dandelion.num_events != None,
+                                           Dandelion.pmid != None).\
+                order_by(Dandelion.num_events.desc())\
                 .limit(15)  # max 50/3, doing 3 calls for each DOI and can hit dandelion w 50 at a time
             queue_save_objs = query.all()
-            pmids = [int(save_obj.pmid) for save_obj in queue_save_objs]
-            # print pmids
+            pmids = [save_obj.pmid for save_obj in queue_save_objs]
             my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.noload('*')).all()
-            # print my_pubs
             for save_obj in queue_save_objs:
                 matches = [my_pub for my_pub in my_pubs if my_pub.pmid==save_obj.pmid]
                 if matches:
@@ -126,7 +93,7 @@ if __name__ == "__main__":
                 else:
                     save_obj.my_pub = None
 
-            use_threads = False  # useful to turn off pooling to help debugging
+            use_threads = True  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(50)
             if use_threads:
                 results = my_thread_pool.imap_unordered(call_dandelion_on_article, queue_save_objs)

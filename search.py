@@ -60,7 +60,7 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
     rows = []
     if "from_" in original_query and "to_" in original_query:
         print u"getting recent query"
-        matches = re.findall("from_([\d_]+)_to_([\d_]+)", original_query)
+        matches = re.findall("from_(\d{4}.\d{2}.\d{2})_to_(\d{4}.\d{2}.\d{2})", original_query)
         from_date = matches[0][0].replace("_", "-")
         to_date = matches[0][1].replace("_", "-")
         query_string = u"""

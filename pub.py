@@ -148,13 +148,21 @@ class News(db.Model):
         }
         return response
 
+
 class Dandelion(db.Model):
     __tablename__ = "dois_paperbuzz_dandelion"
-    doi = db.Column(db.Text)
+    doi = db.Column(db.Text, primary_key=True)
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
-    dandelion_collected = db.Column(db.DateTime, primary_key=True)
+    num_events = db.Column(db.Numeric)
+    dandelion_collected = db.Column(db.DateTime)
     dandelion_raw_article_title = db.Column(JSONB)
     dandelion_raw_abstract_text = db.Column(db.Text)
+
+    def __repr__(self):
+        return u'<Dandelion ({doi}) {num_events}>'.format(
+            doi=self.doi,
+            num_events=self.num_events
+        )
 
 
 class Pub(db.Model):
