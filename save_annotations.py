@@ -33,26 +33,13 @@ def call_dandelion_on_article(my_queue_save_obj):
         print "X",
 
     if not rate_limit_exceeded:
-        for annotation_type in ["article_title", "abstract_short", "abstract_text"]:
+        for annotation_type in ["article_title", "abstract_text"]:
 
             try:
                 if not rate_limit_exceeded and my_queue_save_obj.my_pub:
                     my_text = getattr(my_queue_save_obj.my_pub, annotation_type)
                     dandelion_results = call_dandelion(my_text, batch_api_key)
                     setattr(my_queue_save_obj, u"dandelion_raw_{}".format(annotation_type), dandelion_results)
-
-                    # if dandelion_results:
-                    #     for annotation_dict in dandelion_results.get("annotations", []):
-                    #         my_annotation = AnnotationSave(annotation_dict)
-                    #         my_annotation.doi = my_queue_save_obj.doi
-                    #         my_annotation.annotation_type = annotation_type
-                    #
-                    #         for top_entity in dandelion_results.get("topEntities", []):
-                    #             if my_annotation.uri == top_entity["uri"]:
-                    #                 my_annotation.top_entity_score = top_entity["score"]
-                    #
-                    #         # print my_annotation
-                    #         db.session.merge(my_annotation)
 
             except TooManyRequestsException:
                 print "!",
@@ -72,7 +59,6 @@ class QueueSave(db.Model):
     pmid = db.Column(db.Numeric)
     num_events = db.Column(db.Numeric)
     dandelion_raw_article_title = db.Column(JSONB)
-    dandelion_raw_abstract_short = db.Column(JSONB)
     dandelion_raw_abstract_text = db.Column(JSONB)
     dandelion_collected = db.Column(db.DateTime)
 

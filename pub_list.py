@@ -28,8 +28,7 @@ class PubList(object):
         my_pubs = self.pubs
         for my_pub in my_pubs:
             for run_dandelion_on in ["call_dandelion_on_article_title",
-                                     "call_dandelion_on_abstract",
-                                     "call_dandelion_on_short_abstract"]:
+                                     "call_dandelion_on_abstract"]:
                 run_tuples += [(my_pub, run_dandelion_on)]
 
         results = my_thread_pool.imap_unordered(multi_run_wrapper, run_tuples)
@@ -94,8 +93,8 @@ class PubList(object):
                 pub_dict["image"] = {}
 
             pub_dict["topics"] = my_pub.topics
-            pub_dict["title_annotations"] = my_pub.title_annotations_dict
-            pub_dict["abstract"] = my_pub.abstract_with_annotations_dict
+            pub_dict["title_annotations"] = my_pub.title_annotations_dict(full)
+            pub_dict["abstract"] = my_pub.abstract_with_annotations_dict(full)
 
             response.append(pub_dict)
 
@@ -107,10 +106,6 @@ class PubList(object):
 
         for my_pub in self.pubs:
             if hasattr(my_pub, "dandelion_title_annotation_list") and my_pub.dandelion_title_annotation_list:
-                for anno in my_pub.dandelion_title_annotation_list.list():
-                    all_annotation_objects[anno.title] = anno
-
-            if hasattr(my_pub, "dandelion_short_abstract_annotation_list") and my_pub.dandelion_short_abstract_annotation_list:
                 for anno in my_pub.dandelion_title_annotation_list.list():
                     all_annotation_objects[anno.title] = anno
 

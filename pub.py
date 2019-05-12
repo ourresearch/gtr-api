@@ -151,7 +151,6 @@ class Dandelion(db.Model):
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
     dandelion_collected = db.Column(db.DateTime, primary_key=True)
     dandelion_raw_article_title = db.Column(JSONB)
-    dandelion_raw_abstract_short = db.Column(db.Text)
     dandelion_raw_abstract_text = db.Column(db.Text)
 
 
@@ -224,11 +223,6 @@ class Pub(db.Model):
             return self.dandelion_lookup.dandelion_raw_abstract_text
         return None
 
-    @property
-    def dandelion_short_abstract(self):
-        if self.dandelion_lookup:
-            return self.dandelion_lookup.dandelion_raw_abstract_short
-        return None
 
     @property
     def dandelion_has_been_collected(self):
@@ -278,16 +272,6 @@ class Pub(db.Model):
         if dandelion_results:
             self.dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
 
-    def call_dandelion_on_short_abstract(self):
-        dandelion_results = None
-        if self.dandelion_has_been_collected:
-            dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_abstract_short)
-        else:
-            if self.abstract_short:
-                dandelion_results = call_dandelion(self.abstract_short)
-        if dandelion_results:
-            self.dandelion_short_abstract_annotation_list = AnnotationList(dandelion_results)
-
     def call_dandelion_on_article_title(self):
         if self.dandelion_has_been_collected:
             dandelion_results = self.dandelion_lookup.dandelion_raw_article_title  # this one is JSON already
@@ -317,8 +301,7 @@ class Pub(db.Model):
             my_annotation.annotation_distribution = annotation_distribution
 
 
-    @property
-    def abstract_with_annotations_dict(self):
+    def abstract_with_annotations_dict(self, full=True):
         sections = []
         if self.abstract_structured:
             sections = self.abstract_structured
@@ -356,16 +339,20 @@ class Pub(db.Model):
                             my_anno_dict = anno.to_dict_simple()
                             my_anno_dict["start"] -= section["original_start"]
                             my_anno_dict["end"] -= section["original_start"]
-                            section["annotations"] += [my_anno_dict]
+                            if full:
+                                section["annotations"] += [my_anno_dict]
+
+        if not full:
+            sections = [s for s in sections if s["summary"]==True]
 
         return sections
 
 
-    @property
-    def title_annotations_dict(self):
+    def title_annotations_dict(self, full=True):
         response = []
-        if hasattr(self, "dandelion_title_annotation_list") and self.dandelion_title_annotation_list:
-            response = self.dandelion_title_annotation_list.to_dict_simple()
+        if full:
+            if hasattr(self, "dandelion_title_annotation_list") and self.dandelion_title_annotation_list:
+                response = self.dandelion_title_annotation_list.to_dict_simple()
         return response
 
     def get_nerd(self):
@@ -434,30 +421,6 @@ class Pub(db.Model):
             all_sections[-1]["summary"] = True
         return all_sections
 
-    @property
-    def abstract_short(self):
-        if not self.abstract_text:
-            return self.abstract_text
-
-        response = ""
-
-        if "CONCLUSION:" in self.abstract_text:
-            response = self.abstract_text.rsplit("CONCLUSION:", 1)[1]
-        elif "CONCLUSIONS:" in self.abstract_text:
-            response = self.abstract_text.rsplit("CONCLUSIONS:", 1)[1]
-        else:
-            response = "... "
-            try:
-                response += ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
-            except IndexError:
-                response += self.abstract_text[-500:-1]
-
-        # if u"©" in self.abstract_text:
-        #     response = self.abstract_text.rsplit(u"©", 1)[0]
-
-        response = response.strip()
-
-        return response
 
     @property
     def suppress(self):

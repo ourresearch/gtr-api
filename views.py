@@ -131,14 +131,11 @@ def get_pub_by_doi(my_doi):
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
+    attributes_to_hide = request.args.get("hide", "")
+
     start_time = time()
-
-    print "getting entity lookup"
     entity = get_synonym(query)
-
     getting_entity_lookup_elapsed = elapsed(start_time, 3)
-
-    pmid_query_start_time = time()
 
     # page starts at 1 not 0
     page = 1
@@ -164,38 +161,39 @@ def get_search_query(query):
 
     (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only)
 
-    db_query_elapsed = elapsed(pmid_query_start_time, 3)
-
     initializing_publist_start_time = time()
-
-    print "building response"
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
-
     my_pub_list = PubList(pubs=sorted_pubs[(pagesize * (page-1)):(pagesize * page)])
-
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
 
     to_dict_start_time = time()
-
-    results = my_pub_list.to_dict_serp_list(full=True)
-
+    full = "abstracts" not in attributes_to_hide
+    results = my_pub_list.to_dict_serp_list(full=full)
     to_dict_elapsed = elapsed(to_dict_start_time, 3)
-    total_time = elapsed(start_time, 3)
 
-    print u"finished query for {}: took {} seconds".format(query, total_time)
-    return jsonify({"results": results,
-                    "annotations": my_pub_list.to_dict_annotation_metadata(),
+    response = {"results": results,
                     "page": page,
                     "oa_only": oa_only,
-                    "query_entity": entity,
-                    "timing": {"total": total_time,
-                               "time_to_pmids_elapsed": time_to_pmids_elapsed,
-                               "time_for_pubs_elapsed": time_for_pubs_elapsed,
-                               "initializing_publist_elapsed": initializing_publist_elapsed,
-                               "to_dict_elapsed": to_dict_elapsed,
-                               "getting_entity_lookup_elapsed": getting_entity_lookup_elapsed
-                               }
-                    })
+                    "query_entity": entity
+                    }
+    if not "annotations" in attributes_to_hide:
+        response["annotations"] = my_pub_list.to_dict_annotation_metadata()
+
+    jsonify_start_time = time()
+    total_time = elapsed(start_time, 3)
+
+    response["_timing"] = {"total": total_time,
+                           "time_to_pmids_elapsed": time_to_pmids_elapsed,
+                           "time_for_pubs_elapsed": time_for_pubs_elapsed,
+                           "initializing_publist_elapsed": initializing_publist_elapsed,
+                           "to_dict_elapsed": to_dict_elapsed,
+                           "getting_entity_lookup_elapsed": getting_entity_lookup_elapsed
+                        }
+    jsonified_response = jsonify(response)
+    jsonify_elapsed = elapsed(jsonify_start_time)
+    print u"jsonify_elapsed took {} seconds".format(jsonify_elapsed)
+    print u"finished query for {}: took {} seconds".format(query, elapsed(start_time))
+    return jsonified_response
 
 
 @app.route("/autocomplete/<query>", methods=["GET"])
@@ -216,72 +214,7 @@ def get_autocomplete_entity_titles(query):
                     })
 
 
-@app.route("/search/NEW/<path:query>", methods=["GET"])
-def get_search_query_serp(query):
 
-    start_time = time()
-
-    print "getting synonyms"
-    synonym = get_synonym(query)
-
-    getting_synonym_lookup_elapsed = elapsed(start_time, 3)
-
-    pmid_query_start_time = time()
-
-    # page starts at 1 not 0
-    if request.args.get("page"):
-        page = int(request.args.get("page"))
-    else:
-        page = 1
-    if page > 5:
-        abort_json(400, u"Page too large. API currently only supports 5 pages right now, so page must be in the range 0-4.")
-
-    if request.args.get("pagesize"):
-        pagesize = int(request.args.get("pagesize"))
-    else:
-        pagesize = 10
-    if pagesize > 100:
-        abort_json(400, u"pagesize too large; max 100")
-
-    oa_only = str_to_bool(request.args.get("oa", "false"))
-
-    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, synonym, oa_only)
-
-    db_query_elapsed = elapsed(pmid_query_start_time, 3)
-    initializing_publist_start_time = time()
-
-    print "building response"
-    # sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
-    sorted_pubs = my_pubs
-    chosen_pmid = [p.pmid for p in sorted_pubs[(pagesize * (page-1)):(pagesize * page)]]
-    my_chosen_pubs = db.session.query(Pub).filter(Pub.pmid.in_(chosen_pmid)).options(orm.undefer_group('full')).all()
-    my_pub_list = PubList(pubs=my_chosen_pubs)
-
-    initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
-    to_dict_start_time = time()
-
-    results = my_pub_list.to_dict_serp_list(full=False)
-
-    to_dict_elapsed = elapsed(to_dict_start_time, 3)
-    total_time = elapsed(start_time, 3)
-
-    timings = [
-       ("time_to_pmids_elapsed", time_to_pmids_elapsed),
-       ("time_for_pubs_elapsed", time_for_pubs_elapsed),
-       ("initializing_publist_elapsed", initializing_publist_elapsed),
-       ("to_dict_elapsed", to_dict_elapsed),
-       ("getting_synonym_lookup_elapsed", getting_synonym_lookup_elapsed),
-       ("", "      "),
-       ("TOTAL", total_time)
-       ]
-
-    print u"finished query for {}: took {} seconds".format(query, total_time)
-    return jsonify({"results": results,
-                    "annotations": my_pub_list.to_dict_annotation_metadata(),
-                    "page": page,
-                    "synonym": synonym,
-                    "_timing": [u"{:>30}: {}".format(a, b) for (a, b) in timings]
-                    })
 
 # things to try
 # don't return annotations to start with
