@@ -62,14 +62,13 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
         query_string = u"""
             select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank, doi, title, is_oa, num_events 
             from search_title_dandelion_mv
-            where title='{synonym}' 
+            where title=:synonym 
             and num_events >= 3
             {oa_clause}
             order by num_events desc 
-            limit 100      
-            """.format(synonym=synonym, oa_clause=oa_clause)
+            limit 100""".format(oa_clause=oa_clause)
         # print query_string
-        rows = db.engine.execute(sql.text(query_string)).fetchall()
+        rows = db.engine.execute(sql.text(query_string), synonym=synonym).fetchall()
         print "done getting query"
 
         # print rows

@@ -351,7 +351,7 @@ class Pub(db.Model):
             section["annotations"] = []
             if hasattr(self, "dandelion_abstract_annotation_list"):
                 for anno in self.dandelion_abstract_annotation_list.list():
-                    if anno.confidence > 0.65:
+                    if anno.confidence >= 0.65:
                         if anno.start >= section["original_start"] and anno.end <= section["original_end"]:
                             my_anno_dict = anno.to_dict_simple()
                             my_anno_dict["start"] -= section["original_start"]
