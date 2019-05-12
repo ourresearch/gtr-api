@@ -176,6 +176,9 @@ class Annotation(object):
         if "sex" in self.title.lower():
             score -= 2
 
+        if "urinart" in self.title.lower() or "urolog" in self.title.lower():
+            score -= 1
+
         if "http://dbpedia.org/ontology/Location" in self.types and self.title not in ["Ancient Egypt"]:
             score += 2
 
