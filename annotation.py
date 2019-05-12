@@ -212,8 +212,11 @@ class Annotation(object):
         if self.spot.lower() == "ages" and self.title.lower() == "ageing":
             score -= 10
 
-        if self.confidence < 0.7:
+        if self.confidence <= 0.65:
             score -= 10
+
+        if self.confidence < 0.7 and self.spot.lower() != self.title.lower():
+            score -= 2
 
         score += 0.2 * self.confidence
 
