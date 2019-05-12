@@ -2,6 +2,7 @@ from sqlalchemy import sql
 from sqlalchemy import orm
 from time import time
 import requests
+import re
 
 from app import db
 from pub import Pub
@@ -57,17 +58,19 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
 
     pmids = []
     rows = []
-    if original_query=="recent":
+    if "from:" in original_query and "to:" in original_query:
         print u"getting recent query"
+        from_date = re.findall("from:([\d-]+)", original_query)[0]
+        to_date = re.findall("to:([\d-]+)", original_query)[0]
         query_string = u"""
             select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank 
             from search_recent_hits_mv 
-            where published_date > :first_date ::timestamp and published_date < :second_date ::timestamp + interval '1 month'  
+            where published_date > :from_date ::timestamp and published_date < :to_date ::timestamp   
             and num_events is not null
             {oa_clause}
             order by num_events desc 
             limit 100 """.format(oa_clause=oa_clause)
-        rows = db.engine.execute(sql.text(query_string), first_date='2019-04-01', second_date='2019-04-01').fetchall()
+        rows = db.engine.execute(sql.text(query_string), from_date=from_date, to_date=to_date).fetchall()
         print "done getting query"
 
     elif synonym:
