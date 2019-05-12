@@ -143,12 +143,14 @@ def get_search_query(query):
     pmid_query_start_time = time()
 
     # page starts at 1 not 0
-    if request.args.get("page"):
+    page = 1
+    try:
         page = int(request.args.get("page"))
-    else:
-        page = 1
-    if page > 5:
-        abort_json(400, u"Page too large. API currently only supports 5 pages right now, so page must be in the range 0-4.")
+    except:
+        pass
+
+    if page > 10:
+        abort_json(400, u"Page too large. API currently only supports 10 pages right now.")
 
     if request.args.get("pagesize"):
         pagesize = int(request.args.get("pagesize"))
@@ -157,7 +159,10 @@ def get_search_query(query):
     if pagesize > 100:
         abort_json(400, u"pagesize too large; max 100")
 
-    oa_only = str_to_bool(request.args.get("oa", "false"))
+    try:
+        oa_only = str_to_bool(request.args.get("oa", "false"))
+    except:
+        oa_only = False
 
     (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, synonym, oa_only)
 
@@ -183,6 +188,7 @@ def get_search_query(query):
     return jsonify({"results": results,
                     "page": page,
                     "synonym": synonym,
+                    "oa_only": oa_only,
                     "term_lookup": term_lookup,
                     "timing": {"total": total_time,
                                "time_to_pmids_elapsed": time_to_pmids_elapsed,
