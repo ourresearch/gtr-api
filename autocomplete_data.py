@@ -6729,3 +6729,11 @@ HEXA
 Hemihydrate
 """
 entities_for_autocomplete = entities_for_autocomplete_string.split("\n")
+ordered_autocomplete_dicts = [
+    {"lower": e.lower(), "value": e} for e in entities_for_autocomplete
+]
+
+# import json
+# f = open("autocomplete.json", "w")
+# f.writelines(json.dumps(ordered_autocomplete_dicts, indent=4))
+# f.close()

@@ -130,7 +130,7 @@ class News(db.Model):
 
 
 class Dandelion(db.Model):
-    __tablename__ = "dois_paperbuzz_dandelion"
+    __tablename__ = "dandelion_by_doi"
     doi = db.Column(db.Text, primary_key=True)
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
     num_events = db.Column(db.Numeric)
@@ -139,9 +139,10 @@ class Dandelion(db.Model):
     dandelion_raw_abstract_text = db.Column(db.Text)
 
     def __repr__(self):
-        return u'<Dandelion ({doi}) {num_events}>'.format(
+        return u'<Dandelion ({doi}) {num_events} {dandelion_collected}>'.format(
             doi=self.doi,
-            num_events=self.num_events
+            num_events=self.num_events,
+            dandelion_collected=self.dandelion_collected
         )
 
 

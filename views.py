@@ -146,7 +146,10 @@ def get_pub_by_pmid(my_pmid):
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
-    attributes_to_hide = request.args.get("minimum", "")
+    no_live_calls = request.args.get("no-live-calls", "")
+    return_full_api_response = True
+    if request.args.get("minimum", ""):
+        return_full_api_response = False
 
     start_time = time()
     entity = get_synonym(query)
@@ -174,9 +177,7 @@ def get_search_query(query):
     except:
         oa_only = False
 
-    full = len(attributes_to_hide) <= 0
-
-    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only, full=full)
+    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only, full=return_full_api_response)
 
     initializing_publist_start_time = time()
     sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
@@ -188,21 +189,22 @@ def get_search_query(query):
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
 
     set_dandelions_start_time = time()
-    my_pub_list.set_dandelions()
+    if not no_live_calls:
+        my_pub_list.set_dandelions()
     set_dandelions_elapsed = elapsed(set_dandelions_start_time)
     set_pictures_start_time = time()
     my_pub_list.set_pictures()
     set_pictures_elapsed = elapsed(set_pictures_start_time)
 
     to_dict_start_time = time()
-    results = my_pub_list.to_dict_serp_list(full=full)
+    results = my_pub_list.to_dict_serp_list(full=return_full_api_response)
 
     response = {"results": results,
                     "page": page,
                     "oa_only": oa_only,
                     "query_entity": entity
                     }
-    if full:
+    if return_full_api_response:
         response["annotations"] = my_pub_list.to_dict_annotation_metadata()
 
     to_dict_elapsed = elapsed(to_dict_start_time, 3)

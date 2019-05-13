@@ -36,7 +36,7 @@ def call_dandelion_on_article(my_queue_save_obj):
     else:
         print "y",
 
-    if not rate_limit_exceeded:
+    if not error and not rate_limit_exceeded:
         try:
             if not rate_limit_exceeded and my_queue_save_obj.my_pub:
                 my_text = my_queue_save_obj.my_pub.article_title
@@ -77,32 +77,43 @@ if __name__ == "__main__":
     start = time()
 
     if __name__ == '__main__':
-        for i in range(100000):
-            query = Dandelion.query.filter(Dandelion.dandelion_collected == None,
-                                           Dandelion.num_events != None,
-                                           Dandelion.pmid != None).\
-                order_by(Dandelion.num_events.desc())\
-                .limit(15)  # max 50/3, doing 3 calls for each DOI and can hit dandelion w 50 at a time
-            queue_save_objs = query.all()
-            pmids = [save_obj.pmid for save_obj in queue_save_objs]
+        while True:
+            query = """select pmid, doi, num_events from search_recent_hits_mv 
+                where pmid not in (select pmid from dandelion_by_doi)  
+                and num_events is not null 
+                and pmid is not null
+                order by num_events desc 
+                limit 30"""
+            rows = db.engine.execute(sql.text(query)).fetchall()
+            lookup = {}
+            if rows:
+                pmids = [int(row[0]) for row in rows]
+                lookup[int(row[0])] = {"doi": row[1], "num_events": int(row[2])}
+            else:
+                print "no rows without dandelions, so sleeping"
+                sleep(60*60)
+
             my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.noload('*')).all()
-            for save_obj in queue_save_objs:
-                matches = [my_pub for my_pub in my_pubs if my_pub.pmid==save_obj.pmid]
-                if matches:
-                    save_obj.my_pub = matches[0]
-                else:
-                    save_obj.my_pub = None
+            my_dandelions = []
+            for my_pub in my_pubs:
+                my_dandelion = Dandelion(pmid=my_pub.pmid)
+                if my_pub.pmid in lookup:
+                    my_dandelion.doi = lookup[my_pub.pmid]["doi"]
+                    my_dandelion.num_events = lookup[my_pub.pmid]["num_events"]
+                    my_dandelion.my_pub = my_pub
+                db.session.add(my_dandelion)
+                my_dandelions.append(my_dandelion)
 
             use_threads = True  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(50)
             if use_threads:
-                results = my_thread_pool.imap_unordered(call_dandelion_on_article, queue_save_objs)
+                results = my_thread_pool.imap_unordered(call_dandelion_on_article, my_dandelions)
                 my_thread_pool.close()
                 my_thread_pool.join()
             else:
                 results = []
-                for my_obj in queue_save_objs:
-                    results.append(call_dandelion_on_article(my_obj))
+                for my_dandelion in my_dandelions:
+                    results.append(call_dandelion_on_article(my_dandelion))
 
             try:
                 for (my_result, my_error, rate_limit_exceeded) in results:
