@@ -108,7 +108,7 @@ class DoiLookup(db.Model):
     news = db.relationship("News", lazy='subquery')
 
 class Paperbuzz(db.Model):
-    __tablename__ = "dois_with_ced_events"
+    __tablename__ = "dois_with_ced_events_mv"
     doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi), primary_key=True)
     num_events = db.Column(db.Numeric)
 
