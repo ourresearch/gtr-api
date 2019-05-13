@@ -78,17 +78,18 @@ if __name__ == "__main__":
 
     if __name__ == '__main__':
         while True:
-            query = """select pmid, doi, num_events from search_recent_hits_mv 
-                where pmid not in (select pmid from dandelion_by_doi)  
+            query = """select search_titles_mv.pmid, doi, num_events from search_titles_mv 
+                where search_titles_mv.pmid not in (select pmid from dandelion_by_doi) 
                 and num_events is not null 
-                and pmid is not null
-                order by num_events desc 
-                limit 30"""
+                and num_events >= 5
+                limit 25 
+                """
             rows = db.engine.execute(sql.text(query)).fetchall()
             lookup = {}
             if rows:
-                pmids = [int(row[0]) for row in rows]
-                lookup[int(row[0])] = {"doi": row[1], "num_events": int(row[2])}
+                pmids = [row[0] for row in rows]
+                for row in rows:
+                    lookup[row[0]] = {"doi": row[1], "num_events": int(row[2])}
             else:
                 print "no rows without dandelions, so sleeping"
                 sleep(60*60)
@@ -97,10 +98,9 @@ if __name__ == "__main__":
             my_dandelions = []
             for my_pub in my_pubs:
                 my_dandelion = Dandelion(pmid=my_pub.pmid)
-                if my_pub.pmid in lookup:
-                    my_dandelion.doi = lookup[my_pub.pmid]["doi"]
-                    my_dandelion.num_events = lookup[my_pub.pmid]["num_events"]
-                    my_dandelion.my_pub = my_pub
+                my_dandelion.doi = lookup[my_pub.pmid]["doi"]
+                my_dandelion.num_events = lookup[my_pub.pmid]["num_events"]
+                my_dandelion.my_pub = my_pub
                 db.session.add(my_dandelion)
                 my_dandelions.append(my_dandelion)
 
