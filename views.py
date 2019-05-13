@@ -114,7 +114,7 @@ def get_pub_by_doi(my_doi):
     if not my_doi_lookup:
         abort_json(404, u"'{}' not found in db".format(my_clean_doi))
 
-    query = db.session.query(Pub).filter(Pub.pmid==my_doi_lookup.pmid_numeric).options(orm.undefer_group('full'))
+    query = db.session.query(Pub).filter(Pub.pmid==my_doi_lookup.pmid).options(orm.undefer_group('full'))
     # print query
     my_pub = query.first()
     # print my_pub

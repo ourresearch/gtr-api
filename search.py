@@ -111,7 +111,7 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
             (ts_rank_cd(to_tsvector('english', article_title), to_tsquery('{q}'), 1) + 0.05*COALESCE(num_events,0.0)) AS rank,
             article_title,
             num_events
-            FROM search_mv
+            FROM search_titles_mv
             WHERE  
             to_tsvector('english', article_title) @@  to_tsquery('{q}')
             and doi is not null 
@@ -136,7 +136,6 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
     else:
         my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
             options(orm.raiseload(Pub.authors)).\
-            options(orm.raiseload(Pub.unpaywall_lookup)).\
             options(orm.raiseload(Pub.dandelion_lookup)).\
             all()
 

@@ -24,23 +24,6 @@ from util import get_sql_answer
 from util import run_sql
 from util import TooManyRequestsException
 
-annotation_file_contents = {}
-fp = open("temp_news.jsonl", "r")
-lines = fp.readlines()
-fp.close()
-import json
-temp_news_articles = []
-# skip header
-for line in lines:
-    json_line = json.loads(line)
-    news_article = {
-        "occurred_at": json_line["occurred_at"],
-        "news_title": json_line["subj"]["title"],
-        "news_url": json_line["subj"]["url"]
-    }
-    temp_news_articles.append(news_article)
-
-
 
 def call_dandelion(query_text_raw, batch_api_key=None):
     if not query_text_raw:
@@ -109,22 +92,16 @@ class PubMesh(db.Model):
                 response["qualifier_is_major"] = True
         return response
 
-class Unpaywall(db.Model):
-    __tablename__ = "bq_pubmed_doi_unpaywall_pmid_numeric_mv"
-    doi = db.Column(db.Text)
-    pmid = db.Column(db.Text, primary_key=True)
-    pmid_numeric = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
+class DoiLookup(db.Model):
+    __tablename__ = "bq_pubmed_doi_unpaywall"
+    doi = db.Column(db.Text, primary_key=True)
+    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
     pmcid = db.Column(db.Text)
     is_oa = db.Column(db.Boolean)
     best_host_type = db.Column(db.Text)
     best_version = db.Column(db.Text)
     oa_url = db.Column(db.Text)
-    # published_date = db.Column(db.DateTime)
-
-class DoiLookup(db.Model):
-    __tablename__ = "dois_pmid_lookup_pmid_numeric_mv"
-    doi = db.Column(db.Text, primary_key=True)
-    pmid_numeric = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
+    published_date = db.Column(db.DateTime)
     paperbuzz = db.relationship("Paperbuzz", uselist=False, lazy='subquery')
     news = db.relationship("News", lazy='subquery')
 
@@ -134,7 +111,7 @@ class Paperbuzz(db.Model):
     num_events = db.Column(db.Numeric)
 
 class News(db.Model):
-    __tablename__ = "paperbuzz_news_20190414"
+    __tablename__ = "local_newsfeed_events_mv"
     event_id = db.Column(db.Text, primary_key=True)
     doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi))
     news_url = db.Column(db.Text)
@@ -176,7 +153,6 @@ class Pub(db.Model):
     authors = db.relationship("Author", lazy='subquery')
     pub_types = db.relationship("PubType", lazy='subquery')
     doi_lookup = db.relationship("DoiLookup", uselist=False, lazy='subquery')
-    unpaywall_lookup = db.relationship("Unpaywall", uselist=False, lazy='subquery')
     dandelion_lookup = db.relationship("Dandelion", uselist=False, lazy='subquery')
     # pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
     # mesh = db.relationship("PubMesh", lazy='subquery')
@@ -246,26 +222,32 @@ class Pub(db.Model):
 
     @property
     def display_is_oa(self):
-        if self.unpaywall_lookup:
-            return self.unpaywall_lookup.is_oa
+        if self.doi_lookup:
+            return self.doi_lookup.is_oa
+        return None
+
+    @property
+    def display_published_date(self):
+        if self.doi_lookup:
+            return self.doi_lookup.published_date.isoformat()[0:10]
         return None
 
     @property
     def display_oa_url(self):
-        if self.unpaywall_lookup:
-            return self.unpaywall_lookup.oa_url
+        if self.doi_lookup:
+            return self.doi_lookup.oa_url
         return None
 
     @property
     def display_best_host(self):
-        if self.unpaywall_lookup:
-            return self.unpaywall_lookup.best_host_type
+        if self.doi_lookup:
+            return self.doi_lookup.best_host_type
         return None
 
     @property
     def display_best_version(self):
-        if self.unpaywall_lookup:
-            return self.unpaywall_lookup.best_version
+        if self.doi_lookup:
+            return self.doi_lookup.best_version
         return None
 
     @property
@@ -563,6 +545,7 @@ class Pub(db.Model):
             "oa_url": self.display_oa_url,
             "oa_host": self.display_best_host,
             "oa_version": self.display_best_version,
+            "published_date": self.display_published_date,
             "pub_types": self.display_pub_types,
             # "snippet": getattr(self, "snippet", None),
             "score": self.adjusted_score

@@ -105,7 +105,7 @@ class PubList(object):
                     all_annotation_objects[anno.title] = anno
 
             if hasattr(my_pub, "dandelion_abstract_annotation_list") and my_pub.dandelion_abstract_annotation_list:
-                for anno in my_pub.dandelion_title_annotation_list.list():
+                for anno in my_pub.dandelion_abstract_annotation_list.list():
                     all_annotation_objects[anno.title] = anno
 
         response = {}
