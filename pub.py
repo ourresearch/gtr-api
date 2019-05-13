@@ -264,8 +264,9 @@ class Pub(db.Model):
         if hasattr(self, "fresh_dandelion_abstract_annotation_list"):
             return self.fresh_dandelion_abstract_annotation_list
         if self.dandelion_has_been_collected:
-            dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_abstract_text)
-            return AnnotationList(dandelion_results)
+            if self.dandelion_lookup.dandelion_raw_abstract_text:
+                dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_abstract_text)
+                return AnnotationList(dandelion_results)
         return None
 
     @property
