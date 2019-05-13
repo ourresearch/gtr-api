@@ -119,6 +119,7 @@ class Unpaywall(db.Model):
     best_host_type = db.Column(db.Text)
     best_version = db.Column(db.Text)
     oa_url = db.Column(db.Text)
+    # published_date = db.Column(db.DateTime)
 
 class DoiLookup(db.Model):
     __tablename__ = "dois_pmid_lookup_pmid_numeric_mv"

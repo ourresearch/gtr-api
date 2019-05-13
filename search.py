@@ -155,23 +155,23 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
     return (my_pubs_filtered, time_for_pmids, time_for_pubs)
 
 
-def autcomplete_entity_titles(original_query):
-
-    query_string = u"""
-        select entity_title, sum_num_events, num_papers
-        from search_autocomplete_dandelion_mv 
-        where entity_title ilike '{original_query}%' 
-        and num_papers >= 25
-        order by sum_num_events desc 
-        limit 10 
-        """.format(original_query=original_query)
-    # print query_string
-    rows = db.engine.execute(sql.text(query_string)).fetchall()
-    print "done getting query"
-
-    # print rows
-    entity_titles = []
-    if rows:
-        entity_titles = [row[0] for row in rows]
-
-    return entity_titles
+# def autcomplete_entity_titles(original_query):
+#
+#     query_string = u"""
+#         select entity_title, sum_num_events, num_papers
+#         from search_autocomplete_dandelion_mv
+#         where entity_title ilike '{original_query}%'
+#         and num_papers >= 25
+#         order by sum_num_events desc
+#         limit 10
+#         """.format(original_query=original_query)
+#     # print query_string
+#     rows = db.engine.execute(sql.text(query_string)).fetchall()
+#     print "done getting query"
+#
+#     # print rows
+#     entity_titles = []
+#     if rows:
+#         entity_titles = [row[0] for row in rows]
+#
+#     return entity_titles

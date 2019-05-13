@@ -23,13 +23,13 @@ from pub_list import PubList
 from search import fulltext_search_title
 from search import get_synonym
 from search import get_nerd_term_lookup
-from search import autcomplete_entity_titles
 from annotation import annotation_file_contents
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
 from util import str_to_bool
 from util import clean_doi
+from autocomplete_data import entities_for_autocomplete
 
 
 # try it at https://api.paperbuzz.org/v0/doi/10.1371/journal.pone.0000308
@@ -114,12 +114,27 @@ def get_pub_by_doi(my_doi):
     if not my_doi_lookup:
         abort_json(404, u"'{}' not found in db".format(my_clean_doi))
 
-    query = db.session.query(Pub).filter(Pub.pmid==my_doi_lookup.pmid_numeric)
+    query = db.session.query(Pub).filter(Pub.pmid==my_doi_lookup.pmid_numeric).options(orm.undefer_group('full'))
     # print query
     my_pub = query.first()
     # print my_pub
     if not my_pub:
         abort_json(404, u"'{}' is an invalid doi.  See https://doi.org/{}".format(my_clean_doi, my_clean_doi))
+
+    my_pub_list = PubList(pubs=[my_pub])
+
+    return jsonify({"results": my_pub_list.to_dict_serp_list(),
+                    "annotations": my_pub_list.to_dict_annotation_metadata(),
+                    })
+
+@app.route("/paper/pmid/<path:my_pmid>", methods=["GET"])
+def get_pub_by_pmid(my_pmid):
+    query = db.session.query(Pub).filter(Pub.pmid==int(my_pmid)).options(orm.undefer_group('full'))
+    # print query
+    my_pub = query.first()
+    # print my_pub
+    if not my_pub:
+        abort_json(404, u"'{}' is not a pmid in our database")
 
     my_pub_list = PubList(pubs=[my_pub])
 
@@ -212,16 +227,13 @@ def get_autocomplete_entity_titles(query):
 
     start_time = time()
 
-    results = autcomplete_entity_titles(query)
+    results = [a for a in entities_for_autocomplete if a.lower().startswith(query.lower())][0:8]
+    # results = autcomplete_entity_titles(query)
 
-    total_time = elapsed(start_time)
-
-    timings = [
-       ("TOTAL", total_time)
-       ]
+    total_time = elapsed(start_time, 4)
 
     return jsonify({"results": results,
-                    "_timing": [u"{:>30}: {}".format(a, b) for (a, b) in timings]
+                    "_timing": {"total": total_time}
                     })
 
 
