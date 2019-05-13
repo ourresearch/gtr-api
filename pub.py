@@ -9,6 +9,7 @@ import shortuuid
 import hashlib
 import requests
 import random
+import json
 from urllib import quote_plus
 from collections import defaultdict
 from sqlalchemy.dialects.postgresql import JSONB
@@ -26,6 +27,7 @@ from util import TooManyRequestsException
 
 
 def call_dandelion(query_text_raw, batch_api_key=None):
+    # print "CALLING DANDELION"
     if not query_text_raw:
         return None
 
@@ -257,22 +259,35 @@ class Pub(db.Model):
             return articles
         return []
 
-    def call_dandelion_on_abstract(self):
-        dandelion_results = None
+    @property
+    def dandelion_abstract_annotation_list(self):
+        if hasattr(self, "fresh_dandelion_abstract_annotation_list"):
+            return self.fresh_dandelion_abstract_annotation_list
         if self.dandelion_has_been_collected:
             dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_abstract_text)
-        else:
+            return AnnotationList(dandelion_results)
+        return None
+
+    @property
+    def dandelion_title_annotation_list(self):
+        if hasattr(self, "fresh_dandelion_article_annotation_list"):
+            return self.fresh_dandelion_article_annotation_list
+        if self.dandelion_has_been_collected:
+            dandelion_results = self.dandelion_lookup.dandelion_raw_article_title
+            return AnnotationList(dandelion_results)
+        return None
+
+    def call_dandelion_on_abstract(self):
+        if not self.dandelion_has_been_collected:
             if self.abstract_text:
                 dandelion_results = call_dandelion(self.abstract_text)
-        if dandelion_results:
-            self.dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
+                self.fresh_dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
 
     def call_dandelion_on_article_title(self):
-        if self.dandelion_has_been_collected:
-            dandelion_results = self.dandelion_lookup.dandelion_raw_article_title  # this one is JSON already
-        else:
-            dandelion_results = call_dandelion(self.article_title)
-        self.dandelion_title_annotation_list = AnnotationList(dandelion_results)
+        if not self.dandelion_has_been_collected:
+            if self.article_title:
+                dandelion_results = call_dandelion(self.article_title)
+                self.fresh_dandelion_article_annotation_list = AnnotationList(dandelion_results)
 
     @property
     def annotations_for_pictures(self):
@@ -346,7 +361,7 @@ class Pub(db.Model):
     def title_annotations_dict(self, full=True):
         response = []
         if full:
-            if hasattr(self, "dandelion_title_annotation_list") and self.dandelion_title_annotation_list:
+            if self.dandelion_title_annotation_list:
                 response = self.dandelion_title_annotation_list.to_dict_simple()
         return response
 
