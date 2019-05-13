@@ -293,7 +293,6 @@ class Annotation(object):
                 response[key] = raw_annotation[key]
 
         response["image_url"] = self.image_url
-        response["url"] = self.image_url  # this is where it is expected for the picture
         # response["picture_score"] = self.picture_score
         # response["raw_top_entity_score"] = self.top_entity_score
         # if hasattr(self, "attribution_distribution"):
