@@ -26,6 +26,7 @@ from search import autocomplete_entity_titles
 from search import get_cached_api_response
 from query_stopwords import get_entities_from_query
 from notifications import notification_signup
+from history import log_query
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
@@ -151,14 +152,21 @@ def get_pub_by_pmid(my_pmid):
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
+    start_time = time()
+
     query = query.replace(u"_", u" ")
+    if request.headers.getlist("X-Forwarded-For"):
+        ip = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        ip = request.remote_addr
+
+    log_query(query, ip)
 
     no_live_calls = request.args.get("no-live-calls", "")
     return_full_api_response = True
     if request.args.get("minimum", ""):
         return_full_api_response = False
 
-    start_time = time()
     query_entities = get_entities_from_query(query)
     print "query_entities", query_entities
     getting_entity_lookup_elapsed = elapsed(start_time, 3)
