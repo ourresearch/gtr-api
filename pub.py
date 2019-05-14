@@ -352,7 +352,7 @@ class Pub(db.Model):
                         if anno.confidence >= 0.65:
                             if anno.start >= section["original_start"] and anno.end <= section["original_end"]:
                                 my_anno_dict = anno.to_dict_simple()
-                                my_anno_dict["start"] -= section["original_start"] - 2
+                                my_anno_dict["start"] -= section["original_start"] - 1
                                 my_anno_dict["end"] -= section["original_start"] - 1
                                 section["annotations"] += [my_anno_dict]
 
