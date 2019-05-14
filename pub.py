@@ -340,8 +340,8 @@ class Pub(db.Model):
             summary_text = summary_text.strip()
 
             sections = [
-                {"text": background_text, "heading": "BACKGROUND", "section_split_source": "automated", "summary": False, "original_start":0, "original_end":len(background_text)},
-                {"text": summary_text, "heading": "SUMMARY", "section_split_source": "automated", "summary": True, "original_start":len(background_text)+2, "original_end":len(self.abstract_text)}
+                {"text": background_text, "heading": "BACKGROUND", "section_split_source": "automated", "summary": False, "original_start":1, "original_end":len(background_text)},
+                {"text": summary_text, "heading": "SUMMARY", "section_split_source": "automated", "summary": True, "original_start":len(background_text)+1, "original_end":len(self.abstract_text)}
             ]
 
         if full:
