@@ -23,15 +23,15 @@ from views import get_search_query
 
 
 def cache_api_response(my_saved_object):
-
     url = "https://gtr-api.herokuapp.com/search/{}".format(my_saved_object.entity_title)
     r = requests.get(url)
+    my_saved_object.api_response = r.json()
 
-    api_response_data = r.json()
+    url = "https://gtr-api.herokuapp.com/search/{}?oa=true".format(my_saved_object.entity_title)
+    r = requests.get(url)
+    my_saved_object.api_response_oa_only = r.json()
 
-    my_saved_object.api_response = api_response_data
     my_saved_object.collected = datetime.datetime.utcnow()
-
     db.session.merge(my_saved_object)
     safe_commit(db)
     print ".",

@@ -15,6 +15,7 @@ class CachedEntityResponse(db.Model):
     entity_title = db.Column(db.Text, primary_key=True)
     collected = db.Column(db.DateTime)
     api_response = db.Column(JSONB)
+    api_response_oa_only = db.Column(JSONB)
 
 
 def get_synonym(original_query):
