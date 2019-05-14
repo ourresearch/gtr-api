@@ -151,9 +151,7 @@ should
 now""".split("\n")
 
 # removed
-""
-of  #quality of life is good
-""
+# of  #quality of life is good
 
 def get_entities_from_query(query):
 
