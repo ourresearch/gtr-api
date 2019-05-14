@@ -1,5 +1,6 @@
 from sqlalchemy import sql
 from sqlalchemy import orm
+from sqlalchemy.dialects.postgresql import JSONB
 from time import time
 import requests
 import re
@@ -7,6 +8,14 @@ import re
 from app import db
 from pub import Pub
 from util import elapsed
+
+
+class CachedEntityResponse(db.Model):
+    __tablename__ = "cached_entity_response"
+    entity_title = db.Column(db.Text, primary_key=True)
+    collected = db.Column(db.DateTime)
+    api_response = db.Column(JSONB)
+
 
 def get_synonym(original_query):
     clean_query = original_query.replace("'", "")
