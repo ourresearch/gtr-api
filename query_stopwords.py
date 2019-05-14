@@ -14,6 +14,13 @@ from search import autocomplete_entity_titles
 stop_words = """
 cause
 caused
+good
+benefit
+take
+harm
+healthy
+help
+evidence
 i
 me
 my
