@@ -25,10 +25,14 @@ from views import get_search_query
 def cache_api_response(my_saved_object):
     url = "https://gtr-api.herokuapp.com/search/{}".format(my_saved_object.entity_title)
     r = requests.get(url)
+    print r
+    print url
     my_saved_object.api_response = r.json()
 
     url = "https://gtr-api.herokuapp.com/search/{}?oa=true".format(my_saved_object.entity_title)
     r = requests.get(url)
+    print r
+    print url
     my_saved_object.api_response_oa_only = r.json()
 
     my_saved_object.collected = datetime.datetime.utcnow()
@@ -62,7 +66,7 @@ if __name__ == "__main__":
                 db.session.add(my_saved_object)
                 my_saved_objects.append(my_saved_object)
 
-            use_threads = True  # useful to turn off pooling to help debugging
+            use_threads = False  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(5)
             if use_threads:
                 results = my_thread_pool.imap_unordered(cache_api_response, my_saved_objects)

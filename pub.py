@@ -231,7 +231,8 @@ class Pub(db.Model):
     @property
     def display_published_date(self):
         if self.doi_lookup:
-            return self.doi_lookup.published_date.isoformat()[0:10]
+            if self.doi_lookup.published_date:
+                return self.doi_lookup.published_date.isoformat()[0:10]
         return None
 
     @property
