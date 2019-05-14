@@ -214,11 +214,15 @@ def get_search_query(query):
     to_dict_start_time = time()
     results = my_pub_list.to_dict_serp_list(full=return_full_api_response)
 
+    if entity:
+        entity_list = [entity, "editorial content"]
+    else:
+        entity_list = ["review"]
     response = {"results": results,
                     "page": page,
                     "oa_only": oa_only,
                     "total_num_pubs": len(pubs_to_sort),
-                    "query_entity": entity
+                    "query_entities": entity_list
                     }
     if return_full_api_response:
         response["annotations"] = my_pub_list.to_dict_annotation_metadata()
