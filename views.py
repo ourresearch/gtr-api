@@ -195,7 +195,7 @@ def get_search_query(query):
 
     if query_entities and len(query_entities)==1:
         cached_response = get_cached_api_response(query_entities[0], oa_only)
-        if cached_response:
+        if cached_response and cached_response[0]:
             cached_response = cached_response[0]
             total_time = elapsed(start_time, 3)
             cached_response["_from_cache"] = True
