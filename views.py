@@ -24,6 +24,7 @@ from search import fulltext_search_title
 from search import get_synonym
 from search import get_nerd_term_lookup
 from annotation import annotation_file_contents
+from search import autcomplete_entity_titles
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
@@ -241,6 +242,15 @@ def get_autocomplete_entity_titles(query):
                     "_timing": {"total": total_time}
                     })
 
+
+@app.route("/notifications/signup", methods=["POST"])
+def notifications_signup_post():
+    body = request.json
+    if not body:
+        abort_json(422, "missing arguments")
+    email = body["email"]
+    query = body["query"]
+    return jsonify({"response": "success", "email": email, "query": query})
 
 
 
