@@ -25,24 +25,6 @@ def get_cached_api_response(entity_title, oa_only):
     return my_entity
 
 
-
-def get_nerd_term_lookup(original_query):
-    if not original_query:
-        return
-
-    clean_query = original_query.replace("'", "")
-    url = u"http://nerd.huma-num.fr/nerd/service/kb/term/{}?lang=en".format(clean_query.title())
-    r = requests.get(url)
-    try:
-        response_data = r.json()
-        if not response_data.get("senses"):
-            response_data = None
-    except (ValueError, AttributeError):
-        response_data = None
-
-    return response_data
-
-
 def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     start_time = time()
@@ -164,13 +146,13 @@ def autocomplete_entity_titles(original_query):
     query_string = u"""
         select entity_title, sum_num_events, num_papers
         from search_autocomplete_dandelion_mv
-        where entity_title ilike '{original_query}%'
+        where entity_title ilike :ilike_query
         and num_papers >= 25
         order by sum_num_events desc
         limit 10
         """.format(original_query=original_query)
     # print query_string
-    rows = db.engine.execute(sql.text(query_string)).fetchall()
+    rows = db.engine.execute(sql.text(query_string), ilike_query=u"{}%".format(original_query)).fetchall()
     print "done getting query"
 
     # print rows
