@@ -181,10 +181,10 @@ def get_search_query(query):
     except:
         oa_only = False
 
-    (my_pubs, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only, full=return_full_api_response)
+    (pubs_to_sort, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only, full=return_full_api_response)
 
     initializing_publist_start_time = time()
-    sorted_pubs = sorted(my_pubs, key=lambda k: k.adjusted_score, reverse=True)
+    sorted_pubs = sorted(pubs_to_sort, key=lambda k: k.adjusted_score, reverse=True)
     selected_pubs = sorted_pubs[(pagesize * (page-1)):(pagesize * page)]
 
     selected_pubs_full = db.session.query(Pub).filter(Pub.pmid.in_([p.pmid for p in selected_pubs])).options(orm.undefer_group('full')).all()
@@ -206,6 +206,7 @@ def get_search_query(query):
     response = {"results": results,
                     "page": page,
                     "oa_only": oa_only,
+                    "total_num_pubs": len(pubs_to_sort),
                     "query_entity": entity
                     }
     if return_full_api_response:
