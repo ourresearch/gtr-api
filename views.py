@@ -25,6 +25,7 @@ from annotation import annotation_file_contents
 from search import autocomplete_entity_titles
 from search import get_cached_api_response
 from query_stopwords import get_entities_from_query
+from notifications import notification_signup
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
@@ -261,11 +262,16 @@ def get_autocomplete_entity_titles(query):
 # to test
 # curl -H "Content-Type: application/json" --data '{"email":"hpiwowar@gmail.com","query":"frogs"}'  http://localhost:5000/notifications/signup
 
+
 @app.route("/notifications/signup", methods=["POST"])
 def notifications_signup_post():
     post_data = request.get_json()
     if not post_data or "email" not in post_data or "query" not in post_data:
         abort_json(422, "missing arguments")
+    print u"signing {} up for alerts for >>>{}<<<".format(post_data["email"], post_data["query"])
+
+    notification_signup(post_data["email"], post_data["query"])
+
     return jsonify({"response": "success", "email": post_data["email"], "query": post_data["query"]})
 
 
