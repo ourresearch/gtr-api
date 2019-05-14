@@ -246,9 +246,10 @@ def get_autocomplete_entity_titles(query):
 
 @app.route("/notifications/signup", methods=["POST"])
 def notifications_signup_post():
-    if not request.form or "email" not in request.form or "query" not in request.form:
+    post_data = request.get_json()
+    if not post_data or "email" not in post_data or "query" not in post_data:
         abort_json(422, "missing arguments")
-    return jsonify({"response": "success", "email": request.form["email"], "query": request.form["query"]})
+    return jsonify({"response": "success", "email": post_data["email"], "query": post_data["query"]})
 
 
 
