@@ -422,7 +422,7 @@ class Pub(db.Model):
         cursor = 0
         for section in all_sections:
             cursor += len(section["heading"])
-            cursor += 2
+            cursor += 1
             # don't include heading in what can be annotated
             section["original_start"] = cursor
             cursor += len(section["text"])
