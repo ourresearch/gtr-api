@@ -5,6 +5,7 @@ from collections import Counter
 from collections import defaultdict
 
 from annotation_list import AnnotationList
+from annotation import build_evidence_level_annotations
 
 # approach from https://stackoverflow.com/a/21130146/596939
 def multi_run_wrapper(args):
@@ -107,6 +108,8 @@ class PubList(object):
             if my_pub.dandelion_abstract_annotation_list:
                 for anno in my_pub.dandelion_abstract_annotation_list.list():
                     all_annotation_objects[anno.title] = anno
+
+        all_annotation_objects.update(build_evidence_level_annotations())
 
         response = {}
         for (anno_title, anno) in all_annotation_objects.items():

@@ -29,7 +29,6 @@ from util import clean_doi
 from util import get_sql_answers
 from util import str_to_bool
 from util import clean_doi
-from autocomplete_data import entities_for_autocomplete
 
 
 # try it at https://api.paperbuzz.org/v0/doi/10.1371/journal.pone.0000308
@@ -233,8 +232,8 @@ def get_autocomplete_entity_titles(query):
 
     start_time = time()
 
-    results = [a for a in entities_for_autocomplete if a.lower().startswith(query.lower())][0:8]
-    # results = autcomplete_entity_titles(query)
+    # results = [a for a in entities_for_autocomplete if a.lower().startswith(query.lower())][0:8]
+    results = autcomplete_entity_titles(query)
 
     total_time = elapsed(start_time, 4)
 
