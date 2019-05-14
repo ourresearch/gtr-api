@@ -25,6 +25,7 @@ from search import get_synonym
 from search import get_nerd_term_lookup
 from annotation import annotation_file_contents
 from search import autcomplete_entity_titles
+from search import get_cached_api_response
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
@@ -181,6 +182,16 @@ def get_search_query(query):
     except:
         oa_only = False
 
+    if entity:
+        cached_response = get_cached_api_response(entity, oa_only)
+        if cached_response:
+            cached_response = cached_response[0]
+            total_time = elapsed(start_time, 3)
+            cached_response["_from_cache"] = True
+            cached_response["_timing"] = {"total": total_time}
+            print "got response!!!"
+            return jsonify(cached_response)
+
     (pubs_to_sort, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only, full=return_full_api_response)
 
     initializing_publist_start_time = time()
@@ -243,6 +254,9 @@ def get_autocomplete_entity_titles(query):
                     "_timing": {"total": total_time}
                     })
 
+
+# to test
+# curl -H "Content-Type: application/json" --data '{"email":"hpiwowar@gmail.com","query":"frogs"}'  http://localhost:5000/notifications/signup
 
 @app.route("/notifications/signup", methods=["POST"])
 def notifications_signup_post():

@@ -17,6 +17,12 @@ class CachedEntityResponse(db.Model):
     api_response = db.Column(JSONB)
     api_response_oa_only = db.Column(JSONB)
 
+def get_cached_api_response(entity_title, oa_only):
+    if oa_only:
+        my_entity = db.session.query(CachedEntityResponse.api_response_oa_only).filter(CachedEntityResponse.entity_title==entity_title).first()
+    else:
+        my_entity = db.session.query(CachedEntityResponse.api_response).filter(CachedEntityResponse.entity_title==entity_title).first()
+    return my_entity
 
 def get_synonym(original_query):
     clean_query = original_query.replace("'", "")
