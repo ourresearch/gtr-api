@@ -6,15 +6,16 @@ class AnnotationList(object):
         self.dandelion_raw_list = dandelion_raw_list
         self.good_annotations = []
 
-        for annotation_dict in self.dandelion_raw_list.get("annotations", []):
-            my_annotation = Annotation(annotation_dict)
+        if self.dandelion_raw_list:
+            for annotation_dict in self.dandelion_raw_list.get("annotations", []):
+                my_annotation = Annotation(annotation_dict)
 
-            if not my_annotation.suppress:
-                for top_entity in self.dandelion_raw_list.get("topEntities", []):
-                    if my_annotation.uri == top_entity["uri"]:
-                        my_annotation.is_top_entity = True
-                        my_annotation.top_entity_score = top_entity["score"]
-                self.good_annotations.append(my_annotation)
+                if not my_annotation.suppress:
+                    for top_entity in self.dandelion_raw_list.get("topEntities", []):
+                        if my_annotation.uri == top_entity["uri"]:
+                            my_annotation.is_top_entity = True
+                            my_annotation.top_entity_score = top_entity["score"]
+                    self.good_annotations.append(my_annotation)
 
     @property
     def raw_annotations(self):
