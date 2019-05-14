@@ -133,10 +133,16 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
 
     if full:
         my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.undefer_group('full')).all()
+        # my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
+        #     options(orm.raiseload(Pub.authors)).\
+        #     options(orm.raiseload(Pub.dandelion_lookup)).\
+        #     options(orm.raiseload(Pub.doi_lookup)).\
+        #     all()
     else:
         my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
             options(orm.raiseload(Pub.authors)).\
             options(orm.raiseload(Pub.dandelion_lookup)).\
+            options(orm.raiseload(Pub.doi_lookup)).\
             all()
 
     print "done query for my_pubs"

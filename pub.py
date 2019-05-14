@@ -18,6 +18,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import deferred
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import column_property
+from collections import OrderedDict
 
 from app import db
 from annotation_list import AnnotationList
@@ -303,6 +304,8 @@ class Pub(db.Model):
         try:
             topic_annotation_objects = sorted(self.dandelion_title_annotation_list.list(), key=lambda x: x.topic_score, reverse=True)
             response = [a.title for a in topic_annotation_objects]
+            # get rid of dups, but keep order
+            response = list(OrderedDict.fromkeys(response))
         except:
             response = []
         return response
@@ -345,7 +348,7 @@ class Pub(db.Model):
         if full:
             for section in sections:
                 section["annotations"] = []
-                if hasattr(self, "dandelion_abstract_annotation_list"):
+                if self.dandelion_abstract_annotation_list:
                     for anno in self.dandelion_abstract_annotation_list.list():
                         if anno.confidence >= 0.65:
                             if anno.start >= section["original_start"] and anno.end <= section["original_end"]:

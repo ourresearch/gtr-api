@@ -122,7 +122,9 @@ def get_pub_by_doi(my_doi):
         abort_json(404, u"'{}' is an invalid doi.  See https://doi.org/{}".format(my_clean_doi, my_clean_doi))
 
     my_pub_list = PubList(pubs=[my_pub])
-
+    my_pub_list.set_dandelions()
+    my_pub_list.set_pictures()
+    results = my_pub_list.to_dict_serp_list()
     return jsonify({"results": my_pub_list.to_dict_serp_list(),
                     "annotations": my_pub_list.to_dict_annotation_metadata(),
                     })
@@ -137,8 +139,10 @@ def get_pub_by_pmid(my_pmid):
         abort_json(404, u"'{}' is not a pmid in our database")
 
     my_pub_list = PubList(pubs=[my_pub])
-
-    return jsonify({"results": my_pub_list.to_dict_serp_list(),
+    my_pub_list.set_dandelions()
+    my_pub_list.set_pictures()
+    results = my_pub_list.to_dict_serp_list()
+    return jsonify({"results": results,
                     "annotations": my_pub_list.to_dict_annotation_metadata(),
                     })
 
