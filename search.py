@@ -24,27 +24,7 @@ def get_cached_api_response(entity_title, oa_only):
         my_entity = db.session.query(CachedEntityResponse.api_response).filter(CachedEntityResponse.entity_title==entity_title).first()
     return my_entity
 
-def get_synonym(original_query):
-    clean_query = original_query.replace("'", "")
-    # url = "http://wikisynonyms.ipeirotis.com/api/{}".format(clean_query.title())
 
-    # try https://en.wikipedia.org/w/api.php?action=query&format=json&titles=diabetes&redirects=
-    url = u"https://en.wikipedia.org/w/api.php?action=query&format=json&titles={}&redirects=".format(clean_query.title())
-    headers = {"User-Agent": "team@impactstory.org"}
-
-    r = requests.get(url, headers=headers)
-    if r and r.status_code == 200:
-        data = r.json()
-        if "query" in data and "pages" in data["query"]:
-            page = data["query"]["pages"].values()[0]
-            synonym = page["title"]
-            return synonym
-        # if "terms" in data:
-        #     best_term = data["terms"][0]
-        #     if best_term["canonical"] == 1:
-        #         synonym = best_term["term"]
-        #         return synonym
-    return None
 
 def get_nerd_term_lookup(original_query):
     if not original_query:
@@ -63,7 +43,7 @@ def get_nerd_term_lookup(original_query):
     return response_data
 
 
-def fulltext_search_title(original_query, synonym, oa_only, full=True):
+def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     start_time = time()
 
@@ -90,17 +70,17 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
         rows = db.engine.execute(sql.text(query_string), from_date=from_date, to_date=to_date).fetchall()
         print "done getting query"
 
-    elif synonym:
-        print u"have synonym"
+    elif query_entities and len(query_entities)==1:
+        print u"have query_entities"
         query_string = u"""
             select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank, doi, title, is_oa, num_events 
             from search_title_dandelion_mv
-            where title=:synonym 
+            where title=:query_entity 
             and num_events >= 3
             {oa_clause}
             order by num_events desc 
             limit 100""".format(oa_clause=oa_clause)
-        rows = db.engine.execute(sql.text(query_string), synonym=synonym).fetchall()
+        rows = db.engine.execute(sql.text(query_string), query_entity=query_entities[0]).fetchall()
         print "done getting query"
 
     if rows:
@@ -114,10 +94,13 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
         original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
         query_to_use = u"({})".format(original_query_with_ands)
 
-        if synonym:
-            synonym_escaped = synonym.replace("'", "''")
-            synonym_with_ands = ' & '.join(synonym_escaped.split(" "))
-            query_to_use += u" | ({})".format(synonym_with_ands)
+        if query_entities:
+            entities_escaped = []
+            for query_entity in query_entities:
+                entity_escaped = query_entity.replace("'", "''")
+                entities_escaped += entity_escaped.split(" ")
+            entity_with_ands = u' & '.join(entities_escaped)
+            query_to_use += u" | ({})".format(entity_with_ands)
 
         print u"starting query for {}".format(query_to_use)
 
@@ -176,7 +159,7 @@ def fulltext_search_title(original_query, synonym, oa_only, full=True):
     return (my_pubs_filtered, time_for_pmids, time_for_pubs)
 
 
-def autcomplete_entity_titles(original_query):
+def autocomplete_entity_titles(original_query):
 
     query_string = u"""
         select entity_title, sum_num_events, num_papers

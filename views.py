@@ -21,11 +21,10 @@ from app import app
 from app import db
 from pub_list import PubList
 from search import fulltext_search_title
-from search import get_synonym
-from search import get_nerd_term_lookup
 from annotation import annotation_file_contents
-from search import autcomplete_entity_titles
+from search import autocomplete_entity_titles
 from search import get_cached_api_response
+from query_stopwords import get_entities_from_query
 from util import elapsed
 from util import clean_doi
 from util import get_sql_answers
@@ -151,13 +150,16 @@ def get_pub_by_pmid(my_pmid):
 @app.route("/search/<path:query>", methods=["GET"])
 def get_search_query(query):
 
+    query = query.replace(u"_", u" ")
+
     no_live_calls = request.args.get("no-live-calls", "")
     return_full_api_response = True
     if request.args.get("minimum", ""):
         return_full_api_response = False
 
     start_time = time()
-    entity = get_synonym(query)
+    query_entities = get_entities_from_query(query)
+    print "query_entities", query_entities
     getting_entity_lookup_elapsed = elapsed(start_time, 3)
 
     # page starts at 1 not 0
@@ -182,8 +184,8 @@ def get_search_query(query):
     except:
         oa_only = False
 
-    if entity:
-        cached_response = get_cached_api_response(entity, oa_only)
+    if query_entities and len(query_entities)==1:
+        cached_response = get_cached_api_response(query_entities[0], oa_only)
         if cached_response:
             cached_response = cached_response[0]
             total_time = elapsed(start_time, 3)
@@ -192,7 +194,7 @@ def get_search_query(query):
             print "got response!!!"
             return jsonify(cached_response)
 
-    (pubs_to_sort, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, entity, oa_only, full=return_full_api_response)
+    (pubs_to_sort, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, query_entities, oa_only, full=return_full_api_response)
 
     initializing_publist_start_time = time()
     sorted_pubs = sorted(pubs_to_sort, key=lambda k: k.adjusted_score, reverse=True)
@@ -214,15 +216,12 @@ def get_search_query(query):
     to_dict_start_time = time()
     results = my_pub_list.to_dict_serp_list(full=return_full_api_response)
 
-    if entity:
-        entity_list = [entity, "editorial content"]
-    else:
-        entity_list = ["review"]
+
     response = {"results": results,
                     "page": page,
                     "oa_only": oa_only,
                     "total_num_pubs": len(pubs_to_sort),
-                    "query_entities": entity_list
+                    "query_entities": query_entities
                     }
     if return_full_api_response:
         response["annotations"] = my_pub_list.to_dict_annotation_metadata()
@@ -250,7 +249,7 @@ def get_autocomplete_entity_titles(query):
     start_time = time()
 
     # results = [a for a in entities_for_autocomplete if a.lower().startswith(query.lower())][0:8]
-    results = autcomplete_entity_titles(query)
+    results = autocomplete_entity_titles(query)
 
     total_time = elapsed(start_time, 4)
 
