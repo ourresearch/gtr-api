@@ -89,20 +89,33 @@ if __name__ == "__main__":
             if rows:
                 pmids = [row[0] for row in rows]
                 for row in rows:
-                    lookup[row[0]] = {"doi": row[1], "num_events": int(row[2])}
+                    lookup[row[0]] = {"doi": row[1], "num_events": int(row[2]), "used": False}
             else:
                 print "no rows without dandelions, so sleeping"
                 sleep(60*60)
 
+            # print pmids
             my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.noload('*')).all()
             my_dandelions = []
             for my_pub in my_pubs:
                 my_dandelion = Dandelion(pmid=my_pub.pmid)
                 my_dandelion.doi = lookup[my_pub.pmid]["doi"]
                 my_dandelion.num_events = lookup[my_pub.pmid]["num_events"]
+                lookup[my_pub.pmid]["used"] = True
                 my_dandelion.my_pub = my_pub
                 db.session.add(my_dandelion)
                 my_dandelions.append(my_dandelion)
+            for (pmid, my_dict) in lookup.iteritems():
+                if not my_dict["used"]:
+                    print "#",
+                    my_dandelion = Dandelion(pmid=pmid)
+                    my_dandelion.doi = my_dict["doi"]
+                    my_dandelion.num_events = my_dict["num_events"]
+                    db.session.add(my_dandelion)
+                    # but don't append it; it doesn't need to get run
+
+            safe_commit(db)
+
 
             use_threads = True  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(50)
