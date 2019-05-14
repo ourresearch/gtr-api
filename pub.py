@@ -419,7 +419,7 @@ class Pub(db.Model):
                     "text": match[1]
                 })
 
-        cursor = -3
+        cursor = 1
         for section in all_sections:
             cursor += len(section["heading"])
             cursor += 2
