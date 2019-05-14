@@ -84,24 +84,27 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             entity_with_ands = u' & '.join(entities_escaped)
             query_to_use += u" | ({})".format(entity_with_ands)
 
+        # get ride of bad characters
+        query_to_use = query_to_use.replace("!", "")
+
         print u"starting query for {}".format(query_to_use)
 
         query_string = u"""
             select
             pmid, 
-            (ts_rank_cd(to_tsvector('english', article_title), to_tsquery('{q}'), 1) + 0.05*COALESCE(num_events,0.0)) AS rank,
+            (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank,
             article_title,
             num_events
             FROM search_titles_mv
             WHERE  
-            to_tsvector('english', article_title) @@  to_tsquery('{q}')
+            to_tsvector('english', article_title) @@  to_tsquery(:query)
             and doi is not null 
             {oa_clause}
             order by rank desc
             limit 100;
-            """.format(q=query_to_use, oa_clause=oa_clause)
+            """.format(oa_clause=oa_clause)
         # print query_string
-        rows = db.engine.execute(sql.text(query_string)).fetchall()
+        rows = db.engine.execute(sql.text(query_string), query=query_to_use).fetchall()
         print "done getting query"
 
         # print rows
