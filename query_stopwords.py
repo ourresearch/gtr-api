@@ -155,9 +155,12 @@ now""".split("\n")
 
 def get_entities_from_query(query):
 
+    query_lower = query.lower()
+
     autocompletes = [a.lower() for a in autocomplete_entity_titles(query)]
-    if query.lower() in autocompletes:
-        return [query]
+    for a in autocomplete_entity_titles(query):
+        if a.lower() == query_lower:
+            return [a]
 
     api_key = os.getenv("DANDELION_API_KEY_QUERY_PARSING")
 
