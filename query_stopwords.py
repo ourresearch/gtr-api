@@ -21,6 +21,8 @@ harm
 healthy
 help
 evidence
+best
+worst
 i
 me
 my
@@ -85,7 +87,6 @@ because
 as
 until
 while
-of
 at
 by
 for
@@ -149,6 +150,10 @@ don
 should
 now""".split("\n")
 
+# removed
+""
+of  #quality of life is good
+""
 
 def get_entities_from_query(query):
 
