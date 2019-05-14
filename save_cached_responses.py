@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 my_saved_objects.append(my_saved_object)
 
             use_threads = True  # useful to turn off pooling to help debugging
-            my_thread_pool = ThreadPool(10)
+            my_thread_pool = ThreadPool(20)
             if use_threads:
                 results = my_thread_pool.imap_unordered(cache_api_response, my_saved_objects)
                 my_thread_pool.close()
