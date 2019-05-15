@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     if __name__ == '__main__':
         while True:
-            query = """select search_titles_mv.pmid, doi, num_events from search_titles_mv 
+            query = u"""select search_titles_mv.pmid, doi, num_events from search_titles_mv 
                 where search_titles_mv.pmid not in (select pmid from dandelion_by_doi) 
                 and num_events is not null 
                 and num_events >= 1
