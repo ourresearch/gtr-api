@@ -163,57 +163,59 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     time_for_pubs_start_time = time()
 
-    if full:
-        query_string = u"""
-            select pmid,
-                doi,
-                article_title,
-                journal_title,
-                pub_types,
-                abstract_length,
-                is_oa,
-                num_events,
-                num_news_events,
-                (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
-                from sort_results_mv
-                where pmid in ({pmids_string})
-            """.format(pmids_string=u",".join([str(p) for p in pmids]))
-        # print query_string
-        rows = db.engine.execute(sql.text(query_string), query=query_to_use, pmids=pmids).fetchall()
-        print "done getting sort data"
-        # print rows
+    my_pubs_filtered = []
+    if pmids:
+        if full:
+            query_string = u"""
+                select pmid,
+                    doi,
+                    article_title,
+                    journal_title,
+                    pub_types,
+                    abstract_length,
+                    is_oa,
+                    num_events,
+                    num_news_events,
+                    (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
+                    from sort_results_mv
+                    where pmid in ({pmids_string})
+                """.format(pmids_string=u",".join([str(p) for p in pmids]))
+            # print query_string
+            rows = db.engine.execute(sql.text(query_string), query=query_to_use, pmids=pmids).fetchall()
+            print "done getting sort data"
+            # print rows
 
-        # print rows
-        my_pubs_filtered = []
-        for row in rows:
-            my_dict = {
-                "pmid": row[0],
-                "doi": row[1],
-                "article_title": row[2],
-                "journal_title": row[3],
-                "pub_types": row[4],
-                "abstract_length": row[5],
-                "is_oa": row[6],
-                "num_events": row[7],
-                "num_news_events": row[8],
-                "score": row[9]
-                 }
-            my_dict["adjusted_score"] = adjusted_score(my_dict)
-            my_pubs_filtered.append(my_dict)
+            # print rows
+            my_pubs_filtered = []
+            for row in rows:
+                my_dict = {
+                    "pmid": row[0],
+                    "doi": row[1],
+                    "article_title": row[2],
+                    "journal_title": row[3],
+                    "pub_types": row[4],
+                    "abstract_length": row[5],
+                    "is_oa": row[6],
+                    "num_events": row[7],
+                    "num_news_events": row[8],
+                    "score": row[9]
+                     }
+                my_dict["adjusted_score"] = adjusted_score(my_dict)
+                my_pubs_filtered.append(my_dict)
 
-        # my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.undefer_group('full')).all()
-        # my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
-        #     options(orm.raiseload(Pub.authors)).\
-        #     options(orm.raiseload(Pub.dandelion_lookup)).\
-        #     options(orm.raiseload(Pub.doi_lookup)).\
-        #     all()
-    else:
-        my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
-            options(orm.raiseload(Pub.authors)).\
-            options(orm.raiseload(Pub.dandelion_lookup)).\
-            options(orm.raiseload(Pub.doi_lookup)).\
-            all()
-        my_pubs_filtered = [p for p in my_pubs if not p.suppress]
+            # my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.undefer_group('full')).all()
+            # my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
+            #     options(orm.raiseload(Pub.authors)).\
+            #     options(orm.raiseload(Pub.dandelion_lookup)).\
+            #     options(orm.raiseload(Pub.doi_lookup)).\
+            #     all()
+        else:
+            my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
+                options(orm.raiseload(Pub.authors)).\
+                options(orm.raiseload(Pub.dandelion_lookup)).\
+                options(orm.raiseload(Pub.doi_lookup)).\
+                all()
+            my_pubs_filtered = [p for p in my_pubs if not p.suppress]
 
     print "done query for my_pubs"
 
