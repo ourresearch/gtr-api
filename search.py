@@ -100,6 +100,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         query_entity = query_entities[0]
         query_entity = query_entity.replace("(", " ")
         query_entity = query_entity.replace(")", " ")
+        query_entity = query_entity.replace("&", " ")
         print u"have query_entities"
         query_string = u"""
             select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank, doi, title, is_oa, num_events 
@@ -111,7 +112,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             limit 100""".format(oa_clause=oa_clause)
         rows = db.engine.execute(sql.text(query_string), query_entity=query_entity).fetchall()
         print "done getting query here"
-        original_query_escaped = query_entities[0].replace("'", "''")
+        original_query_escaped = query_entity.replace("'", "''")
         original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
         query_to_use = u"({})".format(original_query_with_ands)
 
@@ -124,15 +125,17 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         # need to do the full search
         print "in fulltext_search_title"
         original_query_escaped = original_query.replace("'", "''")
-        original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
+        original_query_escaped = original_query_escaped.replace("&", "")
+        original_query_with_ands = ' & '.join([w for w in original_query_escaped.split(" ") if w and w != " "])
         query_to_use = u"({})".format(original_query_with_ands)
 
         if query_entities:
             entities_escaped = []
             for query_entity in query_entities:
                 entity_escaped = query_entity.replace("'", "''")
+                entity_escaped = entity_escaped.replace("&", "")
                 entities_escaped += entity_escaped.split(" ")
-            entity_with_ands = u' & '.join(entities_escaped)
+            entity_with_ands = u' & '.join([w for w in entity_escaped.split(" ") if w and w != " "])
             query_to_use += u" | ({})".format(entity_with_ands)
 
         # get ride of bad characters
