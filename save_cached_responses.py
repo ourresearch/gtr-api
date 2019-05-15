@@ -62,9 +62,12 @@ if __name__ == "__main__":
 
             my_saved_objects = []
             for entity_title in entity_titles:
-                my_saved_object = CachedEntityResponse(entity_title=entity_title)
-                db.session.add(my_saved_object)
-                my_saved_objects.append(my_saved_object)
+
+                ### next line is a hack around a bug!
+                if not "-" in entity_title:
+                    my_saved_object = CachedEntityResponse(entity_title=entity_title)
+                    db.session.add(my_saved_object)
+                    my_saved_objects.append(my_saved_object)
 
             use_threads = True  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(20)
