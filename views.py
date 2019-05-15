@@ -160,7 +160,8 @@ def get_search_query(query):
     else:
         ip = request.remote_addr
 
-    log_query(query, ip)
+    if not request.args.get("automated", None):
+        log_query(query, ip)
 
     no_live_calls = request.args.get("no-live-calls", "")
     return_full_api_response = True
