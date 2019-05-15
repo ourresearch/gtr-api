@@ -69,7 +69,9 @@ def get_cached_api_response(entity_title, oa_only):
 def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     start_time = time()
-    query_to_use = original_query
+    original_query_escaped = original_query.replace("'", "''")
+    original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
+    query_to_use = u"({})".format(original_query_with_ands)
 
     if oa_only:
         oa_clause = u" and is_oa=True "
@@ -106,7 +108,10 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             limit 100""".format(oa_clause=oa_clause)
         rows = db.engine.execute(sql.text(query_string), query_entity=query_entities[0]).fetchall()
         print "done getting query"
-        query_to_use = query_entities[0]
+        original_query_escaped = query_entities[0].replace("'", "''")
+        original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
+        query_to_use = u"({})".format(original_query_with_ands)
+
 
     if rows:
         pmids = [row[0] for row in rows]
