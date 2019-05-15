@@ -123,7 +123,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     if len(pmids) < 25:
         # need to do the full search
-        print "in fulltext_search_title"
+        print "len(pmids) < 25, in fulltext_search_title"
         original_query_escaped = original_query.replace("'", "''")
         original_query_escaped = original_query_escaped.replace("&", "")
         original_query_escaped = original_query_escaped.replace("(", " ")
@@ -134,12 +134,17 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         if query_entities:
             entities_escaped = []
             for query_entity in query_entities:
-                entity_escaped = query_entity.replace("'", "''")
+                print query_entity
+                entity_escaped = query_entity
+                entity_escaped = entity_escaped.replace("'", "''")
                 entity_escaped = entity_escaped.replace("&", "")
                 entity_escaped = entity_escaped.replace("(", "")
                 entity_escaped = entity_escaped.replace(")", "")
-                entities_escaped += entity_escaped.split(" ")
-            entity_with_ands = u' & '.join([w for w in entity_escaped.split(" ") if w and w != " "])
+                entity_escaped = u" & ".join(entity_escaped.split(u" "))
+                entities_escaped += [entity_escaped]
+                print "entities_escaped", entities_escaped
+            entity_with_ands = u' & '.join(entities_escaped)
+            print "entity_with_ands", entity_with_ands
             query_to_use += u" | ({})".format(entity_with_ands)
 
         # get ride of bad characters
