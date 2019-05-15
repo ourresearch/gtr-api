@@ -81,7 +81,7 @@ if __name__ == "__main__":
             query = """select search_titles_mv.pmid, doi, num_events from search_titles_mv 
                 where search_titles_mv.pmid not in (select pmid from dandelion_by_doi) 
                 and num_events is not null 
-                and num_events >= 2
+                and num_events >= 1
                 limit 25 
                 """
             rows = db.engine.execute(sql.text(query)).fetchall()
