@@ -54,6 +54,9 @@ if __name__ == "__main__":
         while True:
             query = """select * from search_autocomplete_dandelion_mv 
                 where entity_title not in (select entity_title from cached_entity_response) 
+        
+                and sum_num_events < 1604
+                
                 order by sum_num_events desc 
                 limit 25
                 """
@@ -63,11 +66,9 @@ if __name__ == "__main__":
             my_saved_objects = []
             for entity_title in entity_titles:
 
-                ### next line is a hack around a bug!
-                if not "-" in entity_title:
-                    my_saved_object = CachedEntityResponse(entity_title=entity_title)
-                    db.session.add(my_saved_object)
-                    my_saved_objects.append(my_saved_object)
+                my_saved_object = CachedEntityResponse(entity_title=entity_title)
+                db.session.add(my_saved_object)
+                my_saved_objects.append(my_saved_object)
 
             use_threads = True  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(20)
