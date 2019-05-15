@@ -206,10 +206,15 @@ def get_search_query(query):
     (pubs_to_sort, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, query_entities, oa_only, full=return_full_api_response)
 
     initializing_publist_start_time = time()
-    sorted_pubs = sorted(pubs_to_sort, key=lambda k: k.adjusted_score, reverse=True)
+    # sorted_pubs = sorted(pubs_to_sort, key=lambda k: k.adjusted_score, reverse=True)
+    # selected_pubs = sorted_pubs[(pagesize * (page-1)):(pagesize * page)]
+    # selected_pmids = [p.pmid for p in selected_pubs]
+    sorted_pubs = sorted(pubs_to_sort, key=lambda k: k["adjusted_score"], reverse=True)
     selected_pubs = sorted_pubs[(pagesize * (page-1)):(pagesize * page)]
+    selected_pmids = [p["pmid"] for p in selected_pubs]
 
-    selected_pubs_full = db.session.query(Pub).filter(Pub.pmid.in_([p.pmid for p in selected_pubs])).options(orm.undefer_group('full')).all()
+    selected_pubs_full = db.session.query(Pub).filter(Pub.pmid.in_(selected_pmids)).options(orm.undefer_group('full')).all()
+    selected_pubs_full = [p for p in selected_pubs_full if not p.suppress]  # get rid of retracted ones
 
     my_pub_list = PubList(pubs=selected_pubs_full)
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
