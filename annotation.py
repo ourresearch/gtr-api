@@ -31,6 +31,7 @@ annotation_blacklist = [
     "E.T._the_Extra-Terrestrial",  # gets tagged for et al 10.1093%2Fpubmed%2Ffdy038
     "IP_address", # gets mixed up with p-hacking 10.7717%2Fpeerj.3068
     "Facial_%28sex_act%29", # gets mixed up with facial 10.1016/j.jad.2007.01.031
+    "Polish_People%27s_Republic", # nazi flag
 ]
 annotation_blacklist = [a.lower() for a in annotation_blacklist]
 
