@@ -55,7 +55,7 @@ if __name__ == "__main__":
             query = """select * from search_autocomplete_dandelion_mv 
                 where entity_title not in (select entity_title from cached_entity_response) 
         
-                and sum_num_events < 1604
+                and sum_num_events < 1500
                 
                 order by sum_num_events desc 
                 limit 25
