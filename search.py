@@ -126,6 +126,8 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         print "in fulltext_search_title"
         original_query_escaped = original_query.replace("'", "''")
         original_query_escaped = original_query_escaped.replace("&", "")
+        original_query_escaped = original_query_escaped.replace("(", " ")
+        original_query_escaped = original_query_escaped.replace(")", " ")
         original_query_with_ands = ' & '.join([w for w in original_query_escaped.split(" ") if w and w != " "])
         query_to_use = u"({})".format(original_query_with_ands)
 
@@ -134,6 +136,8 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             for query_entity in query_entities:
                 entity_escaped = query_entity.replace("'", "''")
                 entity_escaped = entity_escaped.replace("&", "")
+                entity_escaped = entity_escaped.replace("(", "")
+                entity_escaped = entity_escaped.replace(")", "")
                 entities_escaped += entity_escaped.split(" ")
             entity_with_ands = u' & '.join([w for w in entity_escaped.split(" ") if w and w != " "])
             query_to_use += u" | ({})".format(entity_with_ands)
