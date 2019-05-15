@@ -26,13 +26,13 @@ def cache_api_response(my_saved_object):
     entity_term  = my_saved_object.entity_title
     entity_term = entity_term.replace(u" ", u"_")
 
-    url = "https://gtr-api.herokuapp.com/search/{}".format(entity_term)
+    url = u"https://gtr-api.herokuapp.com/search/{}".format(entity_term)
     r = requests.get(url)
     print r
     print url
     my_saved_object.api_response = r.json()
 
-    url = "https://gtr-api.herokuapp.com/search/{}?oa=true".format(entity_term)
+    url = u"https://gtr-api.herokuapp.com/search/{}?oa=true".format(entity_term)
     r = requests.get(url)
     print r
     print url
