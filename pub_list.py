@@ -47,7 +47,7 @@ class PubList(object):
 
         # get annotations distribution, so pubs can use this to boost rare mentions
         annotation_counter = Counter()
-        for my_pub in self.pubs:
+        for my_pub in self.sorted_pubs:
             for annotation in my_pub.annotations_for_pictures:
                 if annotation.image_url:
                     annotation_counter[annotation.image_url] += 1
@@ -59,7 +59,7 @@ class PubList(object):
         except:
             pass
 
-        for my_pub in self.pubs:
+        for my_pub in self.sorted_pubs:
             my_pub.set_annotation_distribution(annotation_counter_normalized)
             reverse_sorted_picture_candidates = sorted(my_pub.annotations_for_pictures, key=lambda x: x.picture_score, reverse=False)
             my_pub.picture_candidates = reverse_sorted_picture_candidates
@@ -74,12 +74,17 @@ class PubList(object):
             if my_pub.image:
                 chosen_image_urls.add(my_pub.image.image_url)
 
+    @property
+    def sorted_pubs(self):
+        sorted_pubs = sorted(self.pubs, key=lambda x: x.score, reverse=True)
+        return sorted_pubs
 
     def to_dict_serp_list(self, full=True):
 
-        response = []
+        sorted_response = []
 
-        for my_pub in self.pubs:
+
+        for my_pub in self.sorted_pubs:
 
             pub_dict = my_pub.to_dict_serp(full)
 
@@ -92,15 +97,15 @@ class PubList(object):
             pub_dict["title_annotations"] = my_pub.title_annotations_dict(full)
             pub_dict["abstract"] = my_pub.abstract_with_annotations_dict(full)
 
-            response.append(pub_dict)
+            sorted_response.append(pub_dict)
 
-        return response
+        return sorted_response
 
 
     def to_dict_annotation_metadata(self):
         all_annotation_objects = {}
 
-        for my_pub in self.pubs:
+        for my_pub in self.sorted_pubs:
             if my_pub.dandelion_title_annotation_list:
                 for anno in my_pub.dandelion_title_annotation_list.list():
                     all_annotation_objects[anno.title] = anno

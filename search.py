@@ -4,17 +4,19 @@ from sqlalchemy.dialects.postgresql import JSONB
 from time import time
 import requests
 import re
+import math
 
 from app import db
 from pub import Pub
+from pub import pub_type_lookup
 from util import elapsed
 
 
 def adjusted_score(my_dict):
-    score = my_dict.get("score", 0)
+    score = math.log10(1 + my_dict.get("score", 0)) * 5
 
     if my_dict["abstract_length"] < 10:
-        score -= 5
+        score -= 10
 
     if my_dict["journal_title"] and "cochrane database" in my_dict["journal_title"].lower():
         score += 10
@@ -23,28 +25,20 @@ def adjusted_score(my_dict):
         score -= 5
 
     if my_dict["num_news_events"]:
-        score += 1
+        score += math.log10(1 + my_dict.get("num_news_events", 0)) * 2
 
     if my_dict["pub_types"]:
         pub_type_pubmed = my_dict["pub_types"]
-        if "Consensus Development Conference" in pub_type_pubmed:
-            score += 7
-        if "Practice Guideline" in pub_type_pubmed:
-            score += 7
-        if "Guideline" in pub_type_pubmed:
-            score += 7
-        if "Review" in pub_type_pubmed:
-            score += 3
-        if "Meta-Analysis" in pub_type_pubmed:
-            score += 3
-        if "Randomized Controlled Trial" in pub_type_pubmed:
+        normalized_evidence_list = [pub_type_lookup[pubmed_label] for pubmed_label in pub_type_pubmed if pubmed_label in pub_type_lookup]
+        categories = list(set([category for (pubmed_label, category, level) in normalized_evidence_list]))
+        max_level_of_evidence = max([level for (pubmed_label, category, level) in normalized_evidence_list] + [-10])
+
+        if max_level_of_evidence > 1:
+            score += max_level_of_evidence * 2
+
+        if "news and interest" in categories:
             score += 2
-        if "Clinical Trial" in pub_type_pubmed:
-            score += 1
-        if "Comparative Study" in pub_type_pubmed:
-            score += 0.5
-        if "Case Reports" in pub_type_pubmed:
-            score += -5
+
         if "English Abstract" in pub_type_pubmed:
             score += -5
 
@@ -94,7 +88,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             order by num_events desc 
             limit 100 """.format(oa_clause=oa_clause)
         rows = db.engine.execute(sql.text(query_string), from_date=from_date, to_date=to_date).fetchall()
-        print "done getting query"
+        print "done getting query getting pmids"
 
     elif query_entities and len(query_entities)==1:
         query_entity = query_entities[0]
@@ -111,7 +105,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             order by num_events desc 
             limit 100""".format(oa_clause=oa_clause)
         rows = db.engine.execute(sql.text(query_string), query_entity=query_entity).fetchall()
-        print "done getting query here"
+        print "done getting query getting pmids"
         original_query_escaped = query_entity.replace("'", "''")
         original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
         query_to_use = u"({})".format(original_query_with_ands)
@@ -168,13 +162,13 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             """.format(oa_clause=oa_clause)
         # print query_string
         rows = db.engine.execute(sql.text(query_string), query=query_to_use).fetchall()
-        print "done getting query"
+        print "done getting query of sort data"
 
         # print rows
         pmids = [row[0] for row in rows]
 
     time_for_pmids = elapsed(start_time, 3)
-    print u"done query for pmids: got {} pmids".format(len(pmids))
+    print u"done query for pmids and sort data: got {} pmids".format(len(pmids))
 
     time_for_pubs_start_time = time()
 
@@ -252,7 +246,7 @@ def autocomplete_entity_titles(original_query):
         """.format(original_query=original_query)
     # print query_string
     rows = db.engine.execute(sql.text(query_string), ilike_query=u"{}%".format(original_query)).fetchall()
-    print "done getting query"
+    print "done getting autocomplete query"
 
     # print rows
     entity_titles = []

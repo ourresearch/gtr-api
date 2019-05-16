@@ -164,6 +164,7 @@ def get_search_query(query):
         log_query(query, ip)
 
     no_live_calls = request.args.get("no-live-calls", "")
+    nocache = request.args.get("nocache", "")
     return_full_api_response = True
     if request.args.get("minimum", ""):
         return_full_api_response = False
@@ -194,15 +195,18 @@ def get_search_query(query):
     except:
         oa_only = False
 
-    if query_entities and len(query_entities)==1 and page==1:
-        cached_response = get_cached_api_response(query_entities[0], oa_only)
-        if cached_response and cached_response[0]:
-            cached_response = cached_response[0]
-            total_time = elapsed(start_time, 3)
-            cached_response["_from_cache"] = True
-            cached_response["_timing"] = {"total": total_time}
-            print "got response!!!"
-            return jsonify(cached_response)
+    if nocache:
+        print u"skipping cache"
+    else:
+        if query_entities and len(query_entities)==1 and page==1:
+            cached_response = get_cached_api_response(query_entities[0], oa_only)
+            if cached_response and cached_response[0]:
+                cached_response = cached_response[0]
+                total_time = elapsed(start_time, 3)
+                cached_response["_from_cache"] = True
+                cached_response["_timing"] = {"total": total_time}
+                print "got response!!!"
+                return jsonify(cached_response)
 
     (pubs_to_sort, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, query_entities, oa_only, full=return_full_api_response)
 
@@ -217,6 +221,8 @@ def get_search_query(query):
 
     selected_pubs_full = db.session.query(Pub).filter(Pub.pmid.in_(selected_pmids)).options(orm.undefer_group('full')).all()
     selected_pubs_full = [p for p in selected_pubs_full if not p.suppress]  # get rid of retracted ones
+    for my_pub in selected_pubs_full:
+        my_pub.adjusted_score = [p["adjusted_score"] for p in sorted_pubs if p["pmid"]==my_pub.pmid][0]
 
     my_pub_list = PubList(pubs=selected_pubs_full)
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)

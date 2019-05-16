@@ -19,12 +19,50 @@ from sqlalchemy.orm import deferred
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import column_property
 from collections import OrderedDict
+from collections import defaultdict
 
 from app import db
 from annotation_list import AnnotationList
 from util import get_sql_answer
 from util import run_sql
 from util import TooManyRequestsException
+
+
+pub_type_data = [
+    ['Meta-Analysis', 'meta-analysis', 5],
+    ['Systematic Review', 'review', 5],
+    ['Practice Guideline', 'guidelines', 5],
+    ['Guideline', 'guidelines', 5],
+    ['Consensus Development Conference', 'review', 5],
+    ['Patient Education Handout', 'guidelines', 5],
+    ['Review', 'review', 4],
+    ['Introductory Journal Article', 'review', 4],
+    ['Randomized Controlled Trial', 'randomized controlled trial', 3.5],
+    ['Clinical Trial', 'clinical trial', 3],
+    ['Controlled Clinical Trial', 'clinical trial', 3],
+    ['Comparative Study', 'research study', 2],
+    ['Evaluation Studies', 'research study', 2],
+    ['Validation Studies', 'research study', 2],
+    ['Observational Study', 'research study', 2],
+    ['Clinical Trial, Phase II', 'clinical trial', 2],
+    ['Clinical Trial, Phase I', 'clinical trial', 2],
+    ['Clinical Trial, Phase III', 'clinical trial', 2],
+    ['Case Reports', 'case study', 1],
+    ['Letter', 'editorial content', 1],
+    ['Comment', 'editorial content', 1],
+    ['Editorial', 'editorial content', 1],
+    ['News', 'news and interest', 1],
+    ['Biography', 'news and interest', 1],
+    ['Published Erratum', 'editorial content', 1],
+    ['Portraits', 'news and interest', 1],
+    ['Interview', 'news and interest', 1],
+    ['Newspaper Article', 'news and interest', 1],
+    ['Retraction of Publication', 'editorial content', 1],
+    ['Portrait', 'news and interest', 1],
+    ['Autobiography', 'news and interest', 1],
+    ['Personal Narratives', 'news and interest', 1],
+    ['Retracted Publication', 'retracted', -1]]
+pub_type_lookup = dict(zip([name for (name, label, val) in pub_type_data], pub_type_data))
 
 
 def call_dandelion(query_text_raw, api_key=None, label_top_entities=True):
@@ -445,84 +483,13 @@ class Pub(db.Model):
         return False
 
     @property
-    def adjusted_score(self):
-        score = getattr(self, "score", 0)
-
-        if self.abstract_length < 10:
-            score -= 5
-
-        if self.journal_title and "cochrane database" in self.journal_title.lower():
-            score += 10
-
-        if not self.paperbuzz:
-            score -= 5
-
-        if self.news_articles:
-            score += 1
-
-        if self.display_pub_types:
-            pub_type_pubmed = [p["pub_type_pubmed"] for p in self.display_pub_types]
-            if "Consensus Development Conference" in pub_type_pubmed:
-                score += 7
-            if "Practice Guideline" in pub_type_pubmed:
-                score += 7
-            if "Guideline" in pub_type_pubmed:
-                score += 7
-            if "Review" in pub_type_pubmed:
-                score += 3
-            if "Meta-Analysis" in pub_type_pubmed:
-                score += 3
-            if "Randomized Controlled Trial" in pub_type_pubmed:
-                score += 2
-            if "Clinical Trial" in pub_type_pubmed:
-                score += 1
-            if "Comparative Study" in pub_type_pubmed:
-                score += 0.5
-            if "Case Reports" in pub_type_pubmed:
-                score += -5
-            if "English Abstract" in pub_type_pubmed:
-                score += -5
-
-        return score
+    def score(self):
+        if hasattr(self, "adjusted_score"):
+            return self.adjusted_score
+        return 0
 
     @property
     def display_pub_types(self):
-
-        pub_type_data = [
-            ['Meta-Analysis', 'meta-analysis', 5],
-            ['Systematic Review', 'review', 5],
-            ['Practice Guideline', 'guidelines', 5],
-            ['Guideline', 'guidelines', 5],
-            ['Consensus Development Conference', 'review', 5],
-            ['Patient Education Handout', 'guidelines', 5],
-            ['Review', 'review', 4],
-            ['Introductory Journal Article', 'review', 4],
-            ['Randomized Controlled Trial', 'randomized controlled trial', 3.5],
-            ['Clinical Trial', 'clinical trial', 3],
-            ['Controlled Clinical Trial', 'clinical trial', 3],
-            ['Case Reports', 'case study', 2],
-            ['Comparative Study', 'research study', 2],
-            ['Evaluation Studies', 'research study', 2],
-            ['Validation Studies', 'research study', 2],
-            ['Observational Study', 'research study', 2],
-            ['Clinical Trial, Phase II', 'clinical trial', 2],
-            ['Clinical Trial, Phase I', 'clinical trial', 2],
-            ['Clinical Trial, Phase III', 'clinical trial', 2],
-            ['Letter', 'editorial content', 1],
-            ['Comment', 'editorial content', 1],
-            ['Editorial', 'editorial content', 1],
-            ['News', 'news and interest', 1],
-            ['Biography', 'news and interest', 1],
-            ['Published Erratum', 'editorial content', 1],
-            ['Portraits', 'news and interest', 1],
-            ['Interview', 'news and interest', 1],
-            ['Newspaper Article', 'news and interest', 1],
-            ['Retraction of Publication', 'editorial content', 1],
-            ['Portrait', 'news and interest', 1],
-            ['Autobiography', 'news and interest', 1],
-            ['Personal Narratives', 'news and interest', 1],
-            ['Retracted Publication', 'retracted', -1]]
-        pub_type_lookup = dict(zip([name for (name, label, val) in pub_type_data], pub_type_data))
 
         response = []
         if not self.pub_types:
@@ -549,6 +516,16 @@ class Pub(db.Model):
         response = sorted(response, key=lambda x: x["evidence_level"] or 0, reverse=True)
         return response
 
+    @property
+    def display_year(self):
+        try:
+            if self.pub_date_year:
+                return int(self.pub_date_year)
+            elif self.display_published_date:
+                return int(self.display_published_date[0:4])
+        except:
+            pass
+        return ""
 
 
     def to_dict_serp(self, full=True):
@@ -557,7 +534,7 @@ class Pub(db.Model):
             "doi": self.display_doi,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
-            "year": self.pub_date_year,
+            "year": self.display_year,
             "journal_name": self.journal_title,
             "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
             "is_oa": self.display_is_oa,
@@ -567,7 +544,7 @@ class Pub(db.Model):
             "published_date": self.display_published_date,
             "pub_types": self.display_pub_types,
             # "snippet": getattr(self, "snippet", None),
-            "score": self.adjusted_score
+            "score": self.score
         }
 
         if full:
