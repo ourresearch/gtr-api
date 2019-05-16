@@ -201,12 +201,12 @@ def get_search_query(query):
         if query_entities and len(query_entities)==1 and page==1:
             cached_response = get_cached_api_response(query_entities[0], oa_only)
             if cached_response and cached_response[0]:
-                cached_response = cached_response[0]
+                (api_response, collected_date) = cached_response
                 total_time = elapsed(start_time, 3)
-                cached_response["_from_cache"] = True
-                cached_response["_timing"] = {"total": total_time}
+                api_response["_cached_on"] = collected_date.isoformat()
+                api_response["_timing"] = {"total": total_time}
                 print "got response!!!"
-                return jsonify(cached_response)
+                return jsonify(api_response)
 
     (pubs_to_sort, time_to_pmids_elapsed, time_for_pubs_elapsed) = fulltext_search_title(query, query_entities, oa_only, full=return_full_api_response)
 

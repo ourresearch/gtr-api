@@ -54,10 +54,10 @@ class CachedEntityResponse(db.Model):
 
 def get_cached_api_response(entity_title, oa_only):
     if oa_only:
-        my_entity = db.session.query(CachedEntityResponse.api_response_oa_only).filter(CachedEntityResponse.entity_title==entity_title).first()
+        response = db.session.query(CachedEntityResponse.api_response_oa_only, CachedEntityResponse.collected).filter(CachedEntityResponse.entity_title==entity_title).first()
     else:
-        my_entity = db.session.query(CachedEntityResponse.api_response).filter(CachedEntityResponse.entity_title==entity_title).first()
-    return my_entity
+        response = db.session.query(CachedEntityResponse.api_response, CachedEntityResponse.collected).filter(CachedEntityResponse.entity_title==entity_title).first()
+    return response
 
 
 def fulltext_search_title(original_query, query_entities, oa_only, full=True):
