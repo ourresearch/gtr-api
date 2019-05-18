@@ -340,7 +340,7 @@ class Pub(db.Model):
     def topics(self):
         try:
             topic_annotation_objects = sorted(self.dandelion_title_annotation_list.list(), key=lambda x: x.topic_score, reverse=True)
-            response = [a.title for a in topic_annotation_objects]
+            response = [a.title for a in topic_annotation_objects if a.confidence > 0.7]
             # get rid of dups, but keep order
             response = list(OrderedDict.fromkeys(response))
         except:

@@ -84,7 +84,7 @@ if __name__ == "__main__":
             my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.collected > since_date).\
                 order_by(CachedEntityResponse.collected.asc()).limit(25).all()
 
-            # entity_title = 'Chocolate'
+            # entity_title = 'Climate change'
             # my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.entity_title == entity_title).\
             #     order_by(CachedEntityResponse.collected.asc()).limit(25).all()
 
