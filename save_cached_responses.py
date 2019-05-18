@@ -80,13 +80,16 @@ if __name__ == "__main__":
             #         db.session.add(my_saved_object)
             #     my_saved_objects.append(my_saved_object)
 
-            since_date = '2019-05-14'
-            my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.collected > since_date).\
-                order_by(CachedEntityResponse.collected.asc()).limit(25).all()
 
-            # entity_title = 'Climate change'
-            # my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.entity_title == entity_title).\
-            #     order_by(CachedEntityResponse.collected.asc()).limit(25).all()
+            single_entity_title = None
+            single_entity_title =  'Gluten-free diet'
+            if single_entity_title:
+                my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.entity_title == single_entity_title).\
+                    order_by(CachedEntityResponse.collected.asc()).limit(25).all()
+            else:
+                since_date = '2019-05-14'
+                my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.collected > since_date).\
+                    order_by(CachedEntityResponse.collected.asc()).limit(25).all()
 
             use_threads = True  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(20)

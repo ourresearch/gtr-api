@@ -449,13 +449,18 @@ class Pub(db.Model):
     def abstract_structured(self):
         all_sections = []
 
-        if self.abstract_text and re.findall("(^[A-Z]{4,}): ", self.abstract_text):
-            matches = re.findall("([A-Z' ,]{4,}): (.*?) (?=$|[A-Z' ,]{4,}: )", self.abstract_text)
-            for match in matches:
-                all_sections.append({
-                    "heading": match[0],
-                    "text": match[1]
-                })
+        working_text = self.abstract_text
+        if working_text:
+
+            # if &amp; in heading, need to replace with uppercase it won't match as heading
+            working_text = working_text.replace("&amp;", " AND ")  # exactly the same length, so won't affect offsets
+            if re.findall("(^[A-Z' ,&]{4,}): ", working_text):
+                matches = re.findall(ur"([A-Z' ,&]{4,}): (.*?) (?=$|[A-Z' ,&]{4,}: )", working_text)
+                for match in matches:
+                    all_sections.append({
+                        "heading": match[0],
+                        "text": match[1]
+                    })
 
         cursor = 1
         for section in all_sections:
