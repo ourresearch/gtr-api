@@ -253,9 +253,9 @@ def get_search_query(query):
 
     response["_timing"] = {"9 total": total_time,
                            "1 getting_entity_lookup_elapsed": getting_entity_lookup_elapsed,
-                           "2 time_to_pmids_elapsed": time_to_pmids_elapsed,
-                           "3 time_for_pubs_elapsed": time_for_pubs_elapsed,
-                           "4 initializing_publist_elapsed": initializing_publist_elapsed,
+                           "2 identify_pmids_for_top_100": time_to_pmids_elapsed,
+                           "3 loading_top_100_data_for_sorting": time_for_pubs_elapsed,
+                           "4 loading_final_10_full_pubs": initializing_publist_elapsed,
                            "5 set_dandelions_elapsed": set_dandelions_elapsed,
                            "6 set_pictures_elapsed": set_pictures_elapsed,
                            "7 to_dict_elapsed": to_dict_elapsed,
