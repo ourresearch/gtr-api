@@ -97,13 +97,13 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         query_entity = query_entity.replace("&", " ")
         print u"have query_entities"
         query_string = u"""
-            select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank, doi, title, is_oa, num_events 
+            select pmid 
             from search_title_dandelion_simple_mv
             where title=:query_entity 
             and num_events >= 3
             {oa_clause}
             order by num_events desc 
-            limit 150""".format(oa_clause=oa_clause)
+            limit 120""".format(oa_clause=oa_clause)
         rows = db.engine.execute(sql.text(query_string), query_entity=query_entity).fetchall()
         print "done getting query getting pmids"
         original_query_escaped = query_entity.replace("'", "''")
@@ -148,17 +148,15 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
         query_string = u"""
             select
-            pmid, 
-            (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank,
-            article_title,
-            num_events
+            pmid,
+            (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
             FROM sort_results_simple_mv
             WHERE  
             to_tsvector('english', article_title) @@  to_tsquery(:query)
             and doi is not null 
             {oa_clause}
             order by rank desc
-            limit 150;
+            limit 120;
             """.format(oa_clause=oa_clause)
         # print query_string
         rows = db.engine.execute(sql.text(query_string), query=query_to_use).fetchall()
