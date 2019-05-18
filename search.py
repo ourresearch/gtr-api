@@ -74,23 +74,23 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     pmids = []
     rows = []
-    if "from_" in original_query and "to_" in original_query:
-        print u"getting recent query"
-        matches = re.findall("from_(\d{4}.\d{2}.\d{2})_to_(\d{4}.\d{2}.\d{2})", original_query)
-        from_date = matches[0][0].replace("_", "-")
-        to_date = matches[0][1].replace("_", "-")
-        query_string = u"""
-            select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank 
-            from search_recent_hits_mv 
-            where published_date > :from_date ::timestamp and published_date < :to_date ::timestamp   
-            and num_events is not null
-            {oa_clause}
-            order by num_events desc 
-            limit 100 """.format(oa_clause=oa_clause)
-        rows = db.engine.execute(sql.text(query_string), from_date=from_date, to_date=to_date).fetchall()
-        print "done getting query getting pmids"
+    # if "from_" in original_query and "to_" in original_query:
+    #     print u"getting recent query"
+    #     matches = re.findall("from_(\d{4}.\d{2}.\d{2})_to_(\d{4}.\d{2}.\d{2})", original_query)
+    #     from_date = matches[0][0].replace("_", "-")
+    #     to_date = matches[0][1].replace("_", "-")
+    #     query_string = u"""
+    #         select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank
+    #         from search_recent_hits_mv
+    #         where published_date > :from_date ::timestamp and published_date < :to_date ::timestamp
+    #         and num_events is not null
+    #         {oa_clause}
+    #         order by num_events desc
+    #         limit 100 """.format(oa_clause=oa_clause)
+    #     rows = db.engine.execute(sql.text(query_string), from_date=from_date, to_date=to_date).fetchall()
+    #     print "done getting query getting pmids"
 
-    elif query_entities and len(query_entities)==1:
+    if query_entities and len(query_entities)==1:
         query_entity = query_entities[0]
         query_entity = query_entity.replace("(", " ")
         query_entity = query_entity.replace(")", " ")
@@ -186,7 +186,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
                     num_events,
                     num_news_events,
                     (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
-                    from sort_results_mv
+                    from sort_results_simple_mv
                     where pmid in ({pmids_string})
                 """.format(pmids_string=u",".join([str(p) for p in pmids]))
             # print query_string
