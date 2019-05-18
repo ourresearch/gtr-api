@@ -74,7 +74,8 @@ annotation_requires_exact_match = [
     "Risk_management",
     "Ocean_current",
     "Adoption",
-    "British_raj"
+    "British_raj",
+    "Blocking_%28statistics%29"
     ]
 annotation_requires_exact_match = [a.lower() for a in annotation_requires_exact_match]
 
