@@ -242,7 +242,7 @@ def get_search_query(query):
     response = {"results": results,
                     "page": page,
                     "oa_only": oa_only,
-                    "total_num_pubs": len(pubs_to_sort),
+                    "total_num_pubs": min(100, len(pubs_to_sort)),
                     "query_entities": query_entities
                     }
     if return_full_api_response:

@@ -7,11 +7,11 @@ import json
 from app import db
 
 # refresh materialized view first:
-# refresh materialized view search_autocomplete_dandelion_mv
+# refresh materialized view concurrently search_autocomplete_dandelion_simple_mv
 
 query_string = u"""
     select entity_title, sum_num_events, num_papers
-    from search_autocomplete_dandelion_mv
+    from search_autocomplete_dandelion_simple_mv
     where num_papers >= 25
     order by sum_num_events desc
     """

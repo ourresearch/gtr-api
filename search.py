@@ -98,12 +98,12 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         print u"have query_entities"
         query_string = u"""
             select pmid, 0.05*COALESCE(num_events, 0.0)::float as rank, doi, title, is_oa, num_events 
-            from search_title_dandelion_mv
+            from search_title_dandelion_simple_mv
             where title=:query_entity 
             and num_events >= 3
             {oa_clause}
             order by num_events desc 
-            limit 100""".format(oa_clause=oa_clause)
+            limit 150""".format(oa_clause=oa_clause)
         rows = db.engine.execute(sql.text(query_string), query_entity=query_entity).fetchall()
         print "done getting query getting pmids"
         original_query_escaped = query_entity.replace("'", "''")
@@ -152,13 +152,13 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank,
             article_title,
             num_events
-            FROM search_titles_mv
+            FROM sort_results_simple_mv
             WHERE  
             to_tsvector('english', article_title) @@  to_tsquery(:query)
             and doi is not null 
             {oa_clause}
             order by rank desc
-            limit 100;
+            limit 150;
             """.format(oa_clause=oa_clause)
         # print query_string
         rows = db.engine.execute(sql.text(query_string), query=query_to_use).fetchall()
@@ -238,7 +238,7 @@ def autocomplete_entity_titles(original_query):
 
     query_string = u"""
         select entity_title, sum_num_events, num_papers
-        from search_autocomplete_dandelion_mv
+        from search_autocomplete_dandelion_simple_mv
         where entity_title ilike :ilike_query
         and num_papers >= 25
         order by sum_num_events desc
