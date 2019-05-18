@@ -8,6 +8,7 @@ import datetime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import sql
 from sqlalchemy import orm
+from sqlalchemy import or_
 import json
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -87,7 +88,8 @@ if __name__ == "__main__":
                 my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.entity_title == single_entity_title).\
                     order_by(CachedEntityResponse.collected.asc()).limit(25).all()
             else:
-                my_saved_objects = CachedEntityResponse.query.filter(CachedEntityResponse.collected < before_date).\
+                my_saved_objects = CachedEntityResponse.query.\
+                    filter(or_(CachedEntityResponse.collected==None, CachedEntityResponse.collected < before_date)).\
                     order_by(CachedEntityResponse.collected.asc()).limit(25).all()
 
             use_threads = True  # useful to turn off pooling to help debugging
