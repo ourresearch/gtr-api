@@ -6,10 +6,14 @@
 
 import requests
 import os
+import inflect
 
 from pub import call_dandelion
 from annotation_list import AnnotationList
 from search import autocomplete_entity_titles
+
+inflect_engine = inflect.engine()
+
 
 stop_words = """
 cause
@@ -153,14 +157,21 @@ now""".split("\n")
 # removed
 # of  #quality of life is good
 
+
 def get_entities_from_query(query):
 
     query_lower = query.lower()
 
-    autocompletes = [a.lower() for a in autocomplete_entity_titles(query)]
     for a in autocomplete_entity_titles(query):
         if a.lower() == query_lower:
             return [a]
+
+    query_singular = inflect_engine.singular_noun(query)
+    if query_singular and (query_singular != query_lower):
+        query_singular_lower = query_singular.lower()
+        for a in autocomplete_entity_titles(query_singular):
+            if a.lower() == query_singular_lower:
+                return [a]
 
     api_key = os.getenv("DANDELION_API_KEY_QUERY_PARSING")
 

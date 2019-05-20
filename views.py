@@ -24,7 +24,7 @@ from search import fulltext_search_title
 from annotation import annotation_file_contents
 from search import autocomplete_entity_titles
 from search import get_cached_api_response
-from query_stopwords import get_entities_from_query
+from entity import get_entities_from_query
 from notifications import notification_signup
 from history import log_query
 from util import elapsed
