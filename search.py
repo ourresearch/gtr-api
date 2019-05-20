@@ -26,7 +26,7 @@ def adjusted_score(my_dict):
         score -= 5
 
     if my_dict["num_news_events"]:
-        score += math.log10(1 + my_dict.get("num_news_events", 0)) * 5
+        score += math.log10(1 + my_dict.get("num_news_events", 0)) * 4
 
     if my_dict["pub_types"]:
         pub_type_pubmed = my_dict["pub_types"]
