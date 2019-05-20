@@ -51,8 +51,8 @@ def cache_api_response(my_saved_object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run stuff.")
-    parser.add_argument('--since', nargs="?", type=str, default=False, help="date since to dirty cache")
-    parser.add_argument('--entity', nargs="?", type=str, default=False, help="entity to refresh")
+    parser.add_argument('--before', nargs="?", type=str, help="date before to dirty cache")
+    parser.add_argument('--entity', nargs="?", type=str, help="entity to refresh")
     parsed_args = parser.parse_args()
     parsed_vars = vars(parsed_args)
 
