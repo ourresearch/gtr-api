@@ -12,14 +12,15 @@ from pub import pub_type_lookup
 from util import elapsed
 
 
+
 def adjusted_score(my_dict):
     score = math.log10(1 + my_dict.get("score", 0)) * 5
 
     if my_dict["abstract_length"] < 10:
         score -= 10
 
-    if my_dict["journal_title"] and "cochrane database" in my_dict["journal_title"].lower():
-        score += 10
+    # if my_dict["journal_title"] and "cochrane database" in my_dict["journal_title"].lower():
+    #     score += 10
 
     if not my_dict["num_events"]:
         score -= 5
@@ -67,6 +68,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
     original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
     query_to_use = u"({})".format(original_query_with_ands)
 
+
     if oa_only:
         oa_clause = u" and is_oa=True "
     else:
@@ -95,7 +97,9 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         query_entity = query_entity.replace("(", " ")
         query_entity = query_entity.replace(")", " ")
         query_entity = query_entity.replace("&", " ")
+
         print u"have query_entities"
+
         query_string = u"""
             select pmid 
             from search_title_dandelion_simple_mv
@@ -104,6 +108,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             {oa_clause}
             order by num_events desc 
             limit 120""".format(oa_clause=oa_clause)
+
         rows = db.engine.execute(sql.text(query_string), query_entity=query_entity).fetchall()
         print "done getting query getting pmids"
         original_query_escaped = query_entity.replace("'", "''")
