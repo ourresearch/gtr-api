@@ -476,6 +476,12 @@ class Pub(db.Model):
 
         if all_sections:
             all_sections[-1]["summary"] = True
+
+            # check it doesn't talk about funding or data.  if so, use previous heading instead.
+            for heading_word in all_sections[-1]["heading"].split(" "):
+                if heading_word in ["TRIAL", "DATA", "REGISTRATION", "FUNDING"]:
+                    all_sections[-1]["summary"] = False
+                    all_sections[-2]["summary"] = True
         return all_sections
 
 

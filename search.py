@@ -14,7 +14,7 @@ from util import elapsed
 
 
 def adjusted_score(my_dict):
-    score = math.log10(1 + my_dict.get("score", 0)) * 5
+    score = math.log10(.1 + my_dict.get("score", 0)) * 5
 
     if my_dict["abstract_length"] < 10:
         score -= 10
@@ -26,7 +26,7 @@ def adjusted_score(my_dict):
         score -= 5
 
     if my_dict["num_news_events"]:
-        score += math.log10(1 + my_dict.get("num_news_events", 0)) * 4
+        score += math.log10(.1 + my_dict.get("num_news_events", 0)) * 4
 
     if my_dict["pub_types"]:
         pub_type_pubmed = my_dict["pub_types"]
@@ -35,13 +35,20 @@ def adjusted_score(my_dict):
         max_level_of_evidence = max([level for (pubmed_label, category, level) in normalized_evidence_list] + [-10])
 
         if max_level_of_evidence > 1:
-            score += max_level_of_evidence * 2
+            score += max_level_of_evidence * 1.0
 
         if "news and interest" in categories:
             score += 2
 
         if "English Abstract" in pub_type_pubmed:
             score += -5
+
+
+    # these are more likely to use the word as an acronym rather than as the topic
+    if my_dict["query_entities"]:
+        for query_entity in my_dict["query_entities"]:
+            if u"({})".format(query_entity.upper()) in my_dict["article_title"]:
+                score = score * 0.25  # rather than making it go negative
 
     return score
 
@@ -210,7 +217,9 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
                     "is_oa": row[6],
                     "num_events": row[7],
                     "num_news_events": row[8],
-                    "score": row[9]
+                    "score": row[9],
+                    "query": query_to_use,
+                    "query_entities": query_entities
                      }
                 my_dict["adjusted_score"] = adjusted_score(my_dict)
                 my_pubs_filtered.append(my_dict)
