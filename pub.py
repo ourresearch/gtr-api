@@ -145,12 +145,12 @@ class DoiLookup(db.Model):
     news = db.relationship("News", lazy='subquery')
 
 class Paperbuzz(db.Model):
-    __tablename__ = "local_dois_with_ced_events_mv"
+    __tablename__ = "ricks_paperbuzz_dois_with_ced_events"
     doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi), primary_key=True)
     num_events = db.Column(db.Numeric)
 
 class News(db.Model):
-    __tablename__ = "local_newsfeed_events_mv"
+    __tablename__ = "ricks_paperbuzz_news"
     event_id = db.Column(db.Text, primary_key=True)
     doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi))
     news_url = db.Column(db.Text)
