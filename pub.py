@@ -132,7 +132,7 @@ class PubMesh(db.Model):
         return response
 
 class DoiLookup(db.Model):
-    __tablename__ = "bq_pubmed_doi_unpaywall"
+    __tablename__ = "ricks_changing_pubmed_doi_unpaywall"
     doi = db.Column(db.Text, primary_key=True)
     pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
     pmcid = db.Column(db.Text)
