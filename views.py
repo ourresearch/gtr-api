@@ -216,6 +216,7 @@ def get_search_query(query):
     # selected_pmids = [p.pmid for p in selected_pubs]
 
     sorted_pubs = sorted(pubs_to_sort, key=lambda k: k["adjusted_score"], reverse=True)
+    sorted_pubs = [p for p in sorted_pubs if p["pmid"]]
     selected_pubs = sorted_pubs[(pagesize * (page-1)):(pagesize * page)]
     selected_pmids = [p["pmid"] for p in selected_pubs]
 

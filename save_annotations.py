@@ -79,7 +79,7 @@ if __name__ == "__main__":
     if __name__ == '__main__':
         while True:
             query = u"""select sort_results_simple_mv.pmid, doi, num_events from sort_results_simple_mv 
-                where sort_results_simple_mv.pmid not in (select pmid from dandelion_by_doi) 
+                where sort_results_simple_mv.doi not in (select doi from dandelion_by_doi) 
                 and num_events is not null 
                 and num_events >= 1
                 limit 25 

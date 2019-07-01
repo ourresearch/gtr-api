@@ -22,6 +22,9 @@ class PubList(object):
         self.pubs = pubs
 
     def set_dandelions(self):
+        if not self.pubs:
+            return []
+
         start = timer()
 
         my_thread_pool = ThreadPool(50)

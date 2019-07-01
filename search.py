@@ -14,7 +14,10 @@ from util import elapsed
 
 
 def adjusted_score(my_dict):
-    score = math.log10(.1 + my_dict.get("score", 0)) * 5
+    raw_score = my_dict.get("score")
+    if not raw_score:
+        raw_score = 0
+    score = math.log10(.1 + raw_score) * 5
 
     if my_dict["abstract_length"] < 10:
         score -= 10
@@ -47,7 +50,10 @@ def adjusted_score(my_dict):
     # these are more likely to use the word as an acronym rather than as the topic
     if my_dict["query_entities"]:
         for query_entity in my_dict["query_entities"]:
-            if u"({})".format(query_entity.upper()) in my_dict["article_title"]:
+            article_title = my_dict.get("article_title")
+            if not article_title:
+                article_title = ""
+            if u"({})".format(query_entity.upper()) in article_title:
                 score = score * 0.25  # rather than making it go negative
 
     return score
@@ -81,7 +87,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
     else:
         oa_clause = " "
 
-    pmids = []
+    dois = []
     rows = []
     # if "from_" in original_query and "to_" in original_query:
     #     print u"getting recent query"
@@ -108,7 +114,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         print u"have query_entities"
 
         query_string = u"""
-            select pmid 
+            select doi 
             from search_title_dandelion_simple_mv
             where title=:query_entity 
             and num_events >= 3
@@ -117,19 +123,19 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             limit 120""".format(oa_clause=oa_clause)
 
         rows = db.engine.execute(sql.text(query_string), query_entity=query_entity).fetchall()
-        print "done getting query getting pmids"
+        print "done getting query getting dois"
         original_query_escaped = query_entity.replace("'", "''")
         original_query_with_ands = ' & '.join(original_query_escaped.split(" "))
         query_to_use = u"({})".format(original_query_with_ands)
 
 
     if rows:
-        pmids = [row[0] for row in rows]
-        print "len pmids", len(pmids)
+        dois = [row[0] for row in rows]
+        print "len dois", len(dois)
 
-    if len(pmids) < 25:
+    if len(dois) < 25:
         # need to do the full search
-        print "len(pmids) < 25, in fulltext_search_title"
+        print "len(dois) < 25, in fulltext_search_title"
         original_query_escaped = original_query.replace("'", "''")
         original_query_escaped = original_query_escaped.replace("&", "")
         original_query_escaped = original_query_escaped.replace("(", " ")
@@ -160,7 +166,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
         query_string = u"""
             select
-            pmid,
+            doi,
             (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
             FROM sort_results_simple_mv
             WHERE  
@@ -175,15 +181,15 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         print "done getting query of sort data"
 
         # print rows
-        pmids = [row[0] for row in rows]
+        dois = [row[0] for row in rows]
 
-    time_for_pmids = elapsed(start_time, 3)
-    print u"done query for pmids and sort data: got {} pmids".format(len(pmids))
+    time_for_dois = elapsed(start_time, 3)
+    print u"done query for dois and sort data: got {} dois".format(len(dois))
 
     time_for_pubs_start_time = time()
 
     my_pubs_filtered = []
-    if pmids:
+    if dois:
         if full:
             query_string = u"""
                 select pmid,
@@ -197,10 +203,10 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
                     num_news_events,
                     (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
                     from sort_results_simple_mv
-                    where pmid in ({pmids_string})
-                """.format(pmids_string=u",".join([str(p) for p in pmids]))
+                    where doi in ({dois_string})
+                """.format(dois_string=u",".join([u"'{}'".format(str(d)) for d in dois]))
             # print query_string
-            rows = db.engine.execute(sql.text(query_string), query=query_to_use, pmids=pmids).fetchall()
+            rows = db.engine.execute(sql.text(query_string), query=query_to_use, dois=dois).fetchall()
             print "done getting sort data"
             # print rows
 
@@ -231,7 +237,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             #     options(orm.raiseload(Pub.doi_lookup)).\
             #     all()
         else:
-            my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).\
+            my_pubs = db.session.query(Pub).filter(Pub.doi.in_(dois)).\
                 options(orm.raiseload(Pub.authors)).\
                 options(orm.raiseload(Pub.dandelion_lookup)).\
                 options(orm.raiseload(Pub.doi_lookup)).\
@@ -243,7 +249,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     time_for_pubs = elapsed(time_for_pubs_start_time, 3)
 
-    return (my_pubs_filtered, time_for_pmids, time_for_pubs)
+    return (my_pubs_filtered, time_for_dois, time_for_pubs)
 
 
 def autocomplete_entity_titles(original_query):
