@@ -486,7 +486,9 @@ class Pub(db.Model):
         if not self.pub_types:
             return response
 
-        for pub_type in self.pub_types:
+        pub_types_list = self.pub_types.split(",")
+
+        for pub_type in pub_types_list:
             pub_type_name = pub_type.publication_type
             if pub_type_name in pub_type_lookup:
                 response.append({"pub_type_pubmed": pub_type_lookup[pub_type_name][0],
@@ -834,7 +836,7 @@ class PubDoi(db.Model):
             "oa_host": self.display_best_host,
             "oa_version": self.display_best_version,
             "published_date": self.published_date,
-            "pub_types": self.pub_types,
+            "pub_types": self.display_pub_types,
             "genre": self.genre,
             # "snippet": getattr(self, "snippet", None),
             "score": self.score
