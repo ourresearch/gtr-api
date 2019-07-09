@@ -53,14 +53,13 @@ def call_dandelion_on_article(my_queue_save_obj):
             error = u"TooManyRequestsException"
             rate_limit_exceeded = True
 
-    if not rate_limit_exceeded:
-        my_queue_save_obj.dandelion_collected = datetime.datetime.utcnow()
-        try:
-            db.session.merge(my_queue_save_obj)
-            safe_commit(db)
-        except Exception, e:
-            print e
-        print ".",
+    my_queue_save_obj.dandelion_collected = datetime.datetime.utcnow()
+    try:
+        db.session.merge(my_queue_save_obj)
+        safe_commit(db)
+    except Exception, e:
+        print e
+    print ".",
     return (dandelion_results, error, rate_limit_exceeded)
 
 
@@ -99,7 +98,7 @@ if __name__ == "__main__":
             my_pubs = db.session.query(PubDoi).filter(PubDoi.doi.in_(dois)).options(orm.noload('*')).all()
             my_dandelions = []
             for my_pub in my_pubs:
-                my_dandelion = Dandelion(doi=my_pub.doi)
+                my_dandelion = Dandelion()
                 my_dandelion.doi = lookup[my_pub.doi]["doi"]
                 my_dandelion.num_events = lookup[my_pub.doi]["num_events"]
                 lookup[my_pub.doi]["used"] = True
@@ -109,7 +108,7 @@ if __name__ == "__main__":
             for (doi, my_dict) in lookup.iteritems():
                 if not my_dict["used"]:
                     print "#",
-                    my_dandelion = Dandelion(doi=doi)
+                    my_dandelion = Dandelion()
                     my_dandelion.doi = my_dict["doi"]
                     my_dandelion.num_events = my_dict["num_events"]
                     db.session.add(my_dandelion)
@@ -119,14 +118,15 @@ if __name__ == "__main__":
 
             print "now calling dandelion"
 
-            try:
+            use_multithreaded = False
+            if use_multithreaded:
                 my_thread_pool = ThreadPool(50)
                 results = my_thread_pool.imap_unordered(call_dandelion_on_article, my_dandelions)
                 my_thread_pool.close()
                 my_thread_pool.join()
                 my_thread_pool.terminate()
 
-            except AttributeError:
+            else:
                 results = []
                 for my_dandelion in my_dandelions:
                     results.append(call_dandelion_on_article(my_dandelion))
