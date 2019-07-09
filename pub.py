@@ -564,10 +564,23 @@ class PubDoi(db.Model):
     pub_types = db.Column(db.Text)
     genre = db.Column(db.Text)
     published_date = db.Column(db.DateTime)
-    pubmed_lookup = db.relationship("Pub", uselist=False, lazy='subquery')
+    pubmed_lookup_list = db.relationship("Pub", lazy='dynamic')
+    # pubmed_lookup = db.relationship("Pub", uselist=False, lazy='select')
     dandelion_lookup = db.relationship("Dandelion", uselist=False, lazy='subquery')
     unpaywall_lookup = db.relationship("UnpaywallLookup", uselist=False, lazy='subquery')
     news = db.relationship("News", lazy='subquery')
+
+    @property
+    def pubmed_lookup(self):
+        if hasattr(self, "cached_pubmed_lookup"):
+            return self.cached_pubmed_lookup
+
+        self.cached_pubmed_lookup = None
+        if self.pmid:
+            hits = self.pubmed_lookup_list.all()
+            if hits:
+                self.cached_pubmed_lookup = hits[0]
+        return self.cached_pubmed_lookup
 
     @property
     def display_doi(self):
@@ -703,7 +716,88 @@ class PubDoi(db.Model):
 
     def abstract_with_annotations_dict(self, full=True):
         sections = []
+        if self.abstract_structured:
+            sections = self.abstract_structured
+        elif self.abstract_text:
+            background_text = ""
+            summary_text = ""
+            if "CONCLUSION:" in self.abstract_text:
+                background_text = self.abstract_text.rsplit("CONCLUSION:", 1)[0]
+                summary_text = self.abstract_text.rsplit("CONCLUSION:", 1)[1]
+            elif "CONCLUSIONS:" in self.abstract_text:
+                background_text = self.abstract_text.rsplit("CONCLUSIONS:", 1)[0]
+                summary_text = self.abstract_text.rsplit("CONCLUSIONS:", 1)[1]
+            else:
+                try:
+                    background_text += ". ".join(self.abstract_text.rsplit(". ", 3)[0:1]) + "."
+                    summary_text += ". ".join(self.abstract_text.rsplit(". ", 3)[1:])
+                except IndexError:
+                    background_text += self.abstract_text[-500:-1]
+                    summary_text += self.abstract_text[-500:-1]
+
+            background_text = background_text.strip()
+            summary_text = summary_text.strip()
+
+            sections = [
+                {"text": background_text, "heading": "BACKGROUND", "section_split_source": "automated", "summary": False, "original_start":1, "original_end":len(background_text)},
+                {"text": summary_text, "heading": "SUMMARY", "section_split_source": "automated", "summary": True, "original_start":len(background_text)+2, "original_end":len(self.abstract_text)}
+            ]
+
+        if full:
+            for section in sections:
+                section["annotations"] = []
+                if self.dandelion_abstract_annotation_list:
+                    for anno in self.dandelion_abstract_annotation_list.list():
+                        if anno.confidence >= 0.65:
+                            if anno.start >= section["original_start"] and anno.end <= section["original_end"]:
+                                my_anno_dict = anno.to_dict_simple()
+                                my_anno_dict["start"] -= section["original_start"] - 1
+                                my_anno_dict["end"] -= section["original_start"] - 1
+                                section["annotations"] += [my_anno_dict]
+
+        if not full:
+            sections = [s for s in sections if s["summary"]==True]
+
         return sections
+
+    @property
+    def abstract_structured(self):
+        all_sections = []
+
+        working_text = self.abstract_text
+        if working_text:
+
+            # if &amp; in heading, need to replace with uppercase it won't match as heading
+            working_text = working_text.replace("&amp;", " AND ")  # exactly the same length, so won't affect offsets
+            if re.findall("(^[A-Z' ,&]{4,}): ", working_text):
+                matches = re.findall(ur"([A-Z' ,&]{4,}): (.*?) (?=$|[A-Z' ,&]{4,}: )", working_text)
+                for match in matches:
+                    all_sections.append({
+                        "heading": match[0],
+                        "text": match[1]
+                    })
+
+        cursor = 1
+        for section in all_sections:
+            cursor += len(section["heading"])
+            cursor += 2
+            # don't include heading in what can be annotated
+            section["original_start"] = cursor
+            cursor += len(section["text"])
+            section["original_end"] = cursor
+            cursor += 1
+            section["section_split_source"] = "structured"
+            section["summary"] = False
+
+        if all_sections:
+            all_sections[-1]["summary"] = True
+
+            # check it doesn't talk about funding or data.  if so, use previous heading instead.
+            for heading_word in all_sections[-1]["heading"].split(" "):
+                if heading_word in ["TRIAL", "DATA", "REGISTRATION", "FUNDING"]:
+                    all_sections[-1]["summary"] = False
+                    all_sections[-2]["summary"] = True
+        return all_sections
 
     @property
     def dandelion_abstract_annotation_list(self):
