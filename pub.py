@@ -512,13 +512,13 @@ class PubDoi(db.Model):
     def pmid_url(self):
         if self.pmid:
             return u"https://www.ncbi.nlm.nih.gov/pubmed/{}".format(self.pmid)
-        return ""
+        return None
 
     @property
-    def authors(self):
+    def author_lastnames(self):
         if self.pubmed_lookup:
-            return self.pubmed_lookup.authors
-        return ""
+            return self.pubmed_lookup.author_lastnames
+        return []
 
     @property
     def abstract_text(self):
@@ -792,7 +792,7 @@ class PubDoi(db.Model):
             additional_items = {
             "pmid": self.pmid,
             "pmid_url": self.pmid_url,
-            "author_lastnames": "", # self.author_lastnames,
+            "author_lastnames": self.author_lastnames,
             # "mesh": [m.to_dict() for m in self.mesh],
             "news_articles": [] # [a.to_dict() for a in self.news_articles]
             }
