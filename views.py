@@ -164,7 +164,7 @@ def get_search_query(query):
         log_query(query, ip)
 
     no_live_calls = request.args.get("no-live-calls", "")
-    nocache = request.args.get("nocache", "")
+    nocache = request.args.get("nocache", "true")
     return_full_api_response = True
     if request.args.get("minimum", ""):
         return_full_api_response = False
