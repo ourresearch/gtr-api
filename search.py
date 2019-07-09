@@ -134,8 +134,12 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         dois = [row[0] for row in rows]
         print "len dois", len(dois)
 
-    if len(dois) < 25:
-    # if True: # len(dois) < 25:
+    # if len(dois) < 25:
+    #     print "len(dois) < 25, in fulltext_search_title"
+
+    if True: # debug
+         print "doing full text search anyway"
+
         # need to do the full search
         print "len(dois) < 25, in fulltext_search_title"
         original_query_escaped = original_query.replace("'", "''")
