@@ -547,6 +547,9 @@ class PubDoi(db.Model):
 
     @property
     def suppress(self):
+        if self.genre in ["dataset"]:
+            return True
+
         if self.display_pub_types:
             pub_type_pubmed = [p["pub_type_pubmed"] for p in self.display_pub_types]
             if "Retracted Publication" in pub_type_pubmed:

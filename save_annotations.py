@@ -119,13 +119,14 @@ if __name__ == "__main__":
 
             print "now calling dandelion"
 
-            use_threads = False  # useful to turn off pooling to help debugging
-            my_thread_pool = ThreadPool(50)
-            if use_threads:
+            try:
+                my_thread_pool = ThreadPool(50)
                 results = my_thread_pool.imap_unordered(call_dandelion_on_article, my_dandelions)
                 my_thread_pool.close()
                 my_thread_pool.join()
-            else:
+                my_thread_pool.terminate()
+
+            except AttributeError:
                 results = []
                 for my_dandelion in my_dandelions:
                     results.append(call_dandelion_on_article(my_dandelion))
@@ -139,8 +140,6 @@ if __name__ == "__main__":
                 print e
                 print "sleeping for a minute"
                 sleep(60)
-
-            my_thread_pool.terminate()
 
             # print results
 
