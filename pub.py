@@ -107,10 +107,6 @@ class PubOtherId(db.Model):
     source = db.Column(db.Text, primary_key=True)
     other_id = db.Column(db.Text)
 
-class PubType(db.Model):
-    __tablename__ = "medline_article_publication_type"
-    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
-    publication_type = db.Column(db.Text, primary_key=True)
 
 class PubMesh(db.Model):
     __tablename__ = "medline_mesh_heading"
@@ -183,7 +179,6 @@ class Pub(db.Model):
     article_title = deferred(db.Column(db.Text), group="full")
     pub_date_year = deferred(db.Column(db.Text), group="full")
     authors = db.relationship("Author", lazy='subquery')
-    pub_types = db.relationship("PubType", lazy='subquery')
     # mesh = db.relationship("PubMesh", lazy='subquery')
     abstract_length = column_property(func.char_length(abstract_text))
 
@@ -466,91 +461,12 @@ class Pub(db.Model):
 
 
     @property
-    def suppress(self):
-        if self.display_pub_types:
-            pub_type_pubmed = [p["pub_type_pubmed"] for p in self.display_pub_types]
-            if "Retracted Publication" in pub_type_pubmed:
-                return True
-        return False
-
-    @property
     def score(self):
         if hasattr(self, "adjusted_score"):
             return self.adjusted_score
         return 0
 
-    @property
-    def display_pub_types(self):
 
-        response = []
-        if not self.pub_types:
-            return response
-
-        pub_types_list = self.pub_types.split(",")
-
-        for pub_type in pub_types_list:
-            pub_type_name = pub_type.publication_type
-            if pub_type_name in pub_type_lookup:
-                response.append({"pub_type_pubmed": pub_type_lookup[pub_type_name][0],
-                                 "pub_type_gtr": pub_type_lookup[pub_type_name][1],
-                                 "evidence_level": pub_type_lookup[pub_type_name][2]
-                })
-            else:
-                include_it = True
-                excludes = ["Journal Article", "Research Support"]
-                for exclude_phrase in excludes:
-                    if exclude_phrase in pub_type_name:
-                        include_it = False
-                if include_it:
-                    response.append({"pub_type_pubmed": pub_type_name,
-                                 "pub_type_gtr": None,
-                                 "evidence_level": None})
-
-        response = sorted(response, key=lambda x: x["evidence_level"] or 0, reverse=True)
-        return response
-
-    @property
-    def display_year(self):
-        try:
-            if self.pub_date_year:
-                return int(self.pub_date_year)
-            elif self.display_published_date:
-                return int(self.display_published_date[0:4])
-        except:
-            pass
-        return ""
-
-
-    def to_dict_serp(self, full=True):
-
-        response = {
-            "doi": self.display_doi,
-            "doi_url": self.display_doi_url,
-            "title": self.article_title,
-            "year": self.display_year,
-            "journal_name": self.journal_title,
-            "num_paperbuzz_events": self.display_number_of_paperbuzz_events,
-            "is_oa": self.display_is_oa,
-            "oa_url": self.display_oa_url,
-            "oa_host": self.display_best_host,
-            "oa_version": self.display_best_version,
-            "published_date": self.display_published_date,
-            "pub_types": self.display_pub_types,
-            # "snippet": getattr(self, "snippet", None),
-            "score": self.score
-        }
-
-        if full:
-            additional_items = {
-            "pmid": self.pmid,
-            "pmid_url": self.pmid_url,
-            "author_lastnames": self.author_lastnames,
-            # "mesh": [m.to_dict() for m in self.mesh],
-            "news_articles": [a.to_dict() for a in self.news_articles]
-            }
-            response.update(additional_items)
-
-        return response
 
 
 class PubDoi(db.Model):
@@ -599,12 +515,6 @@ class PubDoi(db.Model):
         return ""
 
     @property
-    def pub_date_year(self):
-        if self.published_date:
-            return int(self.published_date[0:4])
-        return ""
-
-    @property
     def authors(self):
         if self.pubmed_lookup:
             return self.pubmed_lookup.authors
@@ -634,23 +544,59 @@ class PubDoi(db.Model):
             return self.unpaywall_lookup.best_version
         return None
 
-    @property
-    def authors(self):
-        if self.pubmed_lookup:
-            return self.pubmed_lookup.authors
-        return ""
 
     @property
     def suppress(self):
-        if self.pubmed_lookup:
-            return self.pubmed_lookup.suppress
+        if self.display_pub_types:
+            pub_type_pubmed = [p["pub_type_pubmed"] for p in self.display_pub_types]
+            if "Retracted Publication" in pub_type_pubmed:
+                return True
         return False
+
 
     @property
     def score(self):
         if hasattr(self, "adjusted_score"):
             return self.adjusted_score
         return 0
+
+    @property
+    def display_pub_types(self):
+
+        response = []
+        if not self.pub_types:
+            return response
+
+        pub_types_list = self.pub_types.split(",")
+
+        for pub_type_name in pub_types_list:
+            if pub_type_name in pub_type_lookup:
+                response.append({"pub_type_pubmed": pub_type_lookup[pub_type_name][0],
+                                 "pub_type_gtr": pub_type_lookup[pub_type_name][1],
+                                 "evidence_level": pub_type_lookup[pub_type_name][2]
+                })
+            else:
+                include_it = True
+                excludes = ["Journal Article", "Research Support"]
+                for exclude_phrase in excludes:
+                    if exclude_phrase in pub_type_name:
+                        include_it = False
+                if include_it:
+                    response.append({"pub_type_pubmed": pub_type_name,
+                                 "pub_type_gtr": None,
+                                 "evidence_level": None})
+
+        response = sorted(response, key=lambda x: x["evidence_level"] or 0, reverse=True)
+        return response
+
+    @property
+    def display_year(self):
+        try:
+            if self.published_date:
+                return int(self.published_date[0:4])
+        except:
+            pass
+        return ""
 
     @property
     def annotations_for_pictures(self):
@@ -828,7 +774,7 @@ class PubDoi(db.Model):
             "doi": self.doi,
             "doi_url": self.display_doi_url,
             "title": self.article_title,
-            "year": self.pub_date_year,
+            "year": self.display_year,
             "journal_name": self.journal_title,
             "num_paperbuzz_events": self.num_events,
             "is_oa": self.is_oa,
