@@ -138,7 +138,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
     #     print "len(dois) < 25, in fulltext_search_title"
 
     if True: # debug
-         print "doing full text search anyway"
+        print "doing full text search anyway"
 
         # need to do the full search
         print "len(dois) < 25, in fulltext_search_title"
