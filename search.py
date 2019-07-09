@@ -5,6 +5,7 @@ from time import time
 import requests
 import re
 import math
+import decimal
 
 from app import db
 from pub import Pub
@@ -29,7 +30,7 @@ def adjusted_score(my_dict):
         score -= 5
 
     if my_dict["num_news_events"]:
-        score += math.log10(.1 + my_dict.get("num_news_events", 0)) * 4
+        score += math.log10(decimal.Decimal('0.1') + my_dict.get("num_news_events", 0)) * 4
 
     if my_dict["pub_types"]:
         pub_type_pubmed = my_dict["pub_types"]
@@ -134,6 +135,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         print "len dois", len(dois)
 
     if len(dois) < 25:
+    # if True: # len(dois) < 25:
         # need to do the full search
         print "len(dois) < 25, in fulltext_search_title"
         original_query_escaped = original_query.replace("'", "''")
@@ -168,7 +170,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             select
             doi,
             (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
-            FROM sort_results_simple_mv
+            FROM ricks_gtr_sort_results
             WHERE  
             to_tsvector('english', article_title) @@  to_tsquery(:query)
             and doi is not null 
@@ -176,7 +178,11 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
             order by rank desc
             limit 120;
             """.format(oa_clause=oa_clause)
+
+
         # print query_string
+
+
         rows = db.engine.execute(sql.text(query_string), query=query_to_use).fetchall()
         print "done getting query of sort data"
 
@@ -202,7 +208,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
                     num_events,
                     num_news_events,
                     (ts_rank_cd(to_tsvector('english', article_title), to_tsquery(:query), 1) + 0.05*COALESCE(num_events,0.0)) AS rank
-                    from sort_results_simple_mv
+                    from ricks_gtr_sort_results
                     where doi in ({dois_string})
                 """.format(dois_string=u",".join([u"'{}'".format(str(d)) for d in dois]))
             # print query_string

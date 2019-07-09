@@ -131,28 +131,19 @@ class PubMesh(db.Model):
                 response["qualifier_is_major"] = True
         return response
 
-class DoiLookup(db.Model):
-    __tablename__ = "ricks_changing_pubmed_doi_unpaywall"
-    doi = db.Column(db.Text, primary_key=True)
-    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'))
-    pmcid = db.Column(db.Text)
+class UnpaywallLookup(db.Model):
+    __tablename__ = "ricks_unpaywall"
+    doi = db.Column(db.Text, db.ForeignKey('ricks_gtr_sort_results.doi'), primary_key=True)
     is_oa = db.Column(db.Boolean)
-    best_host_type = db.Column(db.Text)
     best_version = db.Column(db.Text)
+    best_host_type = db.Column(db.Text)
     oa_url = db.Column(db.Text)
     published_date = db.Column(db.DateTime)
-    paperbuzz = db.relationship("Paperbuzz", uselist=False, lazy='subquery')
-    news = db.relationship("News", lazy='subquery')
-
-class Paperbuzz(db.Model):
-    __tablename__ = "ricks_paperbuzz_dois_with_ced_events"
-    doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi), primary_key=True)
-    num_events = db.Column(db.Numeric)
 
 class News(db.Model):
     __tablename__ = "ricks_paperbuzz_news"
-    event_id = db.Column(db.Text, primary_key=True)
-    doi = db.Column(db.Text, db.ForeignKey(DoiLookup.doi))
+    doi = db.Column(db.Text, db.ForeignKey('ricks_gtr_sort_results.doi'), primary_key=True)
+    event_id = db.Column(db.Text)
     news_url = db.Column(db.Text)
     news_title = db.Column(db.Text)
     occurred_at = db.Column(db.DateTime)
@@ -168,8 +159,8 @@ class News(db.Model):
 
 class Dandelion(db.Model):
     __tablename__ = "dandelion_by_doi"
-    doi = db.Column(db.Text, primary_key=True)
-    pmid = db.Column(db.Numeric, db.ForeignKey('medline_citation.pmid'), primary_key=True)
+    doi = db.Column(db.Text, db.ForeignKey('ricks_gtr_sort_results.doi'), primary_key=True)
+    pmid = db.Column(db.Numeric)
     num_events = db.Column(db.Numeric)
     dandelion_collected = db.Column(db.DateTime)
     dandelion_raw_article_title = db.Column(JSONB)
@@ -183,26 +174,18 @@ class Dandelion(db.Model):
         )
 
 
+
 class Pub(db.Model):
     __tablename__ = "medline_citation"
-    pmid = db.Column(db.Numeric, primary_key=True)
+    pmid = db.Column(db.Numeric, db.ForeignKey('ricks_gtr_sort_results.pmid'), primary_key=True)
     journal_title = db.Column(db.Text)
     abstract_text = db.Column(db.Text)
     article_title = deferred(db.Column(db.Text), group="full")
     pub_date_year = deferred(db.Column(db.Text), group="full")
     authors = db.relationship("Author", lazy='subquery')
     pub_types = db.relationship("PubType", lazy='subquery')
-    doi_lookup = db.relationship("DoiLookup", uselist=False, lazy='subquery')
-    dandelion_lookup = db.relationship("Dandelion", uselist=False, lazy='subquery')
-    # pub_other_ids = db.relationship("PubOtherId", lazy='subquery')
     # mesh = db.relationship("PubMesh", lazy='subquery')
     abstract_length = column_property(func.char_length(abstract_text))
-
-    @property
-    def paperbuzz(self):
-        if self.doi_lookup and self.doi_lookup.paperbuzz:
-            return int(self.doi_lookup.paperbuzz.num_events)
-        return 0
 
     @property
     def pmid_url(self):
@@ -237,30 +220,6 @@ class Pub(db.Model):
 
 
     @property
-    def display_number_of_paperbuzz_events(self):
-        return self.paperbuzz
-
-    @property
-    def dandelion_title(self):
-        if self.dandelion_lookup:
-            return self.dandelion_lookup.dandelion_raw_article_title
-        return None
-
-    @property
-    def dandelion_abstract(self):
-        if self.dandelion_lookup:
-            return self.dandelion_lookup.dandelion_raw_abstract_text
-        return None
-
-
-    @property
-    def dandelion_has_been_collected(self):
-        if self.dandelion_lookup:
-            if self.dandelion_lookup.dandelion_collected:
-                return True
-        return False
-
-    @property
     def display_is_oa(self):
         if self.doi_lookup:
             return self.doi_lookup.is_oa
@@ -282,7 +241,7 @@ class Pub(db.Model):
     @property
     def display_best_host(self):
         if self.doi_lookup:
-            return self.doi_lookup.best_host_type
+            return self.doi_lookup.best_host
         return None
 
     @property
@@ -290,6 +249,27 @@ class Pub(db.Model):
         if self.doi_lookup:
             return self.doi_lookup.best_version
         return None
+
+
+    @property
+    def dandelion_title(self):
+        if self.dandelion_lookup:
+            return self.dandelion_lookup.dandelion_raw_article_title
+        return None
+
+    @property
+    def dandelion_abstract(self):
+        if self.dandelion_lookup:
+            return self.dandelion_lookup.dandelion_raw_abstract_text
+        return None
+
+
+    @property
+    def dandelion_has_been_collected(self):
+        if self.dandelion_lookup:
+            if self.dandelion_lookup.dandelion_collected:
+                return True
+        return False
 
     @property
     def news_articles(self):
@@ -571,17 +551,211 @@ class Pub(db.Model):
         return response
 
 
+class PubDoi(db.Model):
+    __tablename__ = "ricks_gtr_sort_results"
+    doi = db.Column(db.Text, primary_key=True)
+    pmid = db.Column(db.Text)
+    article_title = deferred(db.Column(db.Text), group="full")
+    journal_title = deferred(db.Column(db.Text), group="full")
+    is_oa = db.Column(db.Boolean)
+    abstract_length = db.Column(db.Numeric)
+    num_events = db.Column(db.Numeric)
+    num_news_events = db.Column(db.Numeric)
+    pub_types = db.Column(db.Text)
+    genre = db.Column(db.Text)
+    published_date = db.Column(db.DateTime)
+    pubmed_lookup = db.relationship("Pub", uselist=False, lazy='subquery')
+    dandelion_lookup = db.relationship("Dandelion", uselist=False, lazy='subquery')
+    unpaywall_lookup = db.relationship("UnpaywallLookup", uselist=False, lazy='subquery')
+    news = db.relationship("News", lazy='subquery')
 
+    @property
+    def display_doi(self):
+        return self.doi
 
+    @property
+    def display_doi_url(self):
+        return u"https://doi.org/{}".format(self.doi)
 
-def get_paperbuzz(doi):
-    if not doi:
+    @property
+    def pmid_url(self):
+        if self.pmid:
+            return u"https://www.ncbi.nlm.nih.gov/pubmed/{}".format(self.pmid)
+        return ""
+
+    @property
+    def pub_date_year(self):
+        if self.published_date:
+            return int(self.published_date[0:4])
+        return ""
+
+    @property
+    def authors(self):
+        if self.pubmed_lookup:
+            return self.pubmed_lookup.authors
+        return ""
+
+    @property
+    def abstract_text(self):
+        if self.pubmed_lookup:
+            return self.pubmed_lookup.abstract_text
+        return ""
+
+    @property
+    def display_oa_url(self):
+        if self.unpaywall_lookup:
+            return self.unpaywall_lookup.oa_url
         return None
 
-    print u"calling paperbuzz with {}".format(doi)
-    data = None
-    url = u"https://api.paperbuzz.org/v0/doi/{}?email=team+gtr@impactstory.org".format(doi)
-    r = requests.get(url)
-    if r.status_code == 200:
-        data = r.json()
-    return data
+    @property
+    def display_best_host(self):
+        if self.unpaywall_lookup:
+            return self.unpaywall_lookup.best_host_type
+        return None
+
+    @property
+    def display_best_version(self):
+        if self.unpaywall_lookup:
+            return self.unpaywall_lookup.best_version
+        return None
+
+    @property
+    def authors(self):
+        if self.pubmed_lookup:
+            return self.pubmed_lookup.authors
+        return ""
+
+    @property
+    def suppress(self):
+        if self.pubmed_lookup:
+            return self.pubmed_lookup.suppress
+        return False
+
+    @property
+    def score(self):
+        if hasattr(self, "adjusted_score"):
+            return self.adjusted_score
+        return 0
+
+    @property
+    def annotations_for_pictures(self):
+        try:
+            return self.dandelion_title_annotation_list.list()
+        except:
+            return []
+
+    def set_annotation_distribution(self, annotation_distribution):
+        for my_annotation in self.annotations_for_pictures:
+            my_annotation.annotation_distribution = annotation_distribution
+
+    @property
+    def topics(self):
+        try:
+            topic_annotation_objects = sorted(self.dandelion_title_annotation_list.list(), key=lambda x: x.topic_score, reverse=True)
+            response = [a.title for a in topic_annotation_objects if a.confidence > 0.7]
+            # get rid of dups, but keep order
+            response = list(OrderedDict.fromkeys(response))
+        except:
+            response = []
+        return response
+
+    def title_annotations_dict(self, full=True):
+        response = []
+        if full:
+            if self.dandelion_title_annotation_list:
+                response = self.dandelion_title_annotation_list.to_dict_simple()
+        return response
+
+    @property
+    def dandelion_title_annotation_list(self):
+        if hasattr(self, "fresh_dandelion_article_annotation_list"):
+            return self.fresh_dandelion_article_annotation_list
+        if self.dandelion_has_been_collected:
+            dandelion_results = self.dandelion_lookup.dandelion_raw_article_title
+            return AnnotationList(dandelion_results)
+        return None
+
+    def call_dandelion_on_abstract(self):
+        if not self.dandelion_has_been_collected:
+            if self.abstract_text:
+                dandelion_results = call_dandelion(self.abstract_text)
+                self.fresh_dandelion_abstract_annotation_list = AnnotationList(dandelion_results)
+
+    def call_dandelion_on_article_title(self):
+        if not self.dandelion_has_been_collected:
+            if self.article_title:
+                dandelion_results = call_dandelion(self.article_title)
+                self.fresh_dandelion_article_annotation_list = AnnotationList(dandelion_results)
+
+    @property
+    def dandelion_has_been_collected(self):
+        if self.dandelion_lookup:
+            if self.dandelion_lookup.dandelion_collected:
+                return True
+        return False
+
+    @property
+    def news_articles(self):
+        if self.news:
+            articles = sorted(self.news, key=lambda x: x.occurred_at, reverse=True)
+            return articles
+        return []
+
+    def abstract_with_annotations_dict(self, full=True):
+        sections = []
+        return sections
+
+    @property
+    def dandelion_abstract_annotation_list(self):
+        if hasattr(self, "fresh_dandelion_abstract_annotation_list"):
+            return self.fresh_dandelion_abstract_annotation_list
+        if self.dandelion_has_been_collected:
+            if self.dandelion_lookup.dandelion_raw_abstract_text:
+                dandelion_results = json.loads(self.dandelion_lookup.dandelion_raw_abstract_text)
+                return AnnotationList(dandelion_results)
+        return None
+
+    @property
+    def dandelion_title_annotation_list(self):
+        if hasattr(self, "fresh_dandelion_article_annotation_list"):
+            return self.fresh_dandelion_article_annotation_list
+        if self.dandelion_has_been_collected:
+            dandelion_results = self.dandelion_lookup.dandelion_raw_article_title
+            return AnnotationList(dandelion_results)
+        return None
+
+
+
+    def to_dict_serp(self, full=True):
+
+        response = {
+            "doi": self.doi,
+            "doi_url": self.display_doi_url,
+            "title": self.article_title,
+            "year": self.pub_date_year,
+            "journal_name": self.journal_title,
+            "num_paperbuzz_events": self.num_events,
+            "is_oa": self.is_oa,
+            "oa_url": self.display_oa_url,
+            "oa_host": self.display_best_host,
+            "oa_version": self.display_best_version,
+            "published_date": self.published_date,
+            "pub_types": self.pub_types,
+            "genre": self.genre,
+            # "snippet": getattr(self, "snippet", None),
+            "score": self.score
+        }
+
+        if full:
+            additional_items = {
+            "pmid": self.pmid,
+            "pmid_url": self.pmid_url,
+            "author_lastnames": "", # self.author_lastnames,
+            # "mesh": [m.to_dict() for m in self.mesh],
+            "news_articles": [] # [a.to_dict() for a in self.news_articles]
+            }
+            response.update(additional_items)
+
+        return response
+
+

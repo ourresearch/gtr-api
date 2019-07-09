@@ -27,19 +27,29 @@ class PubList(object):
 
         start = timer()
 
-        my_thread_pool = ThreadPool(50)
-        run_tuples = []
         my_pubs = self.pubs
-        for my_pub in my_pubs:
-            for run_dandelion_on in ["call_dandelion_on_article_title",
-                                     "call_dandelion_on_abstract"]:
-                run_tuples += [(my_pub, run_dandelion_on)]
+        try:
+            my_thread_pool = ThreadPool(50)
+            run_tuples = []
 
-        results = my_thread_pool.imap_unordered(multi_run_wrapper, run_tuples)
+            for my_pub in my_pubs:
+                for run_dandelion_on in ["call_dandelion_on_article_title",
+                                         "call_dandelion_on_abstract"]:
+                    run_tuples += [(my_pub, run_dandelion_on)]
 
-        my_thread_pool.close()
-        my_thread_pool.join()
-        my_thread_pool.terminate()
+            results = my_thread_pool.imap_unordered(multi_run_wrapper, run_tuples)
+
+            my_thread_pool.close()
+            my_thread_pool.join()
+            my_thread_pool.terminate()
+        except AttributeError:
+            # has a threading error when i run it locally
+            for my_pub in my_pubs:
+                for run_dandelion_on in ["call_dandelion_on_article_title",
+                                         "call_dandelion_on_abstract"]:
+                    my_method = getattr(my_pub, run_dandelion_on)
+                    my_method()
+
 
         print("elapsed time spent calling dandelion: %s" % (timer() - start,))
         self.pubs = my_pubs

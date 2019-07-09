@@ -12,7 +12,7 @@ import json
 
 from app import db
 from pub import call_dandelion
-from pub import Pub
+from pub import PubDoi
 from pub import Dandelion
 from util import elapsed
 from util import safe_commit
@@ -78,37 +78,38 @@ if __name__ == "__main__":
 
     if __name__ == '__main__':
         while True:
-            query = u"""select sort_results_simple_mv.pmid, doi, num_events from sort_results_simple_mv 
-                where sort_results_simple_mv.doi not in (select doi from dandelion_by_doi) 
+            query = u"""select ricks_gtr_sort_results.doi, pmid, num_events from ricks_gtr_sort_results 
+                where ricks_gtr_sort_results.doi not in (select doi from dandelion_by_doi) 
                 and num_events is not null 
-                and num_events >= 1
+                and num_events >= 25
+                and doi is not null
                 limit 25 
                 """
             rows = db.engine.execute(sql.text(query)).fetchall()
             lookup = {}
             if rows:
-                pmids = [row[0] for row in rows]
+                dois = [row[0] for row in rows]
                 for row in rows:
-                    lookup[row[0]] = {"doi": row[1], "num_events": int(row[2]), "used": False}
+                    lookup[row[0]] = {"doi": row[0], "num_events": int(row[2]), "used": False}
             else:
                 print "no rows without dandelions, so sleeping"
                 sleep(60*60)
 
             # print pmids
-            my_pubs = db.session.query(Pub).filter(Pub.pmid.in_(pmids)).options(orm.noload('*')).all()
+            my_pubs = db.session.query(PubDoi).filter(PubDoi.doi.in_(dois)).options(orm.noload('*')).all()
             my_dandelions = []
             for my_pub in my_pubs:
-                my_dandelion = Dandelion(pmid=my_pub.pmid)
-                my_dandelion.doi = lookup[my_pub.pmid]["doi"]
-                my_dandelion.num_events = lookup[my_pub.pmid]["num_events"]
-                lookup[my_pub.pmid]["used"] = True
+                my_dandelion = Dandelion(doi=my_pub.doi)
+                my_dandelion.doi = lookup[my_pub.doi]["doi"]
+                my_dandelion.num_events = lookup[my_pub.doi]["num_events"]
+                lookup[my_pub.doi]["used"] = True
                 my_dandelion.my_pub = my_pub
                 db.session.add(my_dandelion)
                 my_dandelions.append(my_dandelion)
-            for (pmid, my_dict) in lookup.iteritems():
+            for (doi, my_dict) in lookup.iteritems():
                 if not my_dict["used"]:
                     print "#",
-                    my_dandelion = Dandelion(pmid=pmid)
+                    my_dandelion = Dandelion(doi=doi)
                     my_dandelion.doi = my_dict["doi"]
                     my_dandelion.num_events = my_dict["num_events"]
                     db.session.add(my_dandelion)
@@ -116,8 +117,9 @@ if __name__ == "__main__":
 
             safe_commit(db)
 
+            print "now calling dandelion"
 
-            use_threads = True  # useful to turn off pooling to help debugging
+            use_threads = False  # useful to turn off pooling to help debugging
             my_thread_pool = ThreadPool(50)
             if use_threads:
                 results = my_thread_pool.imap_unordered(call_dandelion_on_article, my_dandelions)

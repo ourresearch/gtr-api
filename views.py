@@ -14,11 +14,11 @@ import re
 import random
 from time import time
 
-from pub import Pub
-from pub import DoiLookup
-
 from app import app
 from app import db
+from pub import Pub
+from pub import PubDoi
+from pub import UnpaywallLookup
 from pub_list import PubList
 from search import fulltext_search_title
 from annotation import annotation_file_contents
@@ -112,7 +112,7 @@ def index_endpoint():
 def get_pub_by_doi(my_doi):
     my_clean_doi = clean_doi(my_doi)
     # print my_clean_doi
-    my_doi_lookup = db.session.query(DoiLookup).filter(DoiLookup.doi==my_clean_doi).first()
+    my_doi_lookup = db.session.query(PubDoi).filter(PubDoi.doi==my_clean_doi).first()
     if not my_doi_lookup:
         abort_json(404, u"'{}' not found in db".format(my_clean_doi))
 
@@ -216,14 +216,20 @@ def get_search_query(query):
     # selected_pmids = [p.pmid for p in selected_pubs]
 
     sorted_pubs = sorted(pubs_to_sort, key=lambda k: k["adjusted_score"], reverse=True)
-    sorted_pubs = [p for p in sorted_pubs if p["pmid"]]
+    sorted_pubs = [p for p in sorted_pubs]
     selected_pubs = sorted_pubs[(pagesize * (page-1)):(pagesize * page)]
-    selected_pmids = [p["pmid"] for p in selected_pubs]
 
-    selected_pubs_full = db.session.query(Pub).filter(Pub.pmid.in_(selected_pmids)).options(orm.undefer_group('full')).all()
+    selected_dois = [p["doi"] for p in selected_pubs]
+    print selected_dois
+
+    selected_pubs_full = []
+    if selected_dois:
+        selected_pubs_full += db.session.query(PubDoi).filter(PubDoi.doi.in_(selected_dois)).options(orm.undefer_group('full')).all()
+
     selected_pubs_full = [p for p in selected_pubs_full if not p.suppress]  # get rid of retracted ones
     for my_pub in selected_pubs_full:
-        my_pub.adjusted_score = [p["adjusted_score"] for p in sorted_pubs if p["pmid"]==my_pub.pmid][0]
+        my_pub.adjusted_score = [p["adjusted_score"] for p in sorted_pubs
+                                 if p["doi"]==my_pub.display_doi][0]
 
     my_pub_list = PubList(pubs=selected_pubs_full)
     initializing_publist_elapsed = elapsed(initializing_publist_start_time, 3)
