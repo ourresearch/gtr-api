@@ -80,7 +80,7 @@ if __name__ == "__main__":
             query = u"""select ricks_gtr_sort_results.doi, pmid, num_events from ricks_gtr_sort_results 
                 where ricks_gtr_sort_results.doi not in (select doi from dandelion_by_doi) 
                 and num_events is not null 
-                and num_events >= 25
+                and num_events >= 10
                 and doi is not null
                 limit 25 
                 """
