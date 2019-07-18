@@ -112,11 +112,8 @@ def index_endpoint():
 def get_pub_by_doi(my_doi):
     my_clean_doi = clean_doi(my_doi)
     # print my_clean_doi
-    my_doi_lookup = db.session.query(PubDoi).filter(PubDoi.doi==my_clean_doi).first()
-    if not my_doi_lookup:
-        abort_json(404, u"'{}' not found in db".format(my_clean_doi))
 
-    query = db.session.query(Pub).filter(Pub.pmid==my_doi_lookup.pmid).options(orm.undefer_group('full'))
+    query = db.session.query(PubDoi).filter(PubDoi.doi==my_clean_doi).options(orm.undefer_group('full'))
     # print query
     my_pub = query.first()
     # print my_pub
@@ -128,23 +125,6 @@ def get_pub_by_doi(my_doi):
     my_pub_list.set_pictures()
     results = my_pub_list.to_dict_serp_list()
     return jsonify({"results": my_pub_list.to_dict_serp_list(),
-                    "annotations": my_pub_list.to_dict_annotation_metadata(),
-                    })
-
-@app.route("/paper/pmid/<path:my_pmid>", methods=["GET"])
-def get_pub_by_pmid(my_pmid):
-    query = db.session.query(Pub).filter(Pub.pmid==int(my_pmid)).options(orm.undefer_group('full'))
-    # print query
-    my_pub = query.first()
-    # print my_pub
-    if not my_pub:
-        abort_json(404, u"'{}' is not a pmid in our database")
-
-    my_pub_list = PubList(pubs=[my_pub])
-    my_pub_list.set_dandelions()
-    my_pub_list.set_pictures()
-    results = my_pub_list.to_dict_serp_list()
-    return jsonify({"results": results,
                     "annotations": my_pub_list.to_dict_annotation_metadata(),
                     })
 

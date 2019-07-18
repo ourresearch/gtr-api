@@ -602,6 +602,18 @@ class PubDoi(db.Model):
         return ""
 
     @property
+    def display_article_title(self):
+        try:
+            if self.article_title:
+                title = self.article_title
+                title = re.sub(u"(<.?strong>)", "", title)
+                title = re.sub(u"(<.?p>)", "", title)
+                return title
+        except:
+            pass
+        return ""
+
+    @property
     def annotations_for_pictures(self):
         try:
             return self.dandelion_title_annotation_list.list()
@@ -776,7 +788,7 @@ class PubDoi(db.Model):
         response = {
             "doi": self.doi,
             "doi_url": self.display_doi_url,
-            "title": self.article_title,
+            "title": self.display_article_title,
             "year": self.display_year,
             "journal_name": self.journal_title,
             "num_paperbuzz_events": self.num_events,
