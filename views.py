@@ -293,7 +293,7 @@ def notifications_signup_post():
 # just the count of the length of the abstract etc
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5011))
+    port = int(os.environ.get("PORT", 5005))
     app.run(host='0.0.0.0', port=port, debug=True, threaded=True)
 
 

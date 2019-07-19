@@ -168,6 +168,16 @@ def is_doi_url(url):
         return True
     return False
 
+def is_doi(dirty_doi):
+    try:
+        my_clean_doi = clean_doi(dirty_doi)
+    except NoDoiException:
+        return False
+
+    if my_clean_doi:
+        return True
+    return False
+
 def clean_doi(dirty_doi):
     if not dirty_doi:
         raise NoDoiException("There's no DOI at all.")

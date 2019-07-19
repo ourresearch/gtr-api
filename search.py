@@ -11,6 +11,8 @@ from app import db
 from pub import Pub
 from pub import pub_type_lookup
 from util import elapsed
+from util import is_doi
+from util import clean_doi
 
 
 
@@ -90,6 +92,12 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
 
     dois = []
     rows = []
+    search_done = False
+
+    if is_doi(original_query):
+        dois = [clean_doi(original_query)]
+        search_done = True
+
     # if "from_" in original_query and "to_" in original_query:
     #     print u"getting recent query"
     #     matches = re.findall("from_(\d{4}.\d{2}.\d{2})_to_(\d{4}.\d{2}.\d{2})", original_query)
@@ -106,7 +114,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
     #     rows = db.engine.execute(sql.text(query_string), from_date=from_date, to_date=to_date).fetchall()
     #     print "done getting query getting pmids"
 
-    if query_entities and len(query_entities)==1:
+    if not search_done and query_entities and len(query_entities)==1:
         query_entity = query_entities[0]
         query_entity = query_entity.replace("(", " ")
         query_entity = query_entity.replace(")", " ")
@@ -134,7 +142,7 @@ def fulltext_search_title(original_query, query_entities, oa_only, full=True):
         dois = [row[0] for row in rows]
         print "len dois", len(dois)
 
-    if len(dois) < 25:
+    if not search_done and len(dois) < 25:
         print "len(dois) < 25, in fulltext_search_title"
 
     # if True: # debug
