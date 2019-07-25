@@ -609,6 +609,7 @@ class PubDoi(db.Model):
                 title = re.sub(u"(<.?strong>)", "", title)
                 title = re.sub(u"(<.?p>)", "", title)
                 title = re.sub(u"(<.?em>)", "", title)
+                title = title[0:500]
                 return title
         except:
             pass

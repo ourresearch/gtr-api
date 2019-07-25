@@ -18,6 +18,7 @@ from util import clean_doi
 
 def adjusted_score(my_dict):
     raw_score = my_dict.get("score")
+
     if not raw_score:
         raw_score = 0
     score = math.log10(.1 + raw_score) * 5

@@ -28,6 +28,7 @@ class PubList(object):
         start = timer()
 
         my_pubs = self.pubs
+
         try:
             my_thread_pool = ThreadPool(50)
             run_tuples = []
